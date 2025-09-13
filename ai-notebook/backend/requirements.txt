@@ -7,5 +7,7 @@ werkzeug==2.3.7
 sqlalchemy==1.4.53
 cryptography==41.0.7
 Pillow==10.0.1
-python-magic-bin==0.4.14
+# Use python-magic on Linux/Mac, and python-magic-bin on Windows
+python-magic==0.4.27; platform_system != "Windows"
+python-magic-bin==0.4.14; platform_system == "Windows"
 pytz==2023.3
