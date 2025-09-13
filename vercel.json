@@ -55,10 +55,5 @@
     "PYTHONPATH": "/var/task/backend",
     "FLASK_ENV": "production",
     "DATABASE_URL": "sqlite:///ai_notebook.db"
-  },
-  "functions": {
-    "ai-notebook/backend/api/index.py": {
-      "maxDuration": 30
-    }
   }
 }
