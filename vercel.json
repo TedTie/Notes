@@ -13,8 +13,13 @@
       "src": "ai-notebook/backend/api/index.py",
       "use": "@vercel/python",
       "config": {
-        "maxLambdaSize": "15mb"
+        "maxLambdaSize": "15mb",
+        "runtime": "python3.9"
       }
+    },
+    {
+      "src": "ai-notebook/backend/requirements.txt",
+      "use": "@vercel/python"
     }
   ],
   "routes": [
