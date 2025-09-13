@@ -3,11 +3,10 @@
   "name": "ai-notebook-fullstack",
   "builds": [
     {
-      "src": "ai-notebook/frontend/package.json",
+      "src": "package.json",
       "use": "@vercel/static-build",
       "config": {
-        "distDir": "dist",
-        "buildCommand": "npm run build"
+        "distDir": "ai-notebook/frontend/dist"
       }
     },
     {
