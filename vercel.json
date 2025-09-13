@@ -51,7 +51,7 @@
     }
   ],
   "env": {
-    "PYTHONPATH": "/var/task/backend",
+    "PYTHONPATH": "/var/task/ai-notebook/backend",
     "FLASK_ENV": "production",
     "DATABASE_URL": "sqlite:///ai_notebook.db"
   }
