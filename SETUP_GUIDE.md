@@ -31,24 +31,24 @@ cd backend
 pip install -r requirements.txt
 ```
 
-#### 环境变量配置
-创建 `.env` 文件：
+#### 环境变量配置（可选）
+
+**重要说明**: AI API密钥推荐在应用启动后通过设置页面配置，无需在此设置。
+
+创建 `.env` 文件（可选）：
 ```bash
-cp .env.example .env
+# 仅配置基础设置，AI密钥在应用内配置
+echo "SECRET_KEY=your_secret_key_here" > .env
 ```
 
-编辑 `.env` 文件，配置以下变量：
+完整的 `.env` 文件示例（可选配置）：
 ```env
-# AI服务配置
-OPENROUTER_API_KEY=your_openrouter_api_key_here
-MOONSHOT_API_KEY=your_moonshot_api_key_here
+# 基础配置
+SECRET_KEY=your_secret_key_here
+JWT_SECRET_KEY=your_jwt_secret_key_here
 
 # 数据库配置
 DATABASE_URL=sqlite:///ai_notebook.db
-
-# 安全配置
-SECRET_KEY=your_secret_key_here
-JWT_SECRET_KEY=your_jwt_secret_key_here
 
 # 文件上传配置
 MAX_CONTENT_LENGTH=16777216  # 16MB
@@ -57,6 +57,10 @@ UPLOAD_FOLDER=uploads
 # 开发模式
 FLASK_ENV=development
 DEBUG=True
+
+# AI服务配置（不推荐，建议在应用内配置）
+# OPENROUTER_API_KEY=your_openrouter_api_key_here
+# MOONSHOT_API_KEY=your_moonshot_api_key_here
 ```
 
 #### 初始化数据库
@@ -97,15 +101,31 @@ npm run dev
 
 ### AI服务配置
 
-#### OpenRouter API
+**推荐配置方式**: 应用内动态配置
+
+#### OpenRouter API（推荐）
 1. 访问 [OpenRouter](https://openrouter.ai/) 注册账户
 2. 获取API密钥
-3. 在 `.env` 文件中设置 `OPENROUTER_API_KEY`
+3. **在应用设置页面配置**：
+   - 启动应用后，进入"设置" → "AI配置"
+   - 输入OpenRouter API密钥
+   - 点击"测试连接"验证
+   - 配置立即生效，无需重启
 
 #### Moonshot API
 1. 访问 [Moonshot](https://platform.moonshot.cn/) 注册账户
 2. 获取API密钥
-3. 在 `.env` 文件中设置 `MOONSHOT_API_KEY`
+3. **在应用设置页面配置**：
+   - 在"AI配置"中选择Moonshot提供商
+   - 输入API密钥并测试连接
+   - 适合中文处理场景
+
+#### 配置优势
+- ✅ **即时生效**: 无需重启应用
+- ✅ **安全存储**: 密钥加密保存在数据库
+- ✅ **连接测试**: 内置验证功能
+- ✅ **友好界面**: 可视化配置管理
+- ✅ **动态切换**: 随时更换API密钥
 
 ### 数据库配置
 

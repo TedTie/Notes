@@ -105,21 +105,16 @@ venv\Scripts\activate.bat
 pip install -r requirements.txt
 ```
 
-4. 配置环境变量：
+4. 配置基础环境变量（可选）：
 ```bash
-# 创建 .env 文件
+# 创建 .env 文件（仅配置基础设置）
 echo "SECRET_KEY=your_secret_key_here" > .env
-echo "OPENROUTER_API_KEY=your_openrouter_api_key_here" >> .env
-echo "MOONSHOT_API_KEY=your_moonshot_api_key_here" >> .env
-echo "OPENAI_API_KEY=your_openai_api_key_here" >> .env
 ```
 
-注意：
-- `SECRET_KEY`: Flask应用密钥，用于会话加密
-- `OPENROUTER_API_KEY`: OpenRouter AI服务API密钥（推荐）
-- `MOONSHOT_API_KEY`: Moonshot AI服务API密钥
-- `OPENAI_API_KEY`: OpenAI API密钥
-- 至少需要配置一个AI服务的API密钥才能使用AI功能
+**重要说明**：
+- `SECRET_KEY`: Flask应用密钥，用于会话加密（可选，有默认值）
+- **AI API密钥**: 无需在此配置，可在应用启动后通过设置页面动态配置
+- **推荐方式**: 先启动应用，然后在设置页面配置AI服务密钥
 
 5. 启动后端服务：
 ```bash
@@ -171,9 +166,13 @@ npm run dev
 ## 🔧 配置说明
 
 ### AI服务配置
+
+**推荐配置方式**：应用内动态配置（无需重启）
+
 1. **OpenRouter配置**（推荐）：
    - 注册OpenRouter账号获取API密钥
-   - 在设置页面输入API密钥并连接
+   - 在应用设置页面的"AI配置"标签中输入API密钥
+   - 点击"测试连接"验证配置
    - 支持GPT-5、Claude、Deepseek等多种模型
 
 2. **Moonshot配置**：
@@ -181,12 +180,17 @@ npm run dev
    - 在设置页面配置Kimi模型
    - 适合中文处理和国内网络环境
 
-3. **环境变量配置**（可选）：
+**配置优势**：
+- ✅ **动态配置**：无需重启应用即可更改API密钥
+- ✅ **安全存储**：密钥在数据库中加密存储
+- ✅ **即时验证**：内置连接测试功能
+- ✅ **友好提示**：未配置时显示配置指引
+
+**传统环境变量配置**（不推荐）：
    ```bash
-   # 在backend/.env文件中设置
+   # 在backend/.env文件中设置（已弃用）
    OPENROUTER_API_KEY=sk-or-v1-xxxxx
    MOONSHOT_API_KEY=sk-xxxxx
-   OPENAI_API_KEY=sk-xxxxx
    ```
 
 ### 数据库配置

@@ -1,0 +1,41 @@
+{
+  "name": "ai-notebook-fullstack",
+  "version": "1.0.0",
+  "description": "AI Notebook - 全栈智能笔记应用",
+  "main": "index.js",
+  "scripts": {
+    "setup-env": "node scripts/setup-vercel-env.js",
+    "deploy": "node scripts/deploy.js",
+    "build": "npm run build:frontend",
+    "build:frontend": "cd ai-notebook/frontend && npm run build",
+    "dev:frontend": "cd ai-notebook/frontend && npm run dev",
+    "dev:backend": "cd ai-notebook/backend && python app.py",
+    "install:all": "npm run install:frontend && npm run install:backend",
+    "install:frontend": "cd ai-notebook/frontend && npm install",
+    "install:backend": "cd ai-notebook/backend && pip install -r requirements.txt",
+    "test:backend": "cd ai-notebook/backend && python -c \"from app import create_app; app = create_app(); print('Backend test successful')\"",
+    "vercel:login": "vercel login",
+    "vercel:deploy": "vercel --prod",
+    "vercel:dev": "vercel dev"
+  },
+  "keywords": [
+    "ai",
+    "notebook",
+    "vue",
+    "flask",
+    "vercel",
+    "fullstack"
+  ],
+  "author": "AI Notebook Team",
+  "license": "MIT",
+  "devDependencies": {
+    "vercel": "^48.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/ai-notebook.git"
+  }
+}

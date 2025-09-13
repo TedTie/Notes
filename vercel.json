@@ -1,19 +1,29 @@
 {
   "version": 2,
+  "name": "ai-notebook-fullstack",
   "builds": [
     {
       "src": "ai-notebook/frontend/package.json",
       "use": "@vercel/static-build",
       "config": {
-        "distDir": "dist"
+        "distDir": "dist",
+        "buildCommand": "npm run build"
       }
     },
     {
       "src": "ai-notebook/backend/api/index.py",
-      "use": "@vercel/python"
+      "use": "@vercel/python",
+      "config": {
+        "maxLambdaSize": "15mb"
+      }
     }
   ],
   "routes": [
+    {
+      "src": "/api/health",
+      "dest": "/ai-notebook/backend/api/index.py",
+      "methods": ["GET"]
+    },
     {
       "src": "/api/(.*)",
       "dest": "/ai-notebook/backend/api/index.py"
@@ -23,8 +33,18 @@
       "dest": "/ai-notebook/backend/api/index.py"
     },
     {
-      "src": "/(.*\\.(js|css|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot|json))",
-      "dest": "/ai-notebook/frontend/dist/$1"
+      "src": "/assets/(.*)",
+      "dest": "/ai-notebook/frontend/dist/assets/$1",
+      "headers": {
+        "Cache-Control": "public, max-age=31536000, immutable"
+      }
+    },
+    {
+      "src": "/(.*\\.(js|css|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot|json|txt))",
+      "dest": "/ai-notebook/frontend/dist/$1",
+      "headers": {
+        "Cache-Control": "public, max-age=3600"
+      }
     },
     {
       "src": "/(.*)",
@@ -32,9 +52,13 @@
     }
   ],
   "env": {
+    "PYTHONPATH": "/var/task/backend",
     "FLASK_ENV": "production",
-    "OPENROUTER_API_KEY": "@openrouter_api_key",
-    "MOONSHOT_API_KEY": "@moonshot_api_key",
-    "DATABASE_URL": "@database_url"
+    "DATABASE_URL": "sqlite:///ai_notebook.db"
+  },
+  "functions": {
+    "ai-notebook/backend/api/index.py": {
+      "maxDuration": 30
+    }
   }
 }
