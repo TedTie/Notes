@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Background Management Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #f0f0f0;
+        }
+        .test-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .test-result {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        .info {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+        }
+        .background-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .background-item {
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color 0.3s;
+        }
+        .background-item:hover {
+            border-color: #007bff;
+        }
+        .background-item.selected {
+            border-color: #28a745;
+            background: #f8fff8;
+        }
+        .background-thumbnail {
+            width: 100%;
+            height: 80px;
+            background-size: cover;
+            background-position: center;
+            border-radius: 4px;
+            margin-bottom: 8px;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .theme-toggle {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .theme-btn {
+            padding: 10px 20px;
+            border: 2px solid #ddd;
+            background: white;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        .theme-btn.active {
+            border-color: #007bff;
+            background: #e7f3ff;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🎨 Background Management Integration Test</h1>
+        <p>This test verifies that the background management fixes are working correctly.</p>
+
+        <div class="test-section">
+            <h2>1. Background File Management</h2>
+            <div id="background-files-result" class="test-result info">Loading background files...</div>
+            <div id="background-grid" class="background-grid"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>2. Theme-Based Background Settings</h2>
+            <div class="theme-toggle">
+                <button class="theme-btn active" onclick="switchTheme('light')">☀️ Light Theme</button>
+                <button class="theme-btn" onclick="switchTheme('dark')">🌙 Dark Theme</button>
+            </div>
+            <div id="theme-settings-result" class="test-result info">Loading theme settings...</div>
+        </div>
+
+        <div class="test-section">
+            <h2>3. Background Operations</h2>
+            <button onclick="testDeleteBackground()">🗑️ Test Delete Background</button>
+            <button onclick="testSetBackground()">✅ Test Set Background</button>
+            <button onclick="testClearBackground()">❌ Test Clear Background</button>
+            <div id="operations-result" class="test-result" style="display:none;"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>4. Test Results Summary</h2>
+            <div id="summary-result" class="test-result info">Ready to start testing...</div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '';
+        let currentTheme = 'light';
+        let backgroundFiles = [];
+        let selectedBackgroundId = null;
+
+        // Initialize tests
+        async function initializeTests() {
+            await loadBackgroundFiles();
+            await loadThemeSettings();
+            updateSummary();
+        }
+
+        // Load background files
+        async function loadBackgroundFiles() {
+            const resultDiv = document.getElementById('background-files-result');
+            const gridDiv = document.getElementById('background-grid');
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/backgrounds`);
+                if (response.ok) {
+                    backgroundFiles = await response.json();
+                    resultDiv.className = 'test-result success';
+                    resultDiv.textContent = `Successfully loaded ${backgroundFiles.length} background files`;
+                    
+                    // Display background files
+                    gridDiv.innerHTML = backgroundFiles.map(file => `
+                        <div class="background-item" onclick="selectBackground('${file.id}')" id="bg-${file.id}">
+                            <div class="background-thumbnail" style="background-image: url('${API_BASE}${file.url}')"></div>
+                            <div><strong>${file.name}</strong></div>
+                            <div>Theme: ${file.theme || 'none'}</div>
+                            <div>Type: ${file.type}</div>
+                        </div>
+                    `).join('');
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                resultDiv.className = 'test-result error';
+                resultDiv.textContent = `Failed to load background files: ${error.message}`;
+            }
+        }
+
+        // Load theme settings
+        async function loadThemeSettings() {
+            const resultDiv = document.getElementById('theme-settings-result');
+            
+            try {
+                const lightResponse = await fetch(`${API_BASE}/api/settings/background?theme=light`);
+                const darkResponse = await fetch(`${API_BASE}/api/settings/background?theme=dark`);
+                
+                if (lightResponse.ok && darkResponse.ok) {
+                    const lightData = await lightResponse.json();
+                    const darkData = await darkResponse.json();
+                    
+                    resultDiv.className = 'test-result success';
+                    resultDiv.innerHTML = `
+                        <strong>Current Theme Settings:</strong><br>
+                        Light Theme: ${lightData.backgroundId || 'No background set'}<br>
+                        Dark Theme: ${darkData.backgroundId || 'No background set'}
+                    `;
+                } else {
+                    throw new Error('Failed to load theme settings');
+                }
+            } catch (error) {
+                resultDiv.className = 'test-result error';
+                resultDiv.textContent = `Failed to load theme settings: ${error.message}`;
+            }
+        }
+
+        // Switch theme
+        async function switchTheme(theme) {
+            currentTheme = theme;
+            
+            // Update UI
+            document.querySelectorAll('.theme-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Reload theme settings
+            await loadThemeSettings();
+            updateSummary();
+        }
+
+        // Select background
+        function selectBackground(backgroundId) {
+            selectedBackgroundId = backgroundId;
+            
+            // Update UI
+            document.querySelectorAll('.background-item').forEach(item => item.classList.remove('selected'));
+            document.getElementById(`bg-${backgroundId}`).classList.add('selected');
+            
+            updateSummary();
+        }
+
+        // Test delete background
+        async function testDeleteBackground() {
+            if (!selectedBackgroundId) {
+                showOperationResult('Please select a background to delete', 'error');
+                return;
+            }
+            
+            const resultDiv = document.getElementById('operations-result');
+            resultDiv.style.display = 'block';
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/backgrounds/${selectedBackgroundId}`, {
+                    method: 'DELETE'
+                });
+                
+                if (response.ok) {
+                    showOperationResult(`Successfully deleted background ${selectedBackgroundId}`, 'success');
+                    selectedBackgroundId = null;
+                    await loadBackgroundFiles(); // Reload files
+                    await loadThemeSettings(); // Reload settings
+                } else {
+                    const error = await response.json();
+                    throw new Error(error.error || 'Delete failed');
+                }
+            } catch (error) {
+                showOperationResult(`Delete failed: ${error.message}`, 'error');
+            }
+        }
+
+        // Test set background
+        async function testSetBackground() {
+            if (!selectedBackgroundId) {
+                showOperationResult('Please select a background to set', 'error');
+                return;
+            }
+            
+            const resultDiv = document.getElementById('operations-result');
+            resultDiv.style.display = 'block';
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/settings/background`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        backgroundId: selectedBackgroundId,
+                        theme: currentTheme
+                    })
+                });
+                
+                if (response.ok) {
+                    showOperationResult(`Successfully set background for ${currentTheme} theme`, 'success');
+                    await loadThemeSettings(); // Reload settings
+                } else {
+                    const error = await response.json();
+                    throw new Error(error.error || 'Set background failed');
+                }
+            } catch (error) {
+                showOperationResult(`Set background failed: ${error.message}`, 'error');
+            }
+        }
+
+        // Test clear background
+        async function testClearBackground() {
+            const resultDiv = document.getElementById('operations-result');
+            resultDiv.style.display = 'block';
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/settings/background`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        backgroundId: null,
+                        theme: currentTheme
+                    })
+                });
+                
+                if (response.ok) {
+                    showOperationResult(`Successfully cleared background for ${currentTheme} theme`, 'success');
+                    await loadThemeSettings(); // Reload settings
+                } else {
+                    const error = await response.json();
+                    throw new Error(error.error || 'Clear background failed');
+                }
+            } catch (error) {
+                showOperationResult(`Clear background failed: ${error.message}`, 'error');
+            }
+        }
+
+        // Show operation result
+        function showOperationResult(message, type) {
+            const resultDiv = document.getElementById('operations-result');
+            resultDiv.className = `test-result ${type}`;
+            resultDiv.textContent = message;
+            resultDiv.style.display = 'block';
+            
+            updateSummary();
+        }
+
+        // Update summary
+        function updateSummary() {
+            const summaryDiv = document.getElementById('summary-result');
+            
+            let status = 'success';
+            let message = 'Background management system is functioning correctly!';
+            
+            if (backgroundFiles.length === 0) {
+                status = 'error';
+                message = 'No background files found. Please upload some backgrounds first.';
+            } else if (!selectedBackgroundId) {
+                status = 'info';
+                message = 'Select a background file to test deletion and setting operations.';
+            }
+            
+            summaryDiv.className = `test-result ${status}`;
+            summaryDiv.textContent = message;
+        }
+
+        // Initialize on page load
+        window.addEventListener('load', initializeTests);
+    </script>
+</body>
+</html>

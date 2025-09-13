@@ -1,0 +1,82 @@
+/* 移动端导航强制样式 - 确保在生产构建中包含 */
+/* 添加版本标识以强制缓存更新 v2.0 */
+
+/* 默认桌面端显示 */
+.desktop-nav {
+  display: flex !important;
+}
+
+.mobile-nav {
+  display: none !important;
+}
+
+/* 强制移动端检测 - 使用更严格的条件 */
+@media screen and (max-width: 768px) {
+  .desktop-nav {
+    display: none !important;
+    visibility: hidden !important;
+  }
+  
+  .mobile-nav {
+    display: flex !important;
+    visibility: visible !important;
+  }
+  
+  /* 移动端容器强制显示 */
+  .mobile-nav-container {
+    display: block !important;
+  }
+}
+
+/* 响应式设计 - 精确的移动端检测 */
+@media (max-width: 768px) {
+  .desktop-nav {
+    display: none !important;
+  }
+  
+  .mobile-nav {
+    display: flex !important;
+  }
+}
+
+/* 小屏幕设备 */
+@media (max-width: 480px) {
+  .desktop-nav {
+    display: none !important;
+  }
+  
+  .mobile-nav {
+    display: flex !important;
+  }
+}
+
+/* 平板设备竖屏模式 */
+@media (min-width: 481px) and (max-width: 768px) and (orientation: portrait) {
+  .desktop-nav {
+    display: none !important;
+  }
+  
+  .mobile-nav {
+    display: flex !important;
+  }
+}
+
+/* 触摸设备且小屏幕 */
+@media (max-width: 768px) and (hover: none) and (pointer: coarse) {
+  .desktop-nav {
+    display: none !important;
+  }
+  
+  .mobile-nav {
+    display: flex !important;
+  }
+}
+
+/* JavaScript强制移动端检测 */
+.force-mobile .desktop-nav {
+  display: none !important;
+}
+
+.force-mobile .mobile-nav {
+  display: flex !important;
+}
