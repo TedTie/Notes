@@ -1,0 +1,13 @@
+flask==2.3.3
+flask-sqlalchemy==3.0.5
+flask-cors==4.0.0
+python-dotenv==1.0.0
+requests==2.31.0
+werkzeug==2.3.7
+sqlalchemy==1.4.53
+cryptography==41.0.7
+Pillow==10.0.1
+# Use python-magic on Linux/Mac, and python-magic-bin on Windows
+python-magic==0.4.27; platform_system != "Windows"
+python-magic-bin==0.4.14; platform_system == "Windows"
+pytz==2023.3
