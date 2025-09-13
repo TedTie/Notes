@@ -9,13 +9,17 @@
       }
     },
     {
-      "src": "ai-notebook/backend/api/*.py",
+      "src": "ai-notebook/backend/api/index.py",
       "use": "@vercel/python"
     }
   ],
   "routes": [
     {
       "src": "/api/(.*)",
+      "dest": "/ai-notebook/backend/api/index.py"
+    },
+    {
+      "src": "/api",
       "dest": "/ai-notebook/backend/api/index.py"
     },
     {
@@ -26,5 +30,11 @@
       "src": "/(.*)",
       "dest": "/ai-notebook/frontend/dist/index.html"
     }
-  ]
+  ],
+  "env": {
+    "FLASK_ENV": "production",
+    "OPENROUTER_API_KEY": "@openrouter_api_key",
+    "MOONSHOT_API_KEY": "@moonshot_api_key",
+    "DATABASE_URL": "@database_url"
+  }
 }
