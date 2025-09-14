@@ -3,7 +3,7 @@
  * 使用 Supabase Storage 替代本地文件系统
  */
 
-import { fileService } from './fileService'
+import { fileService } from './supabaseService'
 
 export const fileUploadService = {
   /**

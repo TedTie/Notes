@@ -5,6 +5,7 @@ import languageService from '../services/languageService'
 import { useTheme } from '../composables/useTheme'
 import TimeUtils from '../utils/timeUtils'
 import { fileService } from '../services/supabaseService'
+import fileUploadService from '../services/fileUploadService'
 
 interface ApiProvider {
   name: string
