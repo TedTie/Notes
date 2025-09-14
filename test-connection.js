@@ -1,12 +1,18 @@
 const { Client } = require('pg');
+require('dotenv').config();
 
 // 测试不同的连接方式
 async function testConnection() {
   console.log('🔍 Testing Supabase connection...');
   
+  // 数据库连接配置
+  // 使用环境变量中的正确密码
+  const dbPassword = encodeURIComponent(process.env.SUPABASE_DB_PASSWORD || 'tie@951029');
+  const projectRef = process.env.SUPABASE_PROJECT_REF || 'vcgythhenulnwuindgyx';
+  
   // 方法1: 使用连接字符串
   const client1 = new Client({
-    connectionString: 'postgresql://postgres.vcgythhenulnwuindgyx:Tedtie123@aws-0-ap-southeast-1.pooler.supabase.com:5432/postgres',
+    connectionString: `postgresql://postgres.${projectRef}:${dbPassword}@aws-0-ap-southeast-1.pooler.supabase.com:5432/postgres`,
     ssl: { rejectUnauthorized: false }
   });
   

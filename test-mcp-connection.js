@@ -1,13 +1,16 @@
 // 测试MCP服务器和数据库连接
 const { Client } = require('pg');
+require('dotenv').config();
 
-// 使用与migrate-db.js相同的连接配置
-// 根据搜索结果，确保用户名格式正确：postgres.项目引用
-// 密码中的@符号需要URL编码为%40
-const connectionString = 'postgresql://postgres.vcgythhenulnwuindgyx:tie%40951029@aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres';
+// 数据库连接配置
+// 使用环境变量中的正确密码
+const dbPassword = encodeURIComponent(process.env.SUPABASE_DB_PASSWORD || 'tie@951029');
+const projectRef = process.env.SUPABASE_PROJECT_REF || 'vcgythhenulnwuindgyx';
 
-// 备用连接字符串（如果上面的不工作，尝试使用5432端口）
-const alternativeConnectionString = 'postgresql://postgres.vcgythhenulnwuindgyx:tie%40951029@aws-0-ap-southeast-1.pooler.supabase.com:5432/postgres';
+const connectionString = `postgresql://postgres.${projectRef}:${dbPassword}@aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres`;
+
+// 备用连接字符串（端口5432）
+const alternativeConnectionString = `postgresql://postgres.${projectRef}:${dbPassword}@aws-0-ap-southeast-1.pooler.supabase.com:5432/postgres`;
 
 async function testDatabaseConnection() {
     // 首先尝试主连接字符串

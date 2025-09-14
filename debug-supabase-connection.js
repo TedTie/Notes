@@ -6,12 +6,20 @@ require('dotenv').config();
 
 // 从环境变量获取配置
 const projectRef = process.env.SUPABASE_PROJECT_REF || 'vcgythhenulnwuindgyx';
-const accessToken = process.env.SUPABASE_ACCESS_TOKEN || 'tie@951029';
-const serviceRoleKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZjZ3l0aGhlbnVsbnd1aW5kZ3l4Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NzgyNjA0NywiZXhwIjoyMDczNDAyMDQ3fQ.abniAxY_nB9EtPL4cOaxwV390ToIgzXSMySFvmHbXB4';
+const dbPassword = process.env.SUPABASE_DB_PASSWORD || 'tie@951029';
+const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZjZ3l0aGhlbnVsbnd1aW5kZ3l4Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NzgyNjA0NywiZXhwIjoyMDczNDAyMDQ3fQ.abniAxY_nB9EtPL4cOaxwV390ToIgzXSMySFvmHbXB4';
 const projectName = process.env.PROJECT_NAME || 'ProjectNote';
 
 // 测试不同的连接配置
 const testConfigurations = [
+    {
+        name: '正确的数据库密码连接 (端口 6543)',
+        connectionString: `postgresql://postgres.${projectRef}:${encodeURIComponent(dbPassword)}@aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres`
+    },
+    {
+        name: '正确的数据库密码直连 (端口 5432)',
+        connectionString: `postgresql://postgres.${projectRef}:${encodeURIComponent(dbPassword)}@aws-0-ap-southeast-1.pooler.supabase.com:5432/postgres`
+    },
     {
         name: 'Service Role Key 连接 (端口 6543)',
         connectionString: `postgresql://postgres.${projectRef}:${encodeURIComponent(serviceRoleKey)}@aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres`
@@ -21,20 +29,12 @@ const testConfigurations = [
         connectionString: `postgresql://postgres.${projectRef}:${encodeURIComponent(serviceRoleKey)}@aws-0-ap-southeast-1.pooler.supabase.com:5432/postgres`
     },
     {
-        name: '标准连接 (端口 6543) - 原密码',
-        connectionString: `postgresql://postgres.${projectRef}:${encodeURIComponent(accessToken)}@aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres`
-    },
-    {
-        name: 'Service Role Key 不带项目引用',
-        connectionString: `postgresql://postgres:${encodeURIComponent(serviceRoleKey)}@aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres`
-    },
-    {
-        name: '当前配置（端口5432）',
-        connectionString: 'postgresql://postgres.vcgythhenulnwuindgyx:tie%40951029@aws-0-ap-southeast-1.pooler.supabase.com:5432/postgres'
-    },
-    {
         name: '简化用户名（端口6543）',
-        connectionString: 'postgresql://postgres:tie%40951029@aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres'
+        connectionString: `postgresql://postgres:${encodeURIComponent(dbPassword)}@aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres`
+    },
+    {
+        name: '简化用户名（端口5432）',
+        connectionString: `postgresql://postgres:${encodeURIComponent(dbPassword)}@aws-0-ap-southeast-1.pooler.supabase.com:5432/postgres`
     }
 ];
 
@@ -76,7 +76,7 @@ async function debugConnection() {
     console.log('SUPABASE_PROJECT_REF:', process.env.SUPABASE_PROJECT_REF || '未设置');
     console.log('SUPABASE_ACCESS_TOKEN:', process.env.SUPABASE_ACCESS_TOKEN ? '已设置' : '未设置');
     console.log('Project Ref:', projectRef);
-    console.log('Access Token:', accessToken ? '***已设置***' : '未设置');
+    console.log('DB Password:', dbPassword ? '***已设置***' : '未设置');
     console.log('Service Role Key:', serviceRoleKey ? '***已设置***' : '未设置');
     console.log('Project Name:', projectName);
     

@@ -1,12 +1,15 @@
 const { Client } = require('pg');
 const fs = require('fs');
 const path = require('path');
+require('dotenv').config();
 
 // Database connection configuration
-// 使用 Supabase 连接字符串格式
-// 密码中的@符号需要URL编码为%40
+// 使用环境变量中的正确密码
+const dbPassword = encodeURIComponent(process.env.SUPABASE_DB_PASSWORD || 'tie@951029');
+const projectRef = process.env.SUPABASE_PROJECT_REF || 'vcgythhenulnwuindgyx';
+
 const client = new Client({
-  connectionString: 'postgresql://postgres.vcgythhenulnwuindgyx:tie%40951029@aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres',
+  connectionString: `postgresql://postgres.${projectRef}:${dbPassword}@aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres`,
   ssl: {
     rejectUnauthorized: false
   }
