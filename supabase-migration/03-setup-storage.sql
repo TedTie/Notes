@@ -236,10 +236,11 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- 授予必要的权限
-GRANT USAGE ON SCHEMA storage TO anon, authenticated;
-GRANT ALL ON storage.objects TO anon, authenticated;
-GRANT ALL ON storage.buckets TO anon, authenticated;
+-- 授予必要的权限（移除需要 schema 所有者权限的操作）
+-- 注意：以下权限授予可能需要超级用户权限，如果执行失败可以跳过
+-- GRANT USAGE ON SCHEMA storage TO anon, authenticated;
+-- GRANT ALL ON storage.objects TO anon, authenticated;
+-- GRANT ALL ON storage.buckets TO anon, authenticated;
 GRANT ALL ON file_metadata TO anon, authenticated;
 GRANT USAGE ON SEQUENCE file_metadata_id_seq TO anon, authenticated;
 
@@ -254,4 +255,5 @@ INSERT INTO file_metadata (storage_path, original_name, file_size, mime_type, bu
 */
 
 -- 完成存储配置
-COMMENT ON SCHEMA storage IS 'ProjectNotes AI笔记应用存储配置 - 背景图片和文件上传';
+-- 注意：以下注释操作需要 schema 所有者权限，如果执行失败可以跳过
+-- COMMENT ON SCHEMA storage IS 'ProjectNotes AI笔记应用存储配置 - 背景图片和文件上传';

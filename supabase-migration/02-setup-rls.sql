@@ -94,18 +94,32 @@ CREATE POLICY "Users can only access their own notes" ON notes
 
 -- 创建实时订阅的发布
 -- 这允许前端实时接收数据库变更
-CREATE PUBLICATION supabase_realtime FOR ALL TABLES;
+-- 检查发布是否已存在，如果不存在则创建
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_publication WHERE pubname = 'supabase_realtime') THEN
+        CREATE PUBLICATION supabase_realtime FOR ALL TABLES;
+    END IF;
+END $$;
 
 -- 为实时功能启用表
-ALTER PUBLICATION supabase_realtime ADD TABLE notes;
-ALTER PUBLICATION supabase_realtime ADD TABLE todos;
-ALTER PUBLICATION supabase_realtime ADD TABLE chat_history;
-ALTER PUBLICATION supabase_realtime ADD TABLE settings;
-ALTER PUBLICATION supabase_realtime ADD TABLE topics;
-ALTER PUBLICATION supabase_realtime ADD TABLE messages;
-ALTER PUBLICATION supabase_realtime ADD TABLE projects;
-ALTER PUBLICATION supabase_realtime ADD TABLE tasks;
-ALTER PUBLICATION supabase_realtime ADD TABLE pomodoro_sessions;
+-- 安全地添加表到发布，避免重复添加错误
+DO $$
+DECLARE
+    table_names TEXT[] := ARRAY['notes', 'todos', 'chat_history', 'settings', 'topics', 'messages', 'projects', 'tasks', 'pomodoro_sessions'];
+    table_name TEXT;
+BEGIN
+    FOREACH table_name IN ARRAY table_names
+    LOOP
+        -- 检查表是否已经在发布中
+        IF NOT EXISTS (
+            SELECT 1 FROM pg_publication_tables 
+            WHERE pubname = 'supabase_realtime' AND tablename = table_name
+        ) THEN
+            EXECUTE format('ALTER PUBLICATION supabase_realtime ADD TABLE %I', table_name);
+        END IF;
+    END LOOP;
+END $$;
 
 -- 创建一些有用的视图
 -- 笔记统计视图
@@ -135,10 +149,8 @@ SELECT
 FROM pomodoro_sessions
 WHERE session_type = 'work';
 
--- 为视图创建RLS策略
-CREATE POLICY "Allow read access to notes_stats" ON notes_stats FOR SELECT USING (true);
-CREATE POLICY "Allow read access to todos_stats" ON todos_stats FOR SELECT USING (true);
-CREATE POLICY "Allow read access to pomodoro_stats" ON pomodoro_stats FOR SELECT USING (true);
+-- 注意：视图不支持RLS策略，访问控制通过底层表的RLS策略实现
+-- 视图会自动继承底层表的安全策略
 
 -- 创建一些有用的函数
 -- 获取最近的笔记

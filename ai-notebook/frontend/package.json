@@ -10,6 +10,7 @@
     "vercel-build": "npm run build"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.57.4",
     "axios": "^1.11.0",
     "vue": "^3.5.18"
   },
