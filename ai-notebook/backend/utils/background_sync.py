@@ -23,7 +23,13 @@ class BackgroundSyncManager:
     
     def __init__(self, upload_folder='uploads/backgrounds'):
         self.upload_folder = upload_folder
-        os.makedirs(upload_folder, exist_ok=True)
+        # 检查是否在Vercel环境中（只读文件系统）
+        try:
+            os.makedirs(upload_folder, exist_ok=True)
+        except OSError as e:
+            # 在Vercel等serverless环境中，文件系统是只读的
+            print(f"[SYNC] Warning: Cannot create upload directory in serverless environment: {e}")
+            # 在serverless环境中，我们不需要本地文件存储
     
     def get_background_files_from_db(self):
         """Get background files list from database"""

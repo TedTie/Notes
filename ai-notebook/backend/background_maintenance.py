@@ -16,9 +16,13 @@ def create_app():
     """创建Flask应用实例"""
     app = Flask(__name__)
     
-    # 确保instance目录存在
+    # 确保instance目录存在（在非serverless环境中）
     instance_dir = os.path.join(os.path.dirname(__file__), 'instance')
-    os.makedirs(instance_dir, exist_ok=True)
+    try:
+        os.makedirs(instance_dir, exist_ok=True)
+    except OSError as e:
+        # 在Vercel等serverless环境中，文件系统是只读的
+        print(f"[MAINTENANCE] Warning: Cannot create instance directory in serverless environment: {e}")
     
     # Configuration数据库
     db_path = os.path.join(instance_dir, 'database.db')

@@ -37,8 +37,12 @@ ALLOWED_MIME_TYPES = {
     'video': ['video/mp4', 'video/webm', 'video/quicktime']
 }
 
-# 确保上传目录存在
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+# 确保上传目录存在（在非serverless环境中）
+try:
+    os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+except OSError as e:
+    # 在Vercel等serverless环境中，文件系统是只读的
+    print(f"[BACKGROUNDS] Warning: Cannot create upload directory in serverless environment: {e}")
 
 # 文件锁机制，防止并发访问冲突 - 跨平台实现
 if os.name == 'nt':  # Windows系统
