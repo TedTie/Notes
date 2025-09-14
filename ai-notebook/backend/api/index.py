@@ -49,6 +49,52 @@ def get_settings():
         'message': 'Settings endpoint is working'
     })
 
+# 背景文件端点
+@app.route('/api/backgrounds', methods=['GET'])
+def get_backgrounds():
+    return jsonify({
+        'backgrounds': [],
+        'message': 'Backgrounds endpoint is working'
+    })
+
+@app.route('/api/backgrounds/upload', methods=['POST'])
+def upload_background():
+    from flask import request
+    return jsonify({
+        'message': 'Background upload endpoint (mock)',
+        'error': 'File upload not implemented in simplified version'
+    }), 501
+
+@app.route('/api/backgrounds/<int:bg_id>', methods=['DELETE'])
+def delete_background(bg_id):
+    return jsonify({
+        'message': f'Background {bg_id} delete endpoint (mock)',
+        'error': 'Delete not implemented in simplified version'
+    }), 501
+
+# AI相关端点
+@app.route('/api/ai/models', methods=['GET'])
+def get_ai_models():
+    return jsonify({
+        'models': [],
+        'message': 'AI models endpoint (mock)'
+    })
+
+@app.route('/api/ai/chat', methods=['POST'])
+def ai_chat():
+    return jsonify({
+        'message': 'AI chat endpoint (mock)',
+        'error': 'AI chat not implemented in simplified version'
+    }), 501
+
+# 番茄钟端点
+@app.route('/api/pomodoro/stats', methods=['GET'])
+def get_pomodoro_stats():
+    return jsonify({
+        'stats': {},
+        'message': 'Pomodoro stats endpoint (mock)'
+    })
+
 # Vercel需要这个变量
 app = app
 
