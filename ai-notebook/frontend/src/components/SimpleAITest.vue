@@ -72,10 +72,11 @@ const sendTestMessage = () => {
 const testAIConnection = async () => {
   try {
     console.log('开始测试AI连接...')
-    const response = await fetch('/api/ai/test')
-    const data = await response.json()
-    aiTestResult.value = JSON.stringify(data, null, 2)
-    console.log('AI连接测试成功:', data)
+    // TODO: 使用Supabase服务测试AI连接
+    // const data = await aiService.testConnection()
+    // aiTestResult.value = JSON.stringify(data, null, 2)
+    console.log('TODO: 实现Supabase AI服务连接测试')
+    aiTestResult.value = 'AI连接测试功能需要实现Supabase服务'
   } catch (error) {
     aiTestResult.value = `错误: ${error.message}`
     console.error('AI连接测试失败:', error)

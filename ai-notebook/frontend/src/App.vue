@@ -17,6 +17,7 @@ import ThemeToggle from './components/ThemeToggle.vue'
 import settingsService from './services/settingsService'
 import languageService from './services/languageService'
 import { useTheme } from './composables/useTheme'
+import { settingsService as supabaseSettingsService, fileService } from './services/supabaseService'
 // 移除了API_CONFIG相关代码
 
 const currentView = ref('notes')
@@ -165,48 +166,38 @@ onMounted(async () => {
   }
 })
 
-// 加载浅色主题背景设置
+// 加载浅色主题背景设置 - 使用Supabase服务
 const loadBackgroundLight = async () => {
   try {
     console.log(`[APP] ===== Loading LIGHT theme background ===== (timestamp: ${Date.now()})`)
     console.log(`[APP] Current isDarkMode.value:`, isDarkMode.value)
     console.log(`[APP] Current actualTheme.value:`, actualTheme.value)
-    const response = await fetch(`/api/settings/background?theme=light`)
-    if (response.ok) {
-      const data = await response.json()
-      console.log(`[APP] Light theme background response:`, data)
-      if (data.backgroundId) {
-        console.log(`[APP] Found backgroundId for light theme:`, data.backgroundId)
-        // 获取背景文件信息
-        const backgroundsResponse = await fetch('/api/backgrounds')
-        if (backgroundsResponse.ok) {
-          const files = await backgroundsResponse.json()
-          console.log(`[APP] All background files:`, files)
-          // 确保URL是完整的
-          const filesWithFullUrl = files.map(file => ({
-            ...file,
-            url: file.url.startsWith('http') ? file.url : `${file.url}`
-          }))
-          const currentFile = filesWithFullUrl.find(file => file.id === data.backgroundId)
-          console.log(`[APP] Found light theme background file:`, currentFile)
-          if (currentFile) {
-            console.log(`[APP] Applying light theme background:`, currentFile.url)
-            applyBackground(currentFile)
-            console.log(`[APP] Light theme background applied successfully`)
-          } else {
-            console.log(`[APP] Light theme background file not found in files list, clearing background`)
-            clearBackground()
-          }
-        } else {
-          console.log(`[APP] Failed to load background files for light theme, clearing background`)
-          clearBackground()
-        }
+    
+    const backgroundSetting = await supabaseSettingsService.getSetting('background_light')
+    console.log(`[APP] Light theme background response:`, backgroundSetting)
+    
+    if (backgroundSetting) {
+      console.log(`[APP] Found background setting for light theme:`, backgroundSetting)
+      // 获取背景文件信息
+      const files = await fileService.getBackgroundsList()
+      console.log(`[APP] All background files:`, files)
+      // 确保URL是完整的
+      const filesWithFullUrl = files.map(file => ({
+        ...file,
+        url: file.url.startsWith('http') ? file.url : `${file.url}`
+      }))
+      const currentFile = filesWithFullUrl.find(file => file.name === backgroundSetting || file.path === backgroundSetting)
+      console.log(`[APP] Found light theme background file:`, currentFile)
+      if (currentFile) {
+        console.log(`[APP] Applying light theme background:`, currentFile.url)
+        applyBackground(currentFile)
+        console.log(`[APP] Light theme background applied successfully`)
       } else {
-        console.log(`[APP] No background ID found for light theme, clearing background`)
+        console.log(`[APP] Light theme background file not found in files list, clearing background`)
         clearBackground()
       }
     } else {
-      console.log(`[APP] Failed to load light theme background setting, clearing background`)
+      console.log(`[APP] No background setting found for light theme, clearing background`)
       clearBackground()
     }
   } catch (error) {
@@ -215,48 +206,38 @@ const loadBackgroundLight = async () => {
   }
 }
 
-// 加载深色主题背景设置
+// 加载深色主题背景设置 - 使用Supabase服务
 const loadBackgroundDark = async () => {
   try {
     console.log(`[APP] ===== Loading DARK theme background ===== (timestamp: ${Date.now()})`)
     console.log(`[APP] Current isDarkMode.value:`, isDarkMode.value)
     console.log(`[APP] Current actualTheme.value:`, actualTheme.value)
-    const response = await fetch(`/api/settings/background?theme=dark`)
-    if (response.ok) {
-      const data = await response.json()
-      console.log(`[APP] Dark theme background response:`, data)
-      if (data.backgroundId) {
-        console.log(`[APP] Found backgroundId for dark theme:`, data.backgroundId)
-        // 获取背景文件信息
-        const backgroundsResponse = await fetch('/api/backgrounds')
-        if (backgroundsResponse.ok) {
-          const files = await backgroundsResponse.json()
-          console.log(`[APP] All background files:`, files)
-          // 确保URL是完整的
-          const filesWithFullUrl = files.map(file => ({
-            ...file,
-            url: file.url.startsWith('http') ? file.url : `${file.url}`
-          }))
-          const currentFile = filesWithFullUrl.find(file => file.id === data.backgroundId)
-          console.log(`[APP] Found dark theme background file:`, currentFile)
-          if (currentFile) {
-            console.log(`[APP] Applying dark theme background:`, currentFile.url)
-            applyBackground(currentFile)
-            console.log(`[APP] Dark theme background applied successfully`)
-          } else {
-            console.log(`[APP] Dark theme background file not found in files list, clearing background`)
-            clearBackground()
-          }
-        } else {
-          console.log(`[APP] Failed to load background files for dark theme, clearing background`)
-          clearBackground()
-        }
+    
+    const backgroundSetting = await supabaseSettingsService.getSetting('background_dark')
+    console.log(`[APP] Dark theme background response:`, backgroundSetting)
+    
+    if (backgroundSetting) {
+      console.log(`[APP] Found background setting for dark theme:`, backgroundSetting)
+      // 获取背景文件信息
+      const files = await fileService.getBackgroundsList()
+      console.log(`[APP] All background files:`, files)
+      // 确保URL是完整的
+      const filesWithFullUrl = files.map(file => ({
+        ...file,
+        url: file.url.startsWith('http') ? file.url : `${file.url}`
+      }))
+      const currentFile = filesWithFullUrl.find(file => file.name === backgroundSetting || file.path === backgroundSetting)
+      console.log(`[APP] Found dark theme background file:`, currentFile)
+      if (currentFile) {
+        console.log(`[APP] Applying dark theme background:`, currentFile.url)
+        applyBackground(currentFile)
+        console.log(`[APP] Dark theme background applied successfully`)
       } else {
-        console.log(`[APP] No background ID found for dark theme, clearing background`)
+        console.log(`[APP] Dark theme background file not found in files list, clearing background`)
         clearBackground()
       }
     } else {
-      console.log(`[APP] Failed to load dark theme background setting, clearing background`)
+      console.log(`[APP] No background setting found for dark theme, clearing background`)
       clearBackground()
     }
   } catch (error) {
@@ -265,42 +246,32 @@ const loadBackgroundDark = async () => {
   }
 }
 
-// 增强的背景加载函数 - 修复主题获取逻辑
+// 增强的背景加载函数 - 使用Supabase服务
 const loadCurrentBackground = async () => {
   try {
     // 确保使用最新的主题状态
     const currentTheme = isDarkMode.value ? 'dark' : 'light'
     console.log(`[APP] Loading current background for theme: ${currentTheme}`)
     
-    const response = await fetch(`/api/settings/background?theme=${currentTheme}`)
+    // 使用Supabase获取背景设置
+    const backgroundSetting = await supabaseSettingsService.getSetting(`background_${currentTheme}`)
+    console.log(`[APP] Background setting for ${currentTheme} theme:`, backgroundSetting)
     
-    if (!response.ok) {
-      throw new Error(`Failed to load background setting: ${response.status}`)
-    }
-    
-    const data = await response.json()
-    console.log(`[APP] Background setting for ${currentTheme} theme:`, data)
-    
-    if (data.backgroundId) {
+    if (backgroundSetting) {
       // 获取背景文件列表
-      const backgroundsResponse = await fetch('/api/backgrounds')
-      if (!backgroundsResponse.ok) {
-        throw new Error('Failed to load background files')
-      }
-      
-      const files = await backgroundsResponse.json()
+      const files = await fileService.getBackgroundsList()
       const filesWithFullUrl = files.map(file => ({
         ...file,
         url: file.url.startsWith('http') ? file.url : `${file.url}`
       }))
       
-      const currentFile = filesWithFullUrl.find(file => file.id === data.backgroundId)
+      const currentFile = filesWithFullUrl.find(file => file.name === backgroundSetting || file.path === backgroundSetting)
       
       if (currentFile) {
         console.log(`[APP] Applying background: ${currentFile.url}`)
         applyBackground(currentFile)
       } else {
-        console.warn(`[APP] Background file not found: ${data.backgroundId}`)
+        console.warn(`[APP] Background file not found: ${backgroundSetting}`)
         clearBackground()
       }
     } else {

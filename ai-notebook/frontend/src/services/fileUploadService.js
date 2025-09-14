@@ -1,9 +1,10 @@
 /**
  * 文件上传服务
- * 使用 Vercel Blob Storage 替代本地文件系统
+ * 使用 Supabase Storage 替代本地文件系统
  */
 
-// 临时解决方案：使用 FormData 上传到专门的上传端点
+import { fileService } from './fileService'
+
 export const fileUploadService = {
   /**
    * 上传背景文件
@@ -32,28 +33,10 @@ export const fileUploadService = {
       const extension = file.name.split('.').pop()
       const filename = `background_${timestamp}_${randomStr}.${extension}`
       
-      // 创建 FormData
-      const formData = new FormData()
-      formData.append('file', file, filename)
-      formData.append('type', 'background')
+      console.log('[UPLOAD] 使用Supabase上传文件...')
       
-      console.log('[UPLOAD] 发送上传请求...')
-      
-      // 发送到新的上传端点
-      const response = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData
-      })
-      
-      console.log('[UPLOAD] 响应状态:', response.status)
-      
-      if (!response.ok) {
-        const errorText = await response.text()
-        console.error('[UPLOAD] 上传失败:', errorText)
-        throw new Error(`上传失败: ${response.status} - ${errorText}`)
-      }
-      
-      const result = await response.json()
+      // 使用Supabase Storage上传文件
+      const result = await fileService.uploadBackground(file, filename)
       console.log('[UPLOAD] 上传成功:', result)
       
       return {
@@ -77,13 +60,7 @@ export const fileUploadService = {
     try {
       console.log('[UPLOAD] 获取背景文件列表...')
       
-      const response = await fetch('/api/backgrounds')
-      
-      if (!response.ok) {
-        throw new Error(`获取背景列表失败: ${response.status}`)
-      }
-      
-      const backgrounds = await response.json()
+      const backgrounds = await fileService.getBackgrounds()
       console.log('[UPLOAD] 获取到背景文件:', backgrounds.length, '个')
       
       return backgrounds
@@ -103,16 +80,14 @@ export const fileUploadService = {
     try {
       console.log('[UPLOAD] 删除背景文件:', filename)
       
-      const response = await fetch(`/api/backgrounds/${encodeURIComponent(filename)}`, {
-        method: 'DELETE'
-      })
+      const result = await fileService.deleteBackground(filename)
       
-      if (!response.ok) {
-        throw new Error(`删除文件失败: ${response.status}`)
+      if (result) {
+        console.log('[UPLOAD] 文件删除成功')
+        return true
+      } else {
+        throw new Error('删除文件失败')
       }
-      
-      console.log('[UPLOAD] 文件删除成功')
-      return true
       
     } catch (error) {
       console.error('[UPLOAD] 删除文件失败:', error)

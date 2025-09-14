@@ -115,7 +115,7 @@
 import { ref, computed, watch } from 'vue'
 import EditProjectModal from './EditProjectModal.vue'
 import AiPlanningModal from './AiPlanningModal.vue'
-import axios from 'axios'
+import { supabaseService } from '../services/supabaseService'
 
 interface Project {
   id: number
@@ -189,7 +189,7 @@ const handleDeleteProject = async () => {
   }
   
   try {
-    await axios.delete(`/api/projects/${props.currentProject.id}`)
+    await supabaseService.projects.deleteProject(props.currentProject.id)
     showNotification('项目删除成功', 'success')
     
     // 通知父组件项目已删除

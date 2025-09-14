@@ -189,7 +189,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import axios from 'axios'
+import { supabaseService } from '../services/supabaseService'
 
 interface PlanningTask {
   title: string
@@ -255,7 +255,7 @@ const startPlanning = async () => {
   
   try {
     // 调用 AI 规划 API
-    const response = await axios.post('/api/ai/plan-project', {
+    const response = await supabaseService.ai.planProject({
       project_id: props.project.id,
       project_name: props.project.name,
       project_description: props.project.description,
@@ -338,7 +338,7 @@ const applyPlanning = async () => {
     
     // 为每个规划任务创建实际任务
     for (const planTask of result.value.tasks) {
-      await axios.post('/api/tasks', {
+      await supabaseService.tasks.createTask({
         project_id: props.project.id,
         title: planTask.title,
         description: planTask.description,

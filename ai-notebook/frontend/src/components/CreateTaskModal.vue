@@ -113,7 +113,7 @@
 
 <script setup lang="ts">
 import { ref, reactive } from 'vue'
-import axios from 'axios'
+import { supabaseService } from '../services/supabaseService'
 
 interface Project {
   id: number
@@ -173,18 +173,12 @@ const handleSubmit = async () => {
     }
     
     // 创建任务
-    const response = await axios.post('/api/tasks', taskData)
-    const newTask = response.data
+    const newTask = await supabaseService.tasks.createTask(taskData)
     
     // 如果启用AI增强
     if (formData.useAiEnhance) {
       try {
-        const enhanceResponse = await axios.post(`/api/tasks/${newTask.id}/enhance`, {
-          action: 'breakdown',
-          task: newTask
-        })
-        
-        const enhancement = enhanceResponse.data
+        const enhancement = await supabaseService.ai.analyzeText(newTask.title + ' ' + (newTask.description || ''), 'task_enhancement')
         
         // 应用AI增强结果
         if (enhancement.enhanced_title || enhancement.enhanced_description) {
@@ -194,10 +188,10 @@ const handleSubmit = async () => {
             description: enhancement.enhanced_description || newTask.description
           }
           
-          const updateResponse = await axios.put(`/api/tasks/${newTask.id}`, enhancedTask)
+          const updatedTask = await supabaseService.tasks.updateTask(newTask.id, enhancedTask)
           
           showNotification('任务创建成功，AI增强已应用', 'success')
-          emit('task-created', updateResponse.data)
+          emit('task-created', updatedTask)
         } else {
           showNotification('任务创建成功', 'success')
           emit('task-created', newTask)

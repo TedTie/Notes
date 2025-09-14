@@ -58,7 +58,7 @@ import { ref, onMounted, onUnmounted, computed, watch } from 'vue'
 import ProjectSelector from './ProjectSelector.vue'
 import KanbanBoard from './KanbanBoard.vue'
 import CreateProjectModal from './CreateProjectModal.vue'
-import axios from 'axios'
+import { supabaseService } from '../services/supabaseService'
 
 interface Project {
   id: number
@@ -90,8 +90,7 @@ const showCreateModal = ref(false)
 const loadProjects = async () => {
   try {
     loading.value = true
-    const response = await axios.get('/api/projects')
-    projects.value = response.data
+    projects.value = await supabaseService.projects.getAllProjects()
     
     // 如果有项目且没有选中项目，选中第一个
     if (projects.value.length > 0 && !currentProject.value) {
@@ -109,8 +108,7 @@ const loadProjects = async () => {
 const loadProjectTasks = async (projectId: number) => {
   try {
     loading.value = true
-    const response = await axios.get(`/api/projects/${projectId}/tasks`)
-    currentTasks.value = response.data
+    currentTasks.value = await supabaseService.projects.getProjectTasks(projectId)
   } catch (error) {
     console.error('加载任务失败:', error)
     showNotification('加载任务失败', 'error')

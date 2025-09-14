@@ -122,7 +122,7 @@
 import { ref } from 'vue'
 import EditTaskModal from './EditTaskModal.vue'
 import AiEnhanceModal from './AiEnhanceModal.vue'
-import axios from 'axios'
+import { supabaseService } from '../services/supabaseService'
 
 interface Task {
   id: number
@@ -203,12 +203,12 @@ const handleAiEnhance = async () => {
   try {
     aiLoading.value = true
     
-    const response = await axios.post(`/api/tasks/${props.task.id}/enhance`, {
-      action: 'breakdown',
-      task: props.task
-    })
+    const enhancement = await supabaseService.ai.analyzeText(
+      props.task.title + ' ' + (props.task.description || ''), 
+      'task_enhancement'
+    )
     
-    aiEnhancement.value = response.data
+    aiEnhancement.value = enhancement
     showAiModal.value = true
     
   } catch (error) {

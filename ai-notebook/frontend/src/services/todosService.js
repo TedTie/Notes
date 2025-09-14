@@ -1,12 +1,9 @@
-import axios from 'axios'
-
-const API_BASE_URL = '/api'
+import { todosService as supabaseTodosService } from './supabaseService.js'
 
 class TodosService {
   async getAllTodos() {
     try {
-      const response = await axios.get(`${API_BASE_URL}/todos`)
-      return response.data.todos || []
+      return await supabaseTodosService.getAllTodos()
     } catch (error) {
       console.error('获取待办事项失败:', error)
       return []
@@ -15,32 +12,31 @@ class TodosService {
 
   async createTodo(todoData) {
     try {
-      // 将content字段转换为title字段以匹配后端API
+      // 将content字段转换为title字段以匹配Supabase表结构
       const apiData = {
-        title: todoData.content,
+        title: todoData.content || todoData.title,
         description: todoData.description,
         priority: todoData.priority,
         category: todoData.category,
         due_date: todoData.due_date
       }
-      const response = await axios.post(`${API_BASE_URL}/todos`, apiData)
+      const todo = await supabaseTodosService.createTodo(apiData)
       return {
         success: true,
-        todo: response.data
+        todo: todo
       }
     } catch (error) {
       console.error('创建待办事项失败:', error)
       return {
         success: false,
-        error: error.response?.data?.error || '创建待办事项失败'
+        error: error.message || '创建待办事项失败'
       }
     }
   }
 
   async updateTodo(id, todoData) {
     try {
-      const response = await axios.put(`${API_BASE_URL}/todos/${id}`, todoData)
-      return response.data
+      return await supabaseTodosService.updateTodo(id, todoData)
     } catch (error) {
       console.error('更新待办事项失败:', error)
       throw error
@@ -49,8 +45,7 @@ class TodosService {
 
   async deleteTodo(id) {
     try {
-      const response = await axios.delete(`${API_BASE_URL}/todos/${id}`)
-      return response.data
+      return await supabaseTodosService.deleteTodo(id)
     } catch (error) {
       console.error('删除待办事项失败:', error)
       throw error
@@ -59,166 +54,63 @@ class TodosService {
 
   async toggleTodo(id) {
     try {
-      const response = await axios.patch(`${API_BASE_URL}/todos/${id}/toggle`)
-      return response.data
+      return await supabaseTodosService.toggleTodo(id)
     } catch (error) {
-      console.error('切换待办事项状态失败:', error)
+      console.error('切换待办状态失败:', error)
       throw error
     }
   }
 
   async searchTodos(query) {
-    try {
-      const response = await axios.get(`${API_BASE_URL}/todos/search`, {
-        params: { q: query }
-      })
-      return response.data.todos || []
-    } catch (error) {
-      console.error('搜索待办事项失败:', error)
-      return []
-    }
+    return await supabaseTodosService.searchTodos(query)
   }
 
   async getTodoById(id) {
-    try {
-      const response = await axios.get(`${API_BASE_URL}/todos/${id}`)
-      return response.data
-    } catch (error) {
-      console.error('获取待办事项详情失败:', error)
-      throw error
-    }
+    return await supabaseTodosService.getTodoById(id)
   }
 
   async getTodosByStatus(status) {
-    try {
-      const response = await axios.get(`${API_BASE_URL}/todos/status/${status}`)
-      return response.data.todos || []
-    } catch (error) {
-      console.error('按状态获取待办事项失败:', error)
-      return []
-    }
+    return await supabaseTodosService.getTodosByStatus(status)
   }
 
   async getTodosByPriority(priority) {
-    try {
-      const response = await axios.get(`${API_BASE_URL}/todos/priority/${priority}`)
-      return response.data.todos || []
-    } catch (error) {
-      console.error('按优先级获取待办事项失败:', error)
-      return []
-    }
+    return await supabaseTodosService.getTodosByPriority(priority)
   }
 
   async getTodosByCategory(category) {
-    try {
-      const response = await axios.get(`${API_BASE_URL}/todos/category/${category}`)
-      return response.data.todos || []
-    } catch (error) {
-      console.error('按分类获取待办事项失败:', error)
-      return []
-    }
+    return await supabaseTodosService.getTodosByCategory(category)
   }
 
   async getOverdueTodos() {
-    try {
-      const response = await axios.get(`${API_BASE_URL}/todos/overdue`)
-      return response.data.todos || []
-    } catch (error) {
-      console.error('获取过期待办事项失败:', error)
-      return []
-    }
+    return await supabaseTodosService.getOverdueTodos()
   }
 
   async getTodayTodos() {
-    try {
-      const response = await axios.get(`${API_BASE_URL}/todos/today`)
-      return response.data.todos || []
-    } catch (error) {
-      console.error('获取今日待办事项失败:', error)
-      return []
-    }
+    return await supabaseTodosService.getTodayTodos()
   }
 
   async getUpcomingTodos(days = 7) {
-    try {
-      const response = await axios.get(`${API_BASE_URL}/todos/upcoming`, {
-        params: { days }
-      })
-      return response.data.todos || []
-    } catch (error) {
-      console.error('获取即将到期待办事项失败:', error)
-      return []
-    }
+    return await supabaseTodosService.getUpcomingTodos(days)
   }
 
   async getTodoStats() {
-    try {
-      const response = await axios.get(`${API_BASE_URL}/todos/stats`)
-      return response.data
-    } catch (error) {
-      console.error('获取待办事项统计失败:', error)
-      return {
-        total: 0,
-        completed: 0,
-        pending: 0,
-        overdue: 0
-      }
-    }
+    return await supabaseTodosService.getTodoStats()
   }
 
   async batchUpdateTodos(todoIds, updateData) {
-    try {
-      const response = await axios.patch(`${API_BASE_URL}/todos/batch`, {
-        todo_ids: todoIds,
-        update_data: updateData
-      })
-      return response.data
-    } catch (error) {
-      console.error('批量更新待办事项失败:', error)
-      throw error
-    }
+    return await supabaseTodosService.batchUpdateTodos(todoIds, updateData)
   }
 
   async batchDeleteTodos(todoIds) {
-    try {
-      const response = await axios.delete(`${API_BASE_URL}/todos/batch`, {
-        data: { todo_ids: todoIds }
-      })
-      return response.data
-    } catch (error) {
-      console.error('批量删除待办事项失败:', error)
-      throw error
-    }
+    return await supabaseTodosService.batchDeleteTodos(todoIds)
   }
 
   async exportTodos(format = 'json') {
-    try {
-      const response = await axios.get(`${API_BASE_URL}/todos/export`, {
-        params: { format },
-        responseType: 'blob'
-      })
-      return response.data
-    } catch (error) {
-      console.error('导出待办事项失败:', error)
-      throw error
-    }
+    return await supabaseTodosService.exportTodos(format)
   }
 
   async importTodos(file) {
-    try {
-      const formData = new FormData()
-      formData.append('file', file)
-      
-      const response = await axios.post(`${API_BASE_URL}/todos/import`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
-      })
-      return response.data
-    } catch (error) {
-      console.error('导入待办事项失败:', error)
-      throw error
-    }
+    return await supabaseTodosService.importTodos(file)
   }
 }
 

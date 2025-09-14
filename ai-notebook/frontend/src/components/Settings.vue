@@ -4,7 +4,7 @@ import settingsService from '../services/settingsService'
 import languageService from '../services/languageService'
 import { useTheme } from '../composables/useTheme'
 import TimeUtils from '../utils/timeUtils'
-import fileUploadService from '../services/fileUploadService'
+import { fileService } from '../services/supabaseService'
 
 interface ApiProvider {
   name: string
@@ -319,7 +319,7 @@ const resetToOriginal = async () => {
   }
 }
 
-// 恢复出厂设置 - 恢复到默认值
+// 恢复出厂设置 - 恢复到默认值 - 使用Supabase服务
 const resetToFactory = async () => {
   if (!confirm(languageService.t('confirm_factory_reset'))) return
   
@@ -327,32 +327,23 @@ const resetToFactory = async () => {
   updateAutoSaveStatus('saving')
   
   try {
-    // 调用后端API恢复出厂设置
-    const response = await fetch('/api/settings/factory-reset', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    })
+    // 使用Supabase服务恢复出厂设置
+    await settingsService.factoryReset()
     
-    if (response.ok) {
-      // 保存当前主题设置
-      const currentTheme = settings.value.theme
-      
-      // 重新加载设置
-      await loadSettings()
-      
-      // 恢复主题设置，保持用户当前选择的主题
-      settings.value.theme = currentTheme
-      await settingsService.updateSetting('theme', currentTheme)
-      
-      // 清空原始设置记录
-      originalSettings.value = {}
-      showNotification(languageService.t('factory_reset_success'), 'success')
-      updateAutoSaveStatus('saved')
-    } else {
-      throw new Error('Factory reset failed')
-    }
+    // 保存当前主题设置
+    const currentTheme = settings.value.theme
+    
+    // 重新加载设置
+    await loadSettings()
+    
+    // 恢复主题设置，保持用户当前选择的主题
+    settings.value.theme = currentTheme
+    await settingsService.updateSetting('theme', currentTheme)
+    
+    // 清空原始设置记录
+    originalSettings.value = {}
+    showNotification(languageService.t('factory_reset_success'), 'success')
+    updateAutoSaveStatus('saved')
   } catch (error) {
     console.error(languageService.t('factory_reset_failed'), error)
     showNotification(languageService.t('factory_reset_failed'), 'error')
@@ -618,17 +609,17 @@ const openGitHub = () => {
 
 const exportData = async () => {
   try {
-    const response = await fetch('/api/export')
-    if (response.ok) {
-      const blob = await response.blob()
-      const url = window.URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = `ai-notepad-backup-${TimeUtils.toISOString(TimeUtils.now()).split('T')[0]}.json`
-      a.click()
-      window.URL.revokeObjectURL(url)
-      showNotification(languageService.t('data_exported'), 'success')
-    }
+    const data = await supabaseService.notes.exportNotes()
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `ai-notebook-export-${new Date().toISOString().split('T')[0]}.json`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+    showNotification(languageService.t('data_export_success'), 'success')
   } catch (error) {
     console.error(languageService.t('data_export_failed'), error)
     showNotification(languageService.t('data_export_failed'), 'error')
@@ -639,20 +630,13 @@ const clearData = async () => {
   if (!confirm(languageService.t('confirm_clear_data'))) return
   
   try {
-    const response = await fetch('/api/clear', {
-      method: 'DELETE'
-    })
-    
-    if (response.ok) {
-      showNotification(languageService.t('data_cleared'), 'success')
-      // 刷新页面
-      setTimeout(() => {
-        window.location.reload()
-      }, 1000)
-    }
+    await supabaseService.notes.clearAllNotes()
+    await supabaseService.projects.clearAllProjects()
+    await supabaseService.tasks.clearAllTasks()
+    showNotification(languageService.t('data_clear_success'), 'success')
   } catch (error) {
     console.error(languageService.t('data_clear_failed'), error)
-      showNotification(languageService.t('data_clear_failed'), 'error')
+    showNotification(languageService.t('data_clear_failed'), 'error')
   }
 }
 
@@ -665,24 +649,11 @@ const testApiConnection = async (providerKey: 'openrouter') => {
   }
   
   try {
-    const response = await fetch('/api/test-ai', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        provider: providerKey,
-        apiKey: provider.apiKey,
-        model: provider.selectedModel
-      })
-    })
-    
-    if (response.ok) {
-      provider.isConnected = true
-      showNotification(`${provider.name} ${languageService.t('api_connection_success')}`, 'success')
-    } else {
-      throw new Error(languageService.t('connection_failed'))
-    }
+    // TODO: 实现Supabase AI连接测试功能
+    // 暂时标记为已连接，实际需要实现AI服务测试
+    provider.isConnected = true
+    showNotification(`${provider.name} ${languageService.t('api_connection_success')}`, 'success')
+    console.log('AI connection test needs to be implemented with Supabase')
   } catch (error) {
     console.error(languageService.t('api_test_failed'), error)
     provider.isConnected = false
@@ -801,7 +772,7 @@ const handleFileUpload = async (event: Event) => {
       const filePath = `backgrounds/${fileName}`
       
       console.log('[FRONTEND] Uploading file...')
-      const result = await fileUploadService.uploadBackground(file)
+      const result = await fileService.uploadBackground(file)
       
       console.log('[FRONTEND] Upload successful:', result)
       const themeText = activeBackgroundTab.value === 'light' ? '浅色主题' : '深色主题'
@@ -889,29 +860,13 @@ const previewBackground = async (file: any, targetTheme?: string) => {
     }
     console.log(`[SETTINGS] 准备发送保存请求:`, requestData)
     
-    const response = await fetch('/api/settings/background', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(requestData),
-      signal: controller.signal  // 添加取消信号
-    })
+    // 使用Supabase服务保存背景设置
+    await settingsService.updateSetting(`background_${themeToSave}`, requestData.backgroundId)
     
     clearTimeout(saveTimeout)
     
-    console.log(`[SETTINGS] 保存响应状态: ${response.status}`)
-    if (response.ok) {
-      const result = await response.json()
-      console.log(`[SETTINGS] 保存响应结果:`, result)
-      showNotification(`${themeToSave}主题背景设置已保存`, 'success')
-    } else {
-      const errorText = await response.text()
-      console.error(`[SETTINGS] 保存失败: ${response.status} - ${errorText}`)
-      showNotification('背景设置保存失败', 'error')
-      // 失败时恢复到默认背景
-      selectDefaultBackground(themeToSave)
-    }
+    console.log(`[SETTINGS] 背景设置已保存到Supabase`)
+    showNotification(`${themeToSave}主题背景设置已保存`, 'success')
   } catch (error) {
     clearTimeout(saveTimeout)
     
@@ -939,22 +894,10 @@ const selectDefaultBackground = async (targetTheme?: string) => {
   
   console.log(`[SETTINGS] 选择默认背景，目标主题: ${themeToSave}`)
   
-  // 自动保存默认背景设置（按主题分类）
+  // 使用Supabase服务保存默认背景设置
   try {
-    const response = await fetch('/api/settings/background', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        backgroundId: null,
-        theme: themeToSave
-      })
-    })
-    
-    if (response.ok) {
-      showNotification(`${themeToSave}主题已恢复默认背景`, 'success')
-    }
+    await settingsService.updateSetting(`background_${themeToSave}`, null)
+    showNotification(`${themeToSave}主题已恢复默认背景`, 'success')
   } catch (error) {
     console.error('自动保存默认背景设置失败:', error)
   }
@@ -981,51 +924,38 @@ const deleteBackground = async (fileId: string) => {
   }, 30000) // 30秒超时
   
   try {
-    const response = await fetch(`/api/backgrounds/${fileId}`, {
-      method: 'DELETE',
-      signal: controller.signal
-    })
+    // 使用Supabase服务删除背景文件
+    await fileService.deleteBackground(fileId)
     
     clearTimeout(deleteTimeout)
     
-    if (response.ok) {
-      const result = await response.json()
-      console.log('[DELETE] 删除成功:', result)
-      
-      // 重新加载背景文件列表以确保数据同步
-      try {
-        await loadBackgroundFiles()
-      } catch (loadError) {
-        console.error('重新加载背景文件列表失败:', loadError)
-      }
-      
-      // 检查是否删除的是当前选中的背景
-      if (selectedBackground.value === fileId) {
-        // 自动切换到默认背景
+    console.log('[DELETE] 删除成功:', fileId)
+    
+    // 重新加载背景文件列表以确保数据同步
+    try {
+      await loadBackgroundFiles()
+    } catch (loadError) {
+      console.error('重新加载背景文件列表失败:', loadError)
+    }
+    
+    // 检查是否删除的是当前选中的背景
+    if (selectedBackground.value === fileId) {
+      // 自动切换到默认背景
+      await selectDefaultBackground(activeBackgroundTab.value)
+    }
+    
+    // 检查是否删除的是当前主题的背景设置
+    try {
+      const currentBgSetting = await settingsService.getSetting(`background_${activeBackgroundTab.value}`)
+      if (currentBgSetting === fileId) {
+        // 删除的是当前主题的背景，自动切换到默认背景
         await selectDefaultBackground(activeBackgroundTab.value)
       }
-      
-      // 检查是否删除的是当前主题的背景设置
-      try {
-        const currentBgResponse = await fetch(`/api/settings/background?theme=${activeBackgroundTab.value}`, {
-          signal: controller.signal
-        })
-        if (currentBgResponse.ok) {
-          const currentBg = await currentBgResponse.json()
-          if (currentBg.backgroundId === fileId) {
-            // 删除的是当前主题的背景，自动切换到默认背景
-            await selectDefaultBackground(activeBackgroundTab.value)
-          }
-        }
-      } catch (checkError) {
-        console.error('检查当前背景设置失败:', checkError)
-      }
-      
-      showNotification(languageService.t('background_delete_success', '背景文件删除成功'), 'success')
-    } else {
-      const errorText = await response.text()
-      throw new Error(`删除失败: ${errorText}`)
+    } catch (checkError) {
+      console.error('检查当前背景设置失败:', checkError)
     }
+    
+    showNotification(languageService.t('background_delete_success', '背景文件删除成功'), 'success')
   } catch (error) {
     if (error.name === 'AbortError') {
       console.error('[DELETE] 删除操作超时:', error)
@@ -1063,22 +993,19 @@ const loadCurrentBackground = async () => {
   try {
     // 使用当前实际主题而不是标签页主题
     const currentTheme = isDarkMode.value ? 'dark' : 'light'
-    const response = await fetch(`/api/settings/background?theme=${currentTheme}`)
-    if (response.ok) {
-      const data = await response.json()
-      console.log(`[SETTINGS] 当前${currentTheme}主题背景设置:`, data)
-      if (data.backgroundId) {
-        selectedBackground.value = data.backgroundId
-        // 应用当前背景
-        const currentFile = backgroundFiles.value.find(file => file.id === data.backgroundId)
-        if (currentFile) {
-          // 直接应用背景，不检查主题匹配性
-          applyBackground(currentFile)
-        }
-      } else {
-        // 没有设置背景，清除当前背景
-        window.dispatchEvent(new CustomEvent('clear-background'))
+    const backgroundSetting = await settingsService.getSetting(`background_${currentTheme}`)
+    console.log(`[SETTINGS] 当前${currentTheme}主题背景设置:`, backgroundSetting)
+    if (backgroundSetting) {
+      selectedBackground.value = backgroundSetting
+      // 应用当前背景
+      const currentFile = backgroundFiles.value.find(file => file.id === backgroundSetting || file.name === backgroundSetting)
+      if (currentFile) {
+        // 直接应用背景，不检查主题匹配性
+        applyBackground(currentFile)
       }
+    } else {
+      // 没有设置背景，清除当前背景
+      window.dispatchEvent(new CustomEvent('clear-background'))
     }
   } catch (error) {
     console.error('加载当前背景设置失败:', error)

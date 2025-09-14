@@ -94,7 +94,7 @@
 
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
-import axios from 'axios'
+import { supabaseService } from '../services/supabaseService'
 
 interface Task {
   id: number
@@ -143,18 +143,16 @@ const handleSubmit = async () => {
   try {
     loading.value = true
     
-    const updatedTask = {
-      ...props.task,
+    const updatedTaskData = {
       title: formData.title.trim(),
       description: formData.description.trim() || null,
       status: formData.status,
-      priority: formData.priority,
-      updated_at: new Date().toISOString()
+      priority: formData.priority
     }
     
-    const response = await axios.put(`/api/tasks/${props.task.id}`, updatedTask)
+    const updatedTask = await supabaseService.tasks.updateTask(props.task.id, updatedTaskData)
     
-    emit('task-updated', response.data)
+    emit('task-updated', updatedTask)
     showNotification('任务更新成功', 'success')
     
   } catch (error) {

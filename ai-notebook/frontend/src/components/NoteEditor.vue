@@ -4,6 +4,7 @@ import AIEnhancedEditor from './AIEnhancedEditor.vue'
 import SmartSearch from './SmartSearch.vue'
 import languageService from '../services/languageService'
 import TimeUtils from '../utils/timeUtils'
+import { supabaseService } from '../services/supabaseService'
 
 interface Note {
   id: number
@@ -35,25 +36,10 @@ let removeLanguageListener: (() => void) | null = null
 const fetchNotes = async () => {
   isLoading.value = true
   try {
-    const response = await fetch('/api/notes')
-    if (response.ok) {
-      const data = await response.json()
-      // 处理API返回格式
-      if (Array.isArray(data)) {
-        notes.value = data
-      } else if (data.notes && Array.isArray(data.notes)) {
-        notes.value = data.notes
-      } else {
-        notes.value = []
-      }
-    } else {
-      console.error('获取笔记失败:', response.status)
-      // 回退到空数组
-      notes.value = []
-    }
+    const data = await supabaseService.notes.getAllNotes()
+    notes.value = data || []
   } catch (error) {
     console.error('获取笔记失败:', error)
-    // 回退到空数组
     notes.value = []
   } finally {
     isLoading.value = false
@@ -64,34 +50,12 @@ const createNote = async () => {
   if (!newNoteTitle.value.trim()) return
   
   try {
-    const response = await fetch('/api/notes', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        title: newNoteTitle.value,
-        content: newNoteContent.value
-      })
+    const createdNote = await supabaseService.notes.createNote({
+      title: newNoteTitle.value,
+      content: newNoteContent.value
     })
-    
-    if (response.ok) {
-      const result = await response.json()
-      // 处理API返回格式
-      const createdNote = result.note || result
-      
-      if (createdNote.id) {
-        notes.value.unshift(createdNote)
-        selectedNote.value = createdNote
-      } else {
-        console.error('创建笔记返回数据格式错误:', result)
-        // 重新获取笔记列表
-        await fetchNotes()
-      }
-    } else {
-      const error = await response.json()
-      alert(`创建笔记失败: ${error.error || '未知错误'}`)
-    }
+    notes.value.unshift(createdNote)
+    selectedNote.value = createdNote
   } catch (error) {
     console.error('创建笔记请求失败:', error)
     alert(languageService.t('create_note_failed'))
@@ -169,25 +133,16 @@ const deleteNote = async (noteId: number) => {
   console.log('开始发送删除请求')
   
   try {
-    const response = await fetch(`/api/notes/${noteId}`, {
-      method: 'DELETE'
-    })
-    
-    console.log('删除请求响应:', response.status, response.statusText)
-    
-    if (response.ok) {
-      // 删除成功，更新本地状态
+    const success = await supabaseService.notes.deleteNote(noteId)
+    if (success) {
       notes.value = notes.value.filter(note => note.id !== noteId)
       if (selectedNote.value?.id === noteId) {
         selectedNote.value = null
       }
-      
       console.log('笔记删除成功，本地状态已更新')
       alert('笔记删除成功！')
     } else {
-      const error = await response.json()
-      console.error('删除失败:', error)
-      alert(`删除失败: ${error.error || '未知错误'}`)
+      alert('删除失败')
     }
   } catch (error) {
     console.error('删除请求失败:', error)

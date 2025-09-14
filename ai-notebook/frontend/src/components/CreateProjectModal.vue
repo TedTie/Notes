@@ -85,7 +85,7 @@
 
 <script setup lang="ts">
 import { ref, reactive } from 'vue'
-import axios from 'axios'
+import { supabaseService } from '../services/supabaseService'
 
 interface Project {
   id: number
@@ -120,17 +120,15 @@ const handleSubmit = async () => {
     loading.value = true
     
     // 创建项目
-    const projectResponse = await axios.post('/api/projects', {
+    const newProject = await supabaseService.projects.createProject({
       name: formData.name.trim(),
       description: formData.description.trim() || null
     })
     
-    const newProject = projectResponse.data
-    
     // 如果启用AI规划，生成初始任务
     if (formData.useAiPlanning) {
       try {
-        await axios.post(`/api/projects/${newProject.id}/ai-planning`, {
+        await supabaseService.ai.generateSuggestions('project_planning', {
           project_name: newProject.name,
           project_description: newProject.description
         })

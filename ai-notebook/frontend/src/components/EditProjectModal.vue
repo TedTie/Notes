@@ -66,7 +66,7 @@
 
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
-import axios from 'axios'
+import { supabaseService } from '../services/supabaseService'
 
 interface Project {
   id: number
@@ -109,12 +109,11 @@ const handleSubmit = async () => {
   try {
     loading.value = true
     
-    const response = await axios.put(`/api/projects/${props.project.id}`, {
+    const updatedProject = await supabaseService.projects.updateProject(props.project.id, {
       name: formData.name.trim(),
       description: formData.description.trim() || null
     })
     
-    const updatedProject = response.data
     emit('project-updated', updatedProject)
     
   } catch (error) {

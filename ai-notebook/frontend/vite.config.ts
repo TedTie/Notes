@@ -7,13 +7,8 @@ export default defineConfig({
   base: '/',
   server: {
     port: 5173,
-    host: true,
-    proxy: {
-      '/api': {
-        target: 'http://localhost:5000',
-        changeOrigin: true
-      }
-    }
+    host: true
+    // 移除API代理，在Vercel部署时使用Supabase服务
   },
   build: {
     outDir: 'dist'

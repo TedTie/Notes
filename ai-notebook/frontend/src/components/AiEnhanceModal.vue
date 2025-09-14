@@ -174,7 +174,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import axios from 'axios'
+import { supabaseService } from '../services/supabaseService'
 
 interface Task {
   id: number
@@ -249,7 +249,7 @@ const startEnhancing = async () => {
   
   try {
     // 调用 AI 增强 API
-    const response = await axios.post('/api/ai/enhance-task', {
+    const response = await supabaseService.ai.enhanceTask({
       task_id: props.task.id,
       task_title: props.task.title,
       task_description: props.task.description,
@@ -260,7 +260,7 @@ const startEnhancing = async () => {
     progress.value = 100
     
     setTimeout(() => {
-      result.value = response.data
+      result.value = response
       enhancing.value = false
     }, 500)
     
@@ -348,12 +348,12 @@ const applyEnhancement = async () => {
       updated_at: new Date().toISOString()
     }
     
-    const response = await axios.put(`/api/tasks/${props.task.id}`, updatedTask)
+    const response = await supabaseService.tasks.updateTask(props.task.id, updatedTask)
     
     // 如果有子任务，创建子任务
     if (result.value.subtasks && result.value.subtasks.length > 0) {
       for (const subtask of result.value.subtasks) {
-        await axios.post('/api/tasks', {
+        await supabaseService.tasks.createTask({
           project_id: props.task.project_id,
           title: `${props.task.title} - ${subtask.title}`,
           description: subtask.description,
@@ -363,7 +363,7 @@ const applyEnhancement = async () => {
       }
     }
     
-    emit('task-enhanced', response.data)
+    emit('task-enhanced', response)
     showNotification('任务增强应用成功', 'success')
     
   } catch (error) {

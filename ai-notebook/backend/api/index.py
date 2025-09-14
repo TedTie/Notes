@@ -31,6 +31,14 @@ try:
     with app.app_context():
         db.create_all()
     
+    # 尝试导入背景路由
+    try:
+        from routes.backgrounds import backgrounds_bp
+        app.register_blueprint(backgrounds_bp)
+        print("[VERCEL] Successfully registered backgrounds blueprint")
+    except Exception as bp_error:
+        print(f"[VERCEL] Warning: Could not register backgrounds blueprint: {bp_error}")
+    
     FULL_APP_AVAILABLE = True
     
 except Exception as e:
@@ -135,27 +143,7 @@ def get_settings():
         'message': 'Settings endpoint is working (fallback mode)'
     })
 
-# 背景文件端点
-@app.route('/api/backgrounds', methods=['GET'])
-def get_backgrounds():
-    return jsonify({
-        'backgrounds': [],
-        'message': 'Backgrounds endpoint is working'
-    })
-
-@app.route('/api/backgrounds/upload', methods=['POST'])
-def upload_background():
-    return jsonify({
-        'message': 'Background upload not supported in Vercel environment',
-        'error': 'File upload requires persistent storage'
-    }), 501
-
-@app.route('/api/backgrounds/<int:bg_id>', methods=['DELETE'])
-def delete_background(bg_id):
-    return jsonify({
-        'message': f'Background {bg_id} delete not supported in Vercel environment',
-        'error': 'File operations require persistent storage'
-    }), 501
+# 背景文件端点已通过 backgrounds_bp 蓝图注册
 
 # AI相关端点
 @app.route('/api/ai/models', methods=['GET'])

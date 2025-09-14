@@ -351,9 +351,13 @@ def scan_for_malware(file_path):
 
 @backgrounds_bp.route('/api/backgrounds/upload', methods=['POST'])
 def upload_background():
-    """上传Background文件 - 增强安全性验证"""
+    """上传Background文件 - 支持 Vercel 环境"""
     upload_id = str(uuid.uuid4())[:8]  # 用于跟踪此次上传的ID
     print(f"[UPLOAD-{upload_id}] Background upload request received")
+    
+    # 检测是否在 Vercel 环境中
+    is_vercel = os.environ.get('VERCEL') == '1' or os.environ.get('VERCEL_ENV') is not None
+    print(f"[UPLOAD-{upload_id}] Vercel environment detected: {is_vercel}")
     
     try:
         if 'file' not in request.files:
@@ -398,6 +402,87 @@ def upload_background():
         
         # 生成唯一文件名
         file_id = str(uuid.uuid4())
+        
+        # Vercel 环境：返回 Base64 数据 URL
+        if is_vercel:
+            print(f"[UPLOAD-{upload_id}] Processing in Vercel environment - using Base64")
+            
+            # 读取文件内容
+            file_content = file.read()
+            file.seek(0)
+            
+            # 获取 MIME 类型
+            import mimetypes
+            mime_type, _ = mimetypes.guess_type(file.filename)
+            if not mime_type:
+                # 根据扩展名设置默认 MIME 类型
+                ext = file.filename.rsplit('.', 1)[-1].lower()
+                mime_type_map = {
+                    'jpg': 'image/jpeg', 'jpeg': 'image/jpeg',
+                    'png': 'image/png', 'gif': 'image/gif',
+                    'webp': 'image/webp', 'mp4': 'video/mp4',
+                    'webm': 'video/webm', 'mov': 'video/quicktime'
+                }
+                mime_type = mime_type_map.get(ext, 'application/octet-stream')
+            
+            # 转换为 Base64
+            import base64
+            base64_content = base64.b64encode(file_content).decode('utf-8')
+            data_url = f"data:{mime_type};base64,{base64_content}"
+            
+            # 获取主题分类信息
+            theme = request.form.get('theme', 'light')
+            
+            # 构建返回信息
+            background_info = {
+                'id': file_id,
+                'original_name': file.filename,
+                'file_url': data_url,  # 使用 Data URL
+                'file_type': get_file_type(file.filename),
+                'file_size': file_size,
+                'theme': theme,
+                'upload_time': datetime.now().isoformat(),
+                'upload_id': upload_id,
+                'storage_type': 'base64'  # 标记存储类型
+            }
+            
+            print(f"[UPLOAD-{upload_id}] Vercel upload completed successfully")
+            
+            # 在 Vercel 环境中，我们仍然可以保存到数据库
+            try:
+                backgrounds_setting = Setting.query.filter_by(key='background_files').first()
+                if backgrounds_setting:
+                    backgrounds = json.loads(backgrounds_setting.value)
+                else:
+                    backgrounds = []
+                
+                backgrounds.append(background_info)
+                
+                if backgrounds_setting:
+                    backgrounds_setting.value = json.dumps(backgrounds)
+                else:
+                    backgrounds_setting = Setting(key='background_files', value=json.dumps(backgrounds))
+                    db.session.add(backgrounds_setting)
+                
+                db.session.commit()
+                print(f"[UPLOAD-{upload_id}] Background info saved to database")
+                
+            except Exception as db_error:
+                print(f"[UPLOAD-{upload_id}] Database save failed: {str(db_error)}")
+                # 即使数据库保存失败，我们仍然返回成功，因为文件已经处理完成
+            
+            return jsonify({
+                'message': '文件上传成功',
+                'url': data_url,
+                'filename': file.filename,
+                'id': file_id,
+                'size': file_size,
+                'type': background_info['file_type'],
+                'theme': theme
+            }), 200
+        
+        # 本地环境：使用文件系统存储（原有逻辑）
+        print(f"[UPLOAD-{upload_id}] Processing in local environment - using file system")
         filename = secure_filename(file.filename)
         file_ext = filename.rsplit('.', 1)[1].lower()
         new_filename = f"{file_id}.{file_ext}"

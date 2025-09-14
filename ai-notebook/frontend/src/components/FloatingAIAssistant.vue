@@ -435,20 +435,11 @@ const availableModels = [
 // 获取当前可用的模型（基于已连接的API）
 const getAvailableModels = async () => {
   try {
-    const response = await fetch('/api/settings')
-    if (response.ok) {
-      const settings = await response.json()
-      const connectedModels = []
-      
-      // 检查OpenRouter连接状态
-      if (settings.apiProviders?.openrouter?.isConnected) {
-        connectedModels.push(
-          ...availableModels.filter(model => model.provider === 'openrouter')
-        )
-      }
-      
-      return connectedModels.length > 0 ? connectedModels : availableModels
-    }
+    // TODO: 使用Supabase服务获取设置
+    // const settings = await settingsService.getAllSettings()
+    // 暂时返回所有可用模型
+    console.log('TODO: 实现Supabase设置服务获取API连接状态')
+    return availableModels
   } catch (error) {
     console.error('获取可用模型失败:', error)
   }

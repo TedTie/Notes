@@ -44,9 +44,10 @@ class SettingsService {
 
   async loadSettings() {
     try {
-      // 使用增强的API包装器
-      const { success, data, error } = await window.apiWrapper?.get('/api/settings') || 
-                                     await this.fallbackLoadSettings();
+      // 使用 Supabase 服务
+      const { settingsService: supabaseSettingsService } = await import('./supabaseService.js');
+      const data = await supabaseSettingsService.getAllSettings();
+      const { success, error } = { success: true, data, error: null };
       
       if (success && data) {
         // 只使用后端返回的数据，不使用默认设置覆盖
@@ -64,34 +65,25 @@ class SettingsService {
 
   /**
    * 回退加载设置（用于API包装器不可用的情况）
+   * 已迁移到Supabase，不再使用API端点
    */
   async fallbackLoadSettings() {
-    try {
-      const response = await fetch('/api/settings');
-      if (response.ok) {
-        const data = await response.json();
-        return { success: true, data };
-      } else {
-        return { 
-          success: false, 
-          error: `HTTP ${response.status}: ${response.statusText}` 
-        };
-      }
-    } catch (error) {
-      return { 
-        success: false, 
-        error: error.message 
-      };
-    }
+    // TODO: 完全迁移到Supabase后可以移除此方法
+    console.log('fallbackLoadSettings已弃用，使用Supabase服务');
+    return { 
+      success: false, 
+      error: 'API端点已弃用，请使用Supabase服务' 
+    };
   }
 
   async saveSettings(newSettings = null) {
     try {
       const settingsToSave = newSettings || this.settings;
       
-      // 使用增强的API包装器
-      const { success, data, error } = await window.apiWrapper?.post('/api/settings', settingsToSave) || 
-                                       await this.fallbackSaveSettings(settingsToSave);
+      // 使用 Supabase 服务
+      const { settingsService: supabaseSettingsService } = await import('./supabaseService.js');
+      const data = await supabaseSettingsService.updateSettings(settingsToSave);
+      const { success, error } = { success: true, data, error: null };
       
       if (success && data) {
         if (newSettings) {
@@ -111,33 +103,15 @@ class SettingsService {
 
   /**
    * 回退保存设置（用于API包装器不可用的情况）
+   * 已迁移到Supabase，不再使用API端点
    */
   async fallbackSaveSettings(settingsToSave) {
-    try {
-      const response = await fetch('/api/settings', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(settingsToSave)
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        return { success: true, data };
-      } else {
-        const error = await response.json();
-        return { 
-          success: false, 
-          error: error.error || `HTTP ${response.status}: ${response.statusText}` 
-        };
-      }
-    } catch (error) {
-      return { 
-        success: false, 
-        error: error.message 
-      };
-    }
+    // TODO: 完全迁移到Supabase后可以移除此方法
+    console.log('fallbackSaveSettings已弃用，使用Supabase服务');
+    return { 
+      success: false, 
+      error: 'API端点已弃用，请使用Supabase服务' 
+    };
   }
 
   async updateSetting(key, value) {
@@ -158,24 +132,23 @@ class SettingsService {
     this.abortControllers[key] = new AbortController();
     
     try {
-      const response = await fetch(`/api/settings/${key}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ value }),
-        signal: this.abortControllers[key].signal
-      });
-
-      if (response.ok) {
-        setNestedValue(this.settings, key, value);
-        this.notifyListeners();
-        this.applySettings();
-        return { success: true, message: '设置更新成功' };
-      } else {
-        const error = await response.json();
-        return { success: false, error: error.error || '更新失败' };
-      }
+      // TODO: 使用Supabase服务更新设置
+      // 暂时注释掉API调用，使用本地更新
+      // const response = await fetch(`/api/settings/${key}`, {
+      //   method: 'PUT',
+      //   headers: {
+      //     'Content-Type': 'application/json'
+      //   },
+      //   body: JSON.stringify({ value }),
+      //   signal: this.abortControllers[key].signal
+      // });
+      console.log('TODO: 实现Supabase设置服务更新单个设置');
+      
+      // 暂时使用本地更新
+      setNestedValue(this.settings, key, value);
+      this.notifyListeners();
+      this.applySettings();
+      return { success: true, message: '设置更新成功（本地模式）' };
     } catch (error) {
       // 忽略被取消的请求错误
       if (error.name === 'AbortError') {
