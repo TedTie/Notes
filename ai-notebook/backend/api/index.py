@@ -19,12 +19,27 @@ def health_check():
     })
 
 # 基本的notes端点
-@app.route('/api/notes', methods=['GET'])
-def get_notes():
-    return jsonify({
-        'notes': [],
-        'message': 'Notes endpoint is working'
-    })
+@app.route('/api/notes', methods=['GET', 'POST'])
+def handle_notes():
+    from flask import request
+    
+    if request.method == 'GET':
+        return jsonify({
+            'notes': [],
+            'message': 'Notes endpoint is working'
+        })
+    
+    elif request.method == 'POST':
+        data = request.get_json() or {}
+        return jsonify({
+            'message': 'Note created successfully',
+            'note': {
+                'id': 1,
+                'title': data.get('title', 'Untitled'),
+                'content': data.get('content', ''),
+                'created_at': '2025-01-14T00:00:00Z'
+            }
+        }), 201
 
 # 基本的settings端点
 @app.route('/api/settings', methods=['GET'])
