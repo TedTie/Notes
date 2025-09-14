@@ -4,6 +4,7 @@ import settingsService from '../services/settingsService'
 import languageService from '../services/languageService'
 import { useTheme } from '../composables/useTheme'
 import TimeUtils from '../utils/timeUtils'
+import fileUploadService from '../services/fileUploadService'
 
 interface ApiProvider {
   name: string
@@ -792,30 +793,34 @@ const handleFileUpload = async (event: Event) => {
         continue
       }
       
-      console.log(`[FRONTEND] Creating FormData for theme: ${activeBackgroundTab.value}`)
-      const formData = new FormData()
-      formData.append('file', file)
-      // 添加主题分类信息
-      formData.append('theme', activeBackgroundTab.value)
+      console.log(`[FRONTEND] Uploading to Supabase Storage for theme: ${activeBackgroundTab.value}`)
       
-      console.log('[FRONTEND] Sending upload request to backend')
-      const response = await fetch('/api/backgrounds/upload', {
-        method: 'POST',
-        body: formData,
-        signal: controller.signal  // 添加取消信号
-      })
+      // 使用 Supabase Storage 上传文件
+      const fileExt = file.name.split('.').pop()
+      const fileName = `${Date.now()}_${activeBackgroundTab.value}.${fileExt}`
+      const filePath = `backgrounds/${fileName}`
       
-      console.log(`[FRONTEND] Upload response status: ${response.status}`)
-      if (response.ok) {
-        const result = await response.json()
-        console.log('[FRONTEND] Upload successful:', result)
-        const themeText = activeBackgroundTab.value === 'light' ? '浅色主题' : '深色主题'
-        showNotification(`文件 ${file.name} 已上传到${themeText}背景`, 'success')
-      } else {
-        const errorText = await response.text()
-        console.log(`[FRONTEND] Upload failed: ${response.status} - ${errorText}`)
-        throw new Error(`上传失败: ${response.statusText}`)
+      console.log('[FRONTEND] Uploading file...')
+      const result = await fileUploadService.uploadBackground(file)
+      
+      console.log('[FRONTEND] Upload successful:', result)
+      const themeText = activeBackgroundTab.value === 'light' ? '浅色主题' : '深色主题'
+      showNotification(`文件 ${file.name} 已上传到${themeText}背景`, 'success')
+      
+      // 将文件信息保存到本地存储或状态管理中
+      const backgroundInfo = {
+        id: Date.now().toString(),
+        name: file.name,
+        url: result.url,
+        path: result.path,
+        theme: activeBackgroundTab.value,
+        type: file.type.startsWith('image/') ? 'image' : 'video',
+        size: file.size,
+        uploadedAt: new Date().toISOString()
       }
+      
+      // 这里可以添加将背景信息保存到数据库的逻辑
+      console.log('[FRONTEND] Background info:', backgroundInfo)
     }
   } catch (error) {
     console.error('文件上传失败:', error)
@@ -1038,31 +1043,19 @@ const deleteBackground = async (fileId: string) => {
 
 const loadBackgroundFiles = async () => {
   try {
-    const controller = new AbortController()
-    const timeoutId = setTimeout(() => controller.abort(), 10000) // 10秒超时
+    console.log('[FRONTEND] 加载背景文件列表...')
+    const files = await fileUploadService.getBackgrounds()
     
-    const response = await fetch('/api/backgrounds', {
-      signal: controller.signal
-    })
+    // 确保URL是完整的
+    backgroundFiles.value = files.map(file => ({
+      ...file,
+      url: file.url.startsWith('http') ? file.url : `${file.url}`
+    }))
     
-    clearTimeout(timeoutId)
-    
-    if (response.ok) {
-      const files = await response.json()
-      // 确保URL是完整的
-      backgroundFiles.value = files.map(file => ({
-        ...file,
-        url: file.url.startsWith('http') ? file.url : `${file.url}`
-      }))
-    } else {
-      console.error('加载背景文件失败:', response.status, response.statusText)
-    }
+    console.log('[FRONTEND] 背景文件加载完成:', backgroundFiles.value.length, '个文件')
   } catch (error) {
-    if (error.name === 'AbortError') {
-      console.error('加载背景文件超时')
-    } else {
-      console.error('加载背景文件失败:', error)
-    }
+    console.error('加载背景文件失败:', error)
+    backgroundFiles.value = []
   }
 }
 
