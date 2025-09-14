@@ -5,7 +5,7 @@
 
 import { fileService } from './supabaseService'
 
-export const fileUploadService = {
+const fileUploadService = {
   /**
    * 上传背景文件
    * @param {File} file - 要上传的文件
@@ -60,7 +60,7 @@ export const fileUploadService = {
     try {
       console.log('[UPLOAD] 获取背景文件列表...')
       
-      const backgrounds = await fileService.getBackgrounds()
+      const backgrounds = await fileService.getBackgroundsList()
       console.log('[UPLOAD] 获取到背景文件:', backgrounds.length, '个')
       
       return backgrounds
