@@ -14,7 +14,7 @@
     "install:frontend": "cd ai-notebook/frontend && npm install",
     "install:backend": "cd ai-notebook/backend && pip install -r requirements.txt",
     "test:backend": "cd ai-notebook/backend && python -c \"from app import create_app; app = create_app(); print('Backend test successful')\"",
-    "vercel-build": "npm run build:frontend",
+    "vercel-build": "npm run install:frontend && npm run build:frontend",
     "vercel:login": "vercel login",
     "vercel:deploy": "vercel --prod",
     "vercel:dev": "vercel dev"
