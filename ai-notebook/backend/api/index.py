@@ -1,99 +1,45 @@
-# Vercel部署入口文件 - 简化版本
-from flask import Flask, jsonify
-from flask_cors import CORS
+# Vercel部署入口文件 - 完整版本
+import sys
 import os
 
-# 创建Flask应用
-app = Flask(__name__)
+# 添加后端目录到Python路径
+backend_dir = os.path.dirname(os.path.abspath(__file__))
+parent_dir = os.path.dirname(backend_dir)
+sys.path.insert(0, parent_dir)
 
-# 配置CORS
-CORS(app, origins=['*'])
-
-# 健康检查端点
-@app.route('/api/health', methods=['GET'])
-def health_check():
-    return jsonify({
-        'status': 'healthy',
-        'message': 'AI Notebook API is running',
-        'timestamp': '2025-01-14T00:00:00Z'
-    })
-
-# 基本的notes端点
-@app.route('/api/notes', methods=['GET', 'POST'])
-def handle_notes():
-    from flask import request
+try:
+    # 导入完整的Flask应用
+    from app import create_app
     
-    if request.method == 'GET':
-        return jsonify({
-            'notes': [],
-            'message': 'Notes endpoint is working'
-        })
+    # 创建应用实例
+    app = create_app()
     
-    elif request.method == 'POST':
-        data = request.get_json() or {}
+    # 确保应用在Vercel环境中正确配置
+    app.config['ENV'] = 'production'
+    app.config['DEBUG'] = False
+    
+except ImportError as e:
+    # 如果导入失败，创建一个简单的错误应用
+    from flask import Flask, jsonify
+    from flask_cors import CORS
+    
+    app = Flask(__name__)
+    CORS(app, origins=['*'])
+    
+    @app.route('/api/health', methods=['GET'])
+    def health_check():
         return jsonify({
-            'message': 'Note created successfully',
-            'note': {
-                'id': 1,
-                'title': data.get('title', 'Untitled'),
-                'content': data.get('content', ''),
-                'created_at': '2025-01-14T00:00:00Z'
-            }
-        }), 201
-
-# 基本的settings端点
-@app.route('/api/settings', methods=['GET'])
-def get_settings():
-    return jsonify({
-        'settings': {},
-        'message': 'Settings endpoint is working'
-    })
-
-# 背景文件端点
-@app.route('/api/backgrounds', methods=['GET'])
-def get_backgrounds():
-    return jsonify({
-        'backgrounds': [],
-        'message': 'Backgrounds endpoint is working'
-    })
-
-@app.route('/api/backgrounds/upload', methods=['POST'])
-def upload_background():
-    from flask import request
-    return jsonify({
-        'message': 'Background upload endpoint (mock)',
-        'error': 'File upload not implemented in simplified version'
-    }), 501
-
-@app.route('/api/backgrounds/<int:bg_id>', methods=['DELETE'])
-def delete_background(bg_id):
-    return jsonify({
-        'message': f'Background {bg_id} delete endpoint (mock)',
-        'error': 'Delete not implemented in simplified version'
-    }), 501
-
-# AI相关端点
-@app.route('/api/ai/models', methods=['GET'])
-def get_ai_models():
-    return jsonify({
-        'models': [],
-        'message': 'AI models endpoint (mock)'
-    })
-
-@app.route('/api/ai/chat', methods=['POST'])
-def ai_chat():
-    return jsonify({
-        'message': 'AI chat endpoint (mock)',
-        'error': 'AI chat not implemented in simplified version'
-    }), 501
-
-# 番茄钟端点
-@app.route('/api/pomodoro/stats', methods=['GET'])
-def get_pomodoro_stats():
-    return jsonify({
-        'stats': {},
-        'message': 'Pomodoro stats endpoint (mock)'
-    })
+            'status': 'error',
+            'message': f'Failed to import main app: {str(e)}',
+            'timestamp': '2025-01-14T00:00:00Z'
+        }), 500
+    
+    @app.route('/api/<path:path>', methods=['GET', 'POST', 'PUT', 'DELETE'])
+    def catch_all(path):
+        return jsonify({
+            'error': 'Main application failed to load',
+            'message': f'Import error: {str(e)}'
+        }), 500
 
 # Vercel需要这个变量
 app = app
