@@ -1,0 +1,14 @@
+.vercel
+
+# Trae AI MCP Configuration
+.trae/env
+.trae/*.log
+.trae/temp/
+
+# Supabase sensitive files
+*.env.local
+*.env.production
+
+# MCP Server logs
+mcp-server.log
+supabase-mcp.log
