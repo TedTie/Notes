@@ -185,7 +185,7 @@ const loadBackgroundLight = async () => {
       // 确保URL是完整的
       const filesWithFullUrl = files.map(file => ({
         ...file,
-        url: file.url && file.url.startsWith('http') ? file.url : `${file.url || ''}`
+        url: file.url && typeof file.url === 'string' && file.url.startsWith('http') ? file.url : `${file.url || ''}`
       }))
       const currentFile = filesWithFullUrl.find(file => file.name === backgroundSetting || file.path === backgroundSetting)
       console.log(`[APP] Found light theme background file:`, currentFile)
@@ -225,7 +225,7 @@ const loadBackgroundDark = async () => {
       // 确保URL是完整的
       const filesWithFullUrl = files.map(file => ({
         ...file,
-        url: file.url && file.url.startsWith('http') ? file.url : `${file.url || ''}`
+        url: file.url && typeof file.url === 'string' && file.url.startsWith('http') ? file.url : `${file.url || ''}`
       }))
       const currentFile = filesWithFullUrl.find(file => file.name === backgroundSetting || file.path === backgroundSetting)
       console.log(`[APP] Found dark theme background file:`, currentFile)
@@ -263,7 +263,7 @@ const loadCurrentBackground = async () => {
       const files = await fileService.getBackgroundsList()
       const filesWithFullUrl = files.map(file => ({
         ...file,
-        url: file.url && file.url.startsWith('http') ? file.url : `${file.url || ''}`
+        url: file.url && typeof file.url === 'string' && file.url.startsWith('http') ? file.url : `${file.url || ''}`
       }))
       
       const currentFile = filesWithFullUrl.find(file => file.name === backgroundSetting || file.path === backgroundSetting)
@@ -327,6 +327,20 @@ const applyBackground = (file: any) => {
       currentUserBackground.value = file.url
     } else {
       console.log(`[APP] Unknown file type, clearing background:`, file.type)
+      currentUserBackground.value = null
+    }
+  } else if (file && file.url) {
+    // 如果没有type信息但有URL，尝试从URL推断类型
+    console.log(`[APP] No type info, inferring from URL:`, file.url)
+    const url = file.url.toLowerCase()
+    if (url.includes('.jpg') || url.includes('.jpeg') || url.includes('.png') || url.includes('.gif') || url.includes('.webp')) {
+      console.log(`[APP] Inferred image type, setting background:`, file.url)
+      currentUserBackground.value = file.url
+    } else if (url.includes('.mp4') || url.includes('.webm') || url.includes('.mov')) {
+      console.log(`[APP] Inferred video type, setting background:`, file.url)
+      currentUserBackground.value = file.url
+    } else {
+      console.log(`[APP] Cannot infer type from URL, clearing background`)
       currentUserBackground.value = null
     }
   } else {

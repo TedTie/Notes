@@ -932,11 +932,7 @@ export const projectsService = {
         .from('projects')
         .insert({
           name: projectData.name,
-          description: projectData.description || '',
-          status: projectData.status || 'active',
-          priority: projectData.priority || 'medium',
-          start_date: projectData.start_date || null,
-          end_date: projectData.end_date || null
+          description: projectData.description || ''
         })
         .select()
         .single()
@@ -969,12 +965,14 @@ export const projectsService = {
   // 更新项目
   async updateProject(id, projectData) {
     try {
+      const updateData = {}
+      if (projectData.name !== undefined) updateData.name = projectData.name
+      if (projectData.description !== undefined) updateData.description = projectData.description
+      updateData.updated_at = new Date().toISOString()
+      
       const { data, error } = await supabase
         .from('projects')
-        .update({
-          ...projectData,
-          updated_at: new Date().toISOString()
-        })
+        .update(updateData)
         .eq('id', id)
         .select()
         .single()

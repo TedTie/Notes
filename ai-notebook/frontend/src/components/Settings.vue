@@ -980,7 +980,7 @@ const loadBackgroundFiles = async () => {
     // 确保URL是完整的
     backgroundFiles.value = files.map(file => ({
       ...file,
-      url: file.url && file.url.startsWith('http') ? file.url : `${file.url || ''}`
+      url: file.url && typeof file.url === 'string' && file.url.startsWith('http') ? file.url : `${file.url || ''}`
     }))
     
     console.log('[FRONTEND] 背景文件加载完成:', backgroundFiles.value.length, '个文件')
