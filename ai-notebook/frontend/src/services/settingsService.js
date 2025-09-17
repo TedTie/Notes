@@ -24,7 +24,33 @@ class SettingsService {
     this.listeners = new Set();
     this.isInitialized = false;
     this.abortControllers = {};
+    // 添加缓存机制
+    this.cache = {
+      data: null,
+      timestamp: 0,
+      ttl: 300000 // 5分钟缓存
+    };
     this.init();
+  }
+
+  // 检查缓存是否有效
+  isCacheValid() {
+    return this.cache.data && (Date.now() - this.cache.timestamp) < this.cache.ttl;
+  }
+
+  // 设置缓存
+  setCache(data) {
+    this.cache = {
+      data,
+      timestamp: Date.now(),
+      ttl: this.cache.ttl
+    };
+  }
+
+  // 清除缓存
+  clearCache() {
+    this.cache.data = null;
+    this.cache.timestamp = 0;
   }
 
   async init() {
@@ -44,6 +70,12 @@ class SettingsService {
 
   async loadSettings() {
     try {
+      // 检查缓存
+      if (this.isCacheValid()) {
+        this.settings = { ...this.settings, ...this.cache.data };
+        return this.settings;
+      }
+      
       // 使用 Supabase 服务
       const { settingsService: supabaseSettingsService } = await import('./supabaseService.js');
       const data = await supabaseSettingsService.getAllSettings();
@@ -53,6 +85,8 @@ class SettingsService {
         // 只使用后端返回的数据，不使用默认设置覆盖
         if (data && Object.keys(data).length > 0) {
           this.settings = { ...this.settings, ...data };
+          // 设置缓存
+          this.setCache(data);
         }
         this.notifyListeners();
         return this.settings;
@@ -115,14 +149,6 @@ class SettingsService {
   }
 
   async updateSetting(key, value) {
-    // 在演示模式下，直接更新本地设置
-    if (demoModeService.isDemo()) {
-      setNestedValue(this.settings, key, value);
-      this.notifyListeners();
-      this.applySettings();
-      return { success: true, message: '设置更新成功（演示模式）' };
-    }
-
     // 取消之前的请求
     if (this.abortControllers[key]) {
       this.abortControllers[key].abort();
@@ -132,23 +158,19 @@ class SettingsService {
     this.abortControllers[key] = new AbortController();
     
     try {
-      // TODO: 使用Supabase服务更新设置
-      // 暂时注释掉API调用，使用本地更新
-      // const response = await fetch(`/api/settings/${key}`, {
-      //   method: 'PUT',
-      //   headers: {
-      //     'Content-Type': 'application/json'
-      //   },
-      //   body: JSON.stringify({ value }),
-      //   signal: this.abortControllers[key].signal
-      // });
-      console.log('TODO: 实现Supabase设置服务更新单个设置');
+      // 使用Supabase服务更新设置
+      const { settingsService: supabaseSettingsService } = await import('./supabaseService.js');
+      const result = await supabaseSettingsService.updateSetting(key, value);
       
-      // 暂时使用本地更新
-      setNestedValue(this.settings, key, value);
-      this.notifyListeners();
-      this.applySettings();
-      return { success: true, message: '设置更新成功（本地模式）' };
+      if (result) {
+        // 更新本地设置
+        setNestedValue(this.settings, key, value);
+        this.notifyListeners();
+        this.applySettings();
+        return { success: true, message: '设置更新成功' };
+      } else {
+        throw new Error('更新设置失败');
+      }
     } catch (error) {
       // 忽略被取消的请求错误
       if (error.name === 'AbortError') {
@@ -156,15 +178,12 @@ class SettingsService {
       }
       console.error('更新设置失败:', error);
       
-      // 在演示模式下，即使API调用失败也要更新本地设置
-      if (demoModeService.isDemo()) {
-        setNestedValue(this.settings, key, value);
-        this.notifyListeners();
-        this.applySettings();
-        return { success: true, message: '设置更新成功（演示模式）' };
-      }
+      // 如果Supabase更新失败，仍然更新本地设置以保证用户体验
+      setNestedValue(this.settings, key, value);
+      this.notifyListeners();
+      this.applySettings();
       
-      return { success: false, error: error.message };
+      return { success: false, error: error.message, localUpdate: true };
     } finally {
       // 清理AbortController
       delete this.abortControllers[key];

@@ -2,6 +2,47 @@
 class PomodoroService {
   constructor() {
     this.baseURL = '/api/pomodoro'
+    // 添加缓存机制
+    this.cache = {
+      stats: {
+        today: { data: null, timestamp: 0, ttl: 60000 }, // 1分钟缓存
+        week: { data: null, timestamp: 0, ttl: 300000 }   // 5分钟缓存
+      },
+      sessions: { data: null, timestamp: 0, ttl: 30000 } // 30秒缓存
+    }
+  }
+
+  // 检查缓存是否有效
+  isCacheValid(cacheItem) {
+    return cacheItem.data && (Date.now() - cacheItem.timestamp) < cacheItem.ttl
+  }
+
+  // 设置缓存
+  setCache(key, subKey, data) {
+    if (subKey) {
+      this.cache[key][subKey] = {
+        data,
+        timestamp: Date.now(),
+        ttl: this.cache[key][subKey].ttl
+      }
+    } else {
+      this.cache[key] = {
+        data,
+        timestamp: Date.now(),
+        ttl: this.cache[key].ttl
+      }
+    }
+  }
+
+  // 清除缓存
+  clearCache(key, subKey = null) {
+    if (subKey && this.cache[key]) {
+      this.cache[key][subKey].data = null
+      this.cache[key][subKey].timestamp = 0
+    } else if (this.cache[key]) {
+      this.cache[key].data = null
+      this.cache[key].timestamp = 0
+    }
   }
 
   // 记录完成的番茄钟会话
@@ -19,7 +60,14 @@ class PomodoroService {
         throw new Error(`HTTP error! status: ${response.status}`)
       }
       
-      return await response.json()
+      const result = await response.json()
+      
+      // 清除统计缓存，因为数据已更新
+      this.clearCache('stats', 'today')
+      this.clearCache('stats', 'week')
+      this.clearCache('sessions')
+      
+      return result
     } catch (error) {
       console.error('记录番茄钟会话失败:', error)
       throw error
@@ -75,14 +123,36 @@ class PomodoroService {
 
   // 获取今日统计
   async getTodayStats() {
+    // 检查缓存
+    const todayCache = this.cache.stats.today
+    if (this.isCacheValid(todayCache)) {
+      return todayCache.data
+    }
+    
     const stats = await this.getStats('today')
-    return stats.today || { completedSessions: 0, totalMinutes: 0 }
+    const result = stats.today || { completedSessions: 0, totalMinutes: 0 }
+    
+    // 设置缓存
+    this.setCache('stats', 'today', result)
+    
+    return result
   }
 
   // 获取本周统计
   async getWeekStats() {
+    // 检查缓存
+    const weekCache = this.cache.stats.week
+    if (this.isCacheValid(weekCache)) {
+      return weekCache.data
+    }
+    
     const stats = await this.getStats('week')
-    return stats.week || { completedSessions: 0, totalMinutes: 0 }
+    const result = stats.week || { completedSessions: 0, totalMinutes: 0 }
+    
+    // 设置缓存
+    this.setCache('stats', 'week', result)
+    
+    return result
   }
 
   // 获取指定任务的番茄钟会话

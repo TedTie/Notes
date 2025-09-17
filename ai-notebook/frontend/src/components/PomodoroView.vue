@@ -487,9 +487,8 @@ const getNextSessionLabel = () => {
 
 // 生命周期
 onMounted(async () => {
+  // 优化：先加载设置（最重要），然后并行加载其他数据
   await loadSettings()
-  await loadTasks()
-  await loadStats()
   
   // 处理传入的任务，自动选择任务
   if (props.selectedTask?.id) {
@@ -505,6 +504,18 @@ onMounted(async () => {
   setTimeout(() => {
     pageLoaded.value = true
   }, 100)
+  
+  // 延迟加载非关键数据，避免阻塞UI
+  setTimeout(async () => {
+    try {
+      await Promise.all([
+        loadTasks(),
+        loadStats()
+      ])
+    } catch (error) {
+      console.error('延迟加载数据失败:', error)
+    }
+  }, 200)
 })
 
 // 监听props变化

@@ -1,9 +1,48 @@
 import { todosService as supabaseTodosService } from './supabaseService.js'
 
 class TodosService {
+  constructor() {
+    // 添加缓存机制
+    this.cache = {
+      data: null,
+      timestamp: 0,
+      ttl: 120000 // 2分钟缓存
+    }
+  }
+
+  // 检查缓存是否有效
+  isCacheValid() {
+    return this.cache.data && (Date.now() - this.cache.timestamp) < this.cache.ttl
+  }
+
+  // 设置缓存
+  setCache(data) {
+    this.cache = {
+      data,
+      timestamp: Date.now(),
+      ttl: this.cache.ttl
+    }
+  }
+
+  // 清除缓存
+  clearCache() {
+    this.cache.data = null
+    this.cache.timestamp = 0
+  }
+
   async getAllTodos() {
     try {
-      return await supabaseTodosService.getAllTodos()
+      // 检查缓存
+      if (this.isCacheValid()) {
+        return this.cache.data
+      }
+      
+      const result = await supabaseTodosService.getAllTodos()
+      
+      // 设置缓存
+      this.setCache(result)
+      
+      return result
     } catch (error) {
       console.error('获取待办事项失败:', error)
       return []
@@ -21,6 +60,8 @@ class TodosService {
         due_date: todoData.due_date
       }
       const todo = await supabaseTodosService.createTodo(apiData)
+      // 清除缓存，因为数据已更新
+      this.clearCache()
       return {
         success: true,
         todo: todo
@@ -36,7 +77,10 @@ class TodosService {
 
   async updateTodo(id, todoData) {
     try {
-      return await supabaseTodosService.updateTodo(id, todoData)
+      const result = await supabaseTodosService.updateTodo(id, todoData)
+      // 清除缓存，因为数据已更新
+      this.clearCache()
+      return result
     } catch (error) {
       console.error('更新待办事项失败:', error)
       throw error
@@ -45,7 +89,10 @@ class TodosService {
 
   async deleteTodo(id) {
     try {
-      return await supabaseTodosService.deleteTodo(id)
+      const result = await supabaseTodosService.deleteTodo(id)
+      // 清除缓存，因为数据已更新
+      this.clearCache()
+      return result
     } catch (error) {
       console.error('删除待办事项失败:', error)
       throw error

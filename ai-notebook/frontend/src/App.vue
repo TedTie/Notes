@@ -15,10 +15,12 @@ import ThemeToggle from './components/ThemeToggle.vue'
 import TracingBeam from './components/TracingBeam.vue'
 import ParticleBackground from './components/ParticleBackground.vue'
 import StaticBackground from './components/StaticBackground.vue'
+import PreloadManager from './components/PreloadManager.vue'
 import settingsService from './services/settingsService'
 import languageService from './services/languageService'
 import { useTheme } from './composables/useTheme'
 import { settingsService as supabaseSettingsService, fileService } from './services/supabaseService'
+import { PERFORMANCE_CONFIG } from './config/performance.js'
 // 移除了API_CONFIG相关代码
 
 const currentView = ref('notes')
@@ -382,6 +384,24 @@ const handleStartPomodoro = (taskInfo: any) => {
   selectedTask.value = taskInfo
 }
 
+// 预加载完成处理
+const handlePreloadComplete = () => {
+  console.log('预加载完成，应用准备就绪')
+  // 延迟隐藏加载屏幕，确保平滑过渡
+  setTimeout(() => {
+    isLoading.value = false
+  }, 300)
+}
+
+// 预加载错误处理
+const handlePreloadError = (error: Error) => {
+  console.error('预加载失败:', error)
+  // 即使预加载失败，也要显示应用界面
+  setTimeout(() => {
+    isLoading.value = false
+  }, 1000)
+}
+
 // 响应式语言状态
 const currentLanguage = ref(languageService.getLanguage())
 
@@ -431,42 +451,14 @@ const getPageDescription = computed(() => {
 </script>
 
 <template>
-  <!-- 加载屏幕 -->
-  <div v-if="isLoading" class="fixed inset-0 bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center z-50">
-    <div class="text-center relative">
-      <!-- 主标题 -->
-      <div class="relative mb-8">
-        <h1 class="text-6xl font-bold bg-gradient-to-r from-purple-400 via-cyan-400 to-purple-400 bg-clip-text text-transparent animate-pulse">
-          AI WORKSPACE
-        </h1>
-        <div class="absolute inset-0 text-6xl font-bold text-purple-500 opacity-20 blur-sm">
-          AI WORKSPACE
-        </div>
-      </div>
-      
-      <!-- 副标题 -->
-      <p class="text-xl text-purple-300 opacity-80 mb-8 font-light">
-        {{ languageService.t('loading_subtitle') }}
-      </p>
-      
-      <!-- 加载动画 -->
-      <div class="flex items-center justify-center space-x-2 mb-4">
-        <div class="w-3 h-3 bg-gradient-to-r from-purple-400 to-cyan-400 rounded-full animate-bounce"></div>
-        <div class="w-3 h-3 bg-gradient-to-r from-cyan-400 to-purple-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
-        <div class="w-3 h-3 bg-gradient-to-r from-purple-400 to-cyan-400 rounded-full animate-bounce" style="animation-delay: 0.4s"></div>
-      </div>
-      
-      <!-- 进度条 -->
-      <div class="w-64 h-1 bg-slate-700 rounded-full overflow-hidden mx-auto">
-        <div class="h-full bg-gradient-to-r from-purple-500 to-cyan-500 rounded-full animate-pulse" style="width: 100%; animation-duration: 2s;"></div>
-      </div>
-    </div>
-    
-    <!-- 背景粒子 -->
-    <div class="absolute inset-0">
-      <div class="particle-bg"></div>
-    </div>
-  </div>
+  <!-- 预加载管理器 -->
+  <PreloadManager 
+    v-if="isLoading" 
+    @loaded="handlePreloadComplete"
+    @error="handlePreloadError"
+    :auto-hide="true"
+    :min-display-time="1000"
+  />
 
   <!-- 主应用界面 -->
   <div v-else class="min-h-screen relative" :data-theme="currentTheme">
