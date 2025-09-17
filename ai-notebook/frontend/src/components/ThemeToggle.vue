@@ -43,10 +43,7 @@
         </div>
       </div>
       
-      <!-- 背景粒子效果 -->
-      <div class="particles">
-        <div class="particle" v-for="i in 6" :key="i" :style="getParticleStyle(i)"></div>
-      </div>
+
     </button>
   </div>
 </template>
@@ -98,9 +95,8 @@ export default {
       } catch (error) {
         console.error('[ThemeToggle] Theme toggle failed:', error)
       } finally {
-        setTimeout(() => {
-          isToggling.value = false
-        }, 300)
+        // 立即重置切换状态，避免按钮无响应
+        isToggling.value = false
       }
     }
     
@@ -109,24 +105,13 @@ export default {
       console.log('[ThemeToggle] Theme state changed:', newValue)
     }, { immediate: true })
     
-    const getParticleStyle = (index) => {
-      const angle = (index * 60) * Math.PI / 180
-      const radius = 25
-      const x = Math.cos(angle) * radius
-      const y = Math.sin(angle) * radius
-      
-      return {
-        '--x': `${x}px`,
-        '--y': `${y}px`,
-        '--delay': `${index * 0.1}s`
-      }
-    }
+
     
     return {
       isDarkMode,
       toggleTheme,
       themeColors,
-      getParticleStyle,
+
       handleToggle,
       isToggling
     }
@@ -206,20 +191,7 @@ export default {
   animation: pulse 2s ease-in-out infinite;
 }
 
-.particles {
-  @apply absolute inset-0 pointer-events-none;
-}
 
-.particle {
-  @apply absolute w-1 h-1 rounded-full opacity-60;
-  background: var(--theme-glow);
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%) translate(var(--x), var(--y));
-  animation: particle-float 3s ease-in-out infinite;
-  animation-delay: var(--delay);
-  box-shadow: 0 0 4px currentColor;
-}
 
 .theme-label {
   @apply text-center;
@@ -243,16 +215,7 @@ export default {
   50% { opacity: 0.7; }
 }
 
-@keyframes particle-float {
-  0%, 100% { 
-    transform: translate(-50%, -50%) translate(var(--x), var(--y)) scale(1);
-    opacity: 0.6;
-  }
-  50% { 
-    transform: translate(-50%, -50%) translate(var(--x), var(--y)) scale(1.2);
-    opacity: 1;
-  }
-}
+
 
 /* 响应式设计 */
 @media (max-width: 768px) {

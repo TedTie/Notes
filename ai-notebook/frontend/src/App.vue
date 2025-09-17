@@ -25,7 +25,7 @@ import { initializeTheme, setupSystemThemeListener, validateThemeApplication } f
 // 移除了API_CONFIG相关代码
 
 const currentView = ref('notes')
-const isLoading = ref(true)
+const isLoading = ref(false)
 const selectedTask = ref(null)
 
 const currentTheme = computed(() => settingsService.settings.theme || 'dark')
@@ -341,7 +341,7 @@ watch(isDarkMode, async (newIsDark, oldIsDark) => {
       // 出错时清除背景而不是保持原样
       clearBackground()
     }
-  }, 150) // 150ms 防抖延迟
+  }, 50) // 50ms 防抖延迟，提升响应速度
 }, { immediate: true })
 
 // 调试：监控actualTheme的值
@@ -536,9 +536,6 @@ const getPageDescription = computed(() => {
         zIndex: 1
       }"
     ></div>
-    
-    <!-- 粒子背景 (z-index: 2) -->
-    <ParticleBackground />
     
     <!-- 动态效果层 (z-index: 3) -->
     <DynamicBackground />
