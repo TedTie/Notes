@@ -1456,13 +1456,13 @@ onUnmounted(() => {
                     selectedBackground === file.id ? 'border-cyan-400 shadow-lg shadow-cyan-400/25' : 'border-cyber-primary/30 hover:border-cyan-400/60'
                   ]">
                     <img 
-                      v-if="file.type.startsWith('image')" 
+                      v-if="file.type && file.type.startsWith('image')" 
                       :src="file.url" 
                       :alt="file.name" 
                       class="w-full h-full object-cover"
                     >
                     <video 
-                      v-else-if="file.type.startsWith('video')" 
+                      v-else-if="file.type && file.type.startsWith('video')" 
                       :src="file.url" 
                       class="w-full h-full object-cover" 
                       muted
