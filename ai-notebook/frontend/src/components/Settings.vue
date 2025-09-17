@@ -576,10 +576,8 @@ const changeTheme = async (themeValue: 'dark' | 'light' | 'auto') => {
   isManualToggle = true
   
   try {
-    // 直接更新设置
-    settings.value.theme = themeValue
-    
-    // 通过settingsService直接更新主题，这会触发useTheme的更新
+    // 只通过settingsService更新主题，让它来处理所有的同步
+    // 不直接修改settings.value.theme，避免重复更新
     await settingsService.updateSetting('theme', themeValue)
     
     // 显示成功通知

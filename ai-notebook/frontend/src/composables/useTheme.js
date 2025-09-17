@@ -95,14 +95,19 @@ export function useTheme() {
     }
   })
 
+  // 防止循环调用的标记
+  let isUpdatingFromSettings = false
+  
   // 监听主题变化，保存到localStorage和全局设置
   watch(currentTheme, (newValue) => {
     console.log('[useTheme] Theme changed to:', newValue)
     
     localStorage.setItem('cyber-theme', newValue)
     
-    // 同步到全局设置
-    settingsService.setSetting('theme', newValue)
+    // 只有在不是从设置服务更新时才同步到全局设置，防止循环调用
+    if (!isUpdatingFromSettings) {
+      settingsService.setSetting('theme', newValue, null, false) // 不立即通知
+    }
     
     // 计算实际主题（考虑auto模式）
     const resolvedTheme = newValue === 'auto' 
@@ -111,7 +116,7 @@ export function useTheme() {
     
     console.log('[useTheme] Applying actual theme:', resolvedTheme)
     
-    // 强制更新DOM - 使用nextTick确保DOM更新
+    // 优化DOM更新 - 移除不必要的强制重绘
     nextTick(() => {
       const root = document.documentElement
       
@@ -121,18 +126,6 @@ export function useTheme() {
       // 添加新主题类
       root.classList.add(resolvedTheme === 'dark' ? 'theme-dark' : 'theme-light')
       root.setAttribute('data-theme', resolvedTheme)
-      
-      // 强制重绘和Vue重新渲染
-      root.style.display = 'none'
-      root.offsetHeight // 触发重排
-      root.style.display = ''
-      
-      // 强制触发Vue的响应式更新
-      setTimeout(() => {
-        // 触发一个微小的DOM变化来强制Vue重新渲染
-        const event = new CustomEvent('vue-force-update', { detail: { theme: resolvedTheme } })
-        document.dispatchEvent(event)
-      }, 10)
       
       console.log('[useTheme] DOM updated with theme:', resolvedTheme)
     })
@@ -201,7 +194,11 @@ export function useTheme() {
       if (event.detail?.settings?.theme) {
         const newTheme = event.detail.settings.theme
         if (newTheme !== currentTheme.value) {
+          isUpdatingFromSettings = true
           currentTheme.value = newTheme
+          nextTick(() => {
+            isUpdatingFromSettings = false
+          })
         }
       }
     }
@@ -210,7 +207,11 @@ export function useTheme() {
       if (event.detail?.theme) {
         const newTheme = event.detail.theme
         if (newTheme !== currentTheme.value) {
+          isUpdatingFromSettings = true
           currentTheme.value = newTheme
+          nextTick(() => {
+            isUpdatingFromSettings = false
+          })
         }
       }
     }
@@ -221,7 +222,11 @@ export function useTheme() {
     // 监听全局设置服务变更
     const removeListener = settingsService.addListener((newSettings) => {
       if (newSettings.theme && newSettings.theme !== currentTheme.value) {
+        isUpdatingFromSettings = true
         currentTheme.value = newSettings.theme
+        nextTick(() => {
+          isUpdatingFromSettings = false
+        })
       }
     })
 
