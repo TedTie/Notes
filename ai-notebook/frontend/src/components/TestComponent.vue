@@ -29,7 +29,7 @@ const testAlert = () => {
 <style scoped>
 .test-component {
   padding: 20px;
-  background: #f0f0f0;
+  background: var(--theme-surface);
   border-radius: 8px;
   margin: 20px;
 }
@@ -51,7 +51,7 @@ const testAlert = () => {
 .test-input {
   padding: 8px;
   margin: 10px 0;
-  border: 1px solid #ccc;
+  border: 1px solid var(--theme-border);
   border-radius: 4px;
   width: 200px;
 }

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Theme Debug</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+        .theme-light {
+            background-color: #ffffff;
+            color: #000000;
+        }
+        .theme-dark {
+            background-color: #0a0a0f;
+            color: #e1bee7;
+        }
+        .debug-info {
+            margin: 20px 0;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>Theme Debug Tool</h1>
+    
+    <div class="debug-info">
+        <h3>Current State:</h3>
+        <p>localStorage theme: <span id="localStorage-theme">-</span></p>
+        <p>Body classes: <span id="body-classes">-</span></p>
+        <p>HTML classes: <span id="html-classes">-</span></p>
+        <p>Data-theme: <span id="data-theme">-</span></p>
+    </div>
+    
+    <div>
+        <button onclick="setTheme('light')">Set Light</button>
+        <button onclick="setTheme('dark')">Set Dark</button>
+        <button onclick="setTheme('auto')">Set Auto</button>
+        <button onclick="toggleTheme()">Toggle Theme</button>
+        <button onclick="clearStorage()">Clear Storage</button>
+        <button onclick="updateDisplay()">Refresh Display</button>
+    </div>
+    
+    <script>
+        function updateDisplay() {
+            document.getElementById('localStorage-theme').textContent = localStorage.getItem('cyber-theme') || 'null';
+            document.getElementById('body-classes').textContent = document.body.className || 'none';
+            document.getElementById('html-classes').textContent = document.documentElement.className || 'none';
+            document.getElementById('data-theme').textContent = document.documentElement.getAttribute('data-theme') || 'none';
+        }
+        
+        function setTheme(theme) {
+            console.log('Setting theme to:', theme);
+            localStorage.setItem('cyber-theme', theme);
+            
+            // Apply theme classes
+            document.documentElement.classList.remove('theme-light', 'theme-dark');
+            
+            let actualTheme = theme;
+            if (theme === 'auto') {
+                actualTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            }
+            
+            document.documentElement.classList.add('theme-' + actualTheme);
+            document.documentElement.setAttribute('data-theme', actualTheme);
+            
+            updateDisplay();
+        }
+        
+        function toggleTheme() {
+            const themes = ['light', 'dark', 'auto'];
+            const current = localStorage.getItem('cyber-theme') || 'dark';
+            const currentIndex = themes.indexOf(current);
+            const nextIndex = (currentIndex + 1) % themes.length;
+            setTheme(themes[nextIndex]);
+        }
+        
+        function clearStorage() {
+            localStorage.removeItem('cyber-theme');
+            updateDisplay();
+        }
+        
+        // Initialize
+        updateDisplay();
+        
+        // Auto-refresh every 2 seconds
+        setInterval(updateDisplay, 2000);
+    </script>
+</body>
+</html>

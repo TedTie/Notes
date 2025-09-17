@@ -286,8 +286,8 @@ onUnmounted(() => {
 }
 
 .kanban-container {
-  background: rgba(26, 26, 46, 0.3);
-  border: 1px solid rgba(187, 134, 252, 0.2);
+  background: color-mix(in srgb, var(--theme-surface) 30%, transparent);
+  border: 1px solid color-mix(in srgb, var(--theme-border) 20%, transparent);
   border-radius: 12px;
   padding: 1.5rem;
   backdrop-filter: blur(10px);
@@ -316,7 +316,7 @@ onUnmounted(() => {
 .loading-spinner {
   width: 40px;
   height: 40px;
-  border: 3px solid rgba(187, 134, 252, 0.3);
+  border: 3px solid color-mix(in srgb, var(--theme-border) 30%, transparent);
   border-top: 3px solid var(--theme-primary);
   border-radius: 50%;
   animation: spin 1s linear infinite;

@@ -90,16 +90,26 @@ const { currentTheme: currentThemeName, isDarkMode } = useTheme()
 const activeBackgroundTab = ref(isDarkMode.value ? 'dark' : 'light')
 
 // 监听主题变化，同步背景标签页并加载对应背景 - 修复竞态条件
-watch(isDarkMode, async (newValue) => {
+watch(isDarkMode, async (newValue, oldValue) => {
+  // 避免初始化时的无效触发
+  if (oldValue === undefined) {
+    return
+  }
+  
   const newTheme = newValue ? 'dark' : 'light'
   console.log(`[SETTINGS] Theme changed to ${newTheme}`)
   
+  // 清除之前的定时器，避免重复调用
+  if (window.settingsThemeTimeout) {
+    clearTimeout(window.settingsThemeTimeout)
+  }
+  
   // 延迟加载背景，确保主题状态完全更新
-  setTimeout(async () => {
+  window.settingsThemeTimeout = setTimeout(async () => {
     activeBackgroundTab.value = newTheme
     console.log(`[SETTINGS] Background tab synchronized to ${newTheme}, loading background...`)
     await loadCurrentBackground()
-  }, 50) // 50ms 延迟确保状态同步
+  }, 100) // 增加延迟到100ms，确保状态同步
 })
 
 // 监听主题标签页切换，重新加载对应主题的背景设置
@@ -1208,7 +1218,7 @@ onUnmounted(() => {
             <div class="futuristic-header mb-6">
               <div class="flex items-center space-x-3">
                 <div class="futuristic-icon-container">
-                  <svg class="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg class="w-6 h-6 text-[var(--theme-primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                   </svg>
                 </div>
@@ -1231,7 +1241,7 @@ onUnmounted(() => {
             <div class="futuristic-header mb-6">
               <div class="flex items-center space-x-3">
                 <div class="futuristic-icon-container">
-                  <svg class="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg class="w-6 h-6 text-[var(--theme-primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path>
                   </svg>
                 </div>
@@ -1257,7 +1267,7 @@ onUnmounted(() => {
                     ]"></div>
                   </div>
                 </div>
-                <span class="futuristic-title group-hover:text-green-400 transition-colors">{{ languageService.t('enable_auto_save') }}</span>
+                <span class="futuristic-title group-hover:text-[var(--theme-primary)] transition-colors">{{ languageService.t('enable_auto_save') }}</span>
               </label>
               
               <div v-if="settings.autoSave" class="futuristic-card bg-cyber-dark/30">
@@ -1277,7 +1287,7 @@ onUnmounted(() => {
             <div class="futuristic-header mb-6">
               <div class="flex items-center space-x-3">
                 <div class="futuristic-icon-container">
-                  <svg class="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg class="w-6 h-6 text-[var(--theme-primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-5 5v-5zM4.828 4.828A4 4 0 015.5 4H9v1a3 3 0 006 0V4h3.5c.276 0 .526.111.707.293l2.5 2.5c.182.181.293.431.293.707V10a3 3 0 01-3 3v1a3 3 0 01-3 3H9a3 3 0 01-3-3v-1a3 3 0 01-3-3V7.5c0-.276.111-.526.293-.707l2.5-2.5z"></path>
                   </svg>
                 </div>
@@ -1303,7 +1313,7 @@ onUnmounted(() => {
                     ]"></div>
                   </div>
                 </div>
-                <span class="futuristic-title group-hover:text-purple-400 transition-colors">{{ languageService.t('enable_desktop_notifications') }}</span>
+                <span class="futuristic-title group-hover:text-[var(--theme-primary)] transition-colors">{{ languageService.t('enable_desktop_notifications') }}</span>
               </label>
               
               <label class="flex items-center space-x-4 cursor-pointer group" @click.prevent="toggleSounds">
@@ -1324,7 +1334,7 @@ onUnmounted(() => {
                     ]"></div>
                   </div>
                 </div>
-                <span class="futuristic-title group-hover:text-purple-400 transition-colors">{{ languageService.t('enable_sound_effects') }}</span>
+                <span class="futuristic-title group-hover:text-[var(--theme-primary)] transition-colors">{{ languageService.t('enable_sound_effects') }}</span>
               </label>
             </div>
           </div>
@@ -1337,7 +1347,7 @@ onUnmounted(() => {
             <div class="futuristic-header mb-6">
               <div class="flex items-center space-x-3">
                 <div class="futuristic-icon-container">
-                  <svg class="w-6 h-6 text-pink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg class="w-6 h-6 text-[var(--theme-primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM21 5a2 2 0 00-2-2h-4a2 2 0 00-2 2v12a4 4 0 004 4h4a2 2 0 002-2V5z"></path>
                   </svg>
                 </div>
@@ -1410,7 +1420,7 @@ onUnmounted(() => {
               <div class="flex items-center justify-between">
                 <div class="flex items-center space-x-3">
                   <div class="futuristic-icon-container">
-                    <svg class="w-6 h-6 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-6 h-6 text-[var(--theme-primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                     </svg>
                   </div>
@@ -1433,7 +1443,7 @@ onUnmounted(() => {
             <div class="mb-8">
               <div class="border-2 border-dashed border-cyan-400/30 rounded-xl p-8 text-center hover:border-cyan-400/60 transition-colors cursor-pointer" @click="triggerFileUpload">
                 <div class="futuristic-icon-container mb-4 mx-auto">
-                  <svg class="w-12 h-12 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg class="w-12 h-12 text-[var(--theme-primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
                   </svg>
                 </div>
@@ -1441,7 +1451,7 @@ onUnmounted(() => {
                   上传{{ activeBackgroundTab === 'light' ? '浅色主题' : '深色主题' }}背景文件
                 </div>
                 <div class="futuristic-subtitle mb-4">支持图片、视频和GIF文件</div>
-                <div class="text-sm text-cyan-400/70">
+                <div class="text-sm text-[var(--theme-primary)]/70">
                   点击选择文件或拖拽文件到此处<br>
                   <span class="text-xs opacity-75">文件将被分类到{{ activeBackgroundTab === 'light' ? '浅色主题' : '深色主题' }}背景中</span>
                 </div>
@@ -1464,8 +1474,8 @@ onUnmounted(() => {
                   :class="[
                     'flex-1 px-4 py-2 rounded-md text-sm font-medium transition-all duration-200',
                     activeBackgroundTab === 'light' 
-                      ? 'bg-gradient-to-r from-cyan-400/20 to-blue-400/20 text-cyan-300 shadow-lg shadow-cyan-400/25' 
-                      : 'text-cyan-400/70 hover:text-cyan-300 hover:bg-cyan-400/10'
+                      ? 'bg-gradient-to-r from-[var(--theme-primary)]/20 to-[var(--theme-secondary)]/20 text-[var(--theme-primary)] shadow-lg shadow-[var(--theme-primary)]/25' 
+                      : 'text-[var(--theme-primary)]/70 hover:text-[var(--theme-primary)] hover:bg-[var(--theme-primary)]/10'
                   ]"
                 >
                   <div class="flex items-center justify-center space-x-2">
@@ -1480,8 +1490,8 @@ onUnmounted(() => {
                   :class="[
                     'flex-1 px-4 py-2 rounded-md text-sm font-medium transition-all duration-200',
                     activeBackgroundTab === 'dark' 
-                      ? 'bg-gradient-to-r from-purple-400/20 to-pink-400/20 text-purple-300 shadow-lg shadow-purple-400/25' 
-                      : 'text-purple-400/70 hover:text-purple-300 hover:bg-purple-400/10'
+                      ? 'bg-gradient-to-r from-[var(--theme-primary)]/20 to-[var(--theme-secondary)]/20 text-[var(--theme-primary)] shadow-lg shadow-[var(--theme-primary)]/25' 
+                      : 'text-[var(--theme-primary)]/70 hover:text-[var(--theme-primary)] hover:bg-[var(--theme-primary)]/10'
                   ]"
                 >
                   <div class="flex items-center justify-center space-x-2">

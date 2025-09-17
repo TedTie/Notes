@@ -317,7 +317,7 @@ const selectMenuItem = (viewId: string) => {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.5);
+  background: color-mix(in srgb, var(--theme-bg) 50%, transparent);
   backdrop-filter: blur(4px);
 }
 
@@ -326,12 +326,12 @@ const selectMenuItem = (viewId: string) => {
   width: 280px;
   max-width: 90vw;
   height: calc(100vh - 80px);
-  background: linear-gradient(135deg, rgba(26, 26, 46, 0.95), rgba(16, 16, 32, 0.95));
+  background: linear-gradient(135deg, color-mix(in srgb, var(--theme-surface) 95%, transparent), color-mix(in srgb, var(--theme-bg) 95%, transparent));
   backdrop-filter: blur(20px);
-  border: 1px solid rgba(187, 134, 252, 0.2);
+  border: 1px solid color-mix(in srgb, var(--theme-border) 20%, transparent);
   border-radius: 16px 0 0 16px;
   overflow: hidden;
-  box-shadow: -4px 0 20px rgba(0, 0, 0, 0.3);
+  box-shadow: -4px 0 20px color-mix(in srgb, var(--theme-bg) 30%, transparent);
 }
 
 .mobile-menu-header {
@@ -339,7 +339,7 @@ const selectMenuItem = (viewId: string) => {
   align-items: center;
   justify-content: space-between;
   padding: 1.5rem;
-  border-bottom: 1px solid rgba(187, 134, 252, 0.2);
+  border-bottom: 1px solid color-mix(in srgb, var(--theme-border) 20%, transparent);
 }
 
 .close-btn {
@@ -349,7 +349,7 @@ const selectMenuItem = (viewId: string) => {
   width: 32px;
   height: 32px;
   border: none;
-  background: rgba(187, 134, 252, 0.1);
+  background: color-mix(in srgb, var(--theme-primary) 10%, transparent);
   color: var(--theme-primary);
   border-radius: 8px;
   cursor: pointer;
@@ -357,7 +357,7 @@ const selectMenuItem = (viewId: string) => {
 }
 
 .close-btn:hover {
-  background: rgba(187, 134, 252, 0.2);
+  background: color-mix(in srgb, var(--theme-primary) 20%, transparent);
   transform: scale(1.05);
 }
 

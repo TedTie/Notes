@@ -175,7 +175,7 @@ const showNotification = (message: string, type: 'success' | 'error' | 'info' = 
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.7);
+  background: color-mix(in srgb, var(--theme-bg) 70%, transparent);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -184,15 +184,15 @@ const showNotification = (message: string, type: 'success' | 'error' | 'info' = 
 }
 
 .modal-content {
-  background: rgba(26, 26, 46, 0.95);
-  border: 1px solid rgba(187, 134, 252, 0.3);
+  background: color-mix(in srgb, var(--theme-surface) 95%, transparent);
+  border: 1px solid color-mix(in srgb, var(--theme-border) 30%, transparent);
   border-radius: 12px;
   width: 90%;
   max-width: 500px;
   max-height: 90vh;
   overflow-y: auto;
   backdrop-filter: blur(10px);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 20px 40px color-mix(in srgb, var(--theme-bg) 30%, transparent);
 }
 
 .modal-header {
@@ -200,7 +200,7 @@ const showNotification = (message: string, type: 'success' | 'error' | 'info' = 
   justify-content: space-between;
   align-items: center;
   padding: 1.5rem;
-  border-bottom: 1px solid rgba(187, 134, 252, 0.2);
+  border-bottom: 1px solid color-mix(in srgb, var(--theme-border) 20%, transparent);
 }
 
 .modal-title {
@@ -223,7 +223,7 @@ const showNotification = (message: string, type: 'success' | 'error' | 'info' = 
 
 .close-btn:hover {
   color: var(--theme-text);
-  background: rgba(187, 134, 252, 0.1);
+  background: color-mix(in srgb, var(--theme-primary) 10%, transparent);
 }
 
 .modal-body {
@@ -245,8 +245,8 @@ const showNotification = (message: string, type: 'success' | 'error' | 'info' = 
 .futuristic-textarea {
   width: 100%;
   padding: 0.75rem 1rem;
-  background: rgba(26, 26, 46, 0.8);
-  border: 1px solid rgba(187, 134, 252, 0.3);
+  background: color-mix(in srgb, var(--theme-surface) 80%, transparent);
+  border: 1px solid color-mix(in srgb, var(--theme-border) 30%, transparent);
   border-radius: 8px;
   color: var(--theme-text);
   font-size: 0.9rem;
@@ -258,7 +258,7 @@ const showNotification = (message: string, type: 'success' | 'error' | 'info' = 
 .futuristic-textarea:focus {
   outline: none;
   border-color: var(--theme-primary);
-  box-shadow: 0 0 0 2px rgba(187, 134, 252, 0.2);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--theme-border) 20%, transparent);
 }
 
 .char-count {
@@ -283,7 +283,7 @@ const showNotification = (message: string, type: 'success' | 'error' | 'info' = 
 }
 
 .checkbox-label:hover {
-  background: rgba(187, 134, 252, 0.05);
+  background: color-mix(in srgb, var(--theme-primary) 5%, transparent);
 }
 
 .futuristic-checkbox {
@@ -317,7 +317,7 @@ const showNotification = (message: string, type: 'success' | 'error' | 'info' = 
 .loading-spinner-small {
   width: 16px;
   height: 16px;
-  border: 2px solid rgba(187, 134, 252, 0.3);
+  border: 2px solid color-mix(in srgb, var(--theme-border) 30%, transparent);
   border-top: 2px solid var(--theme-primary);
   border-radius: 50%;
   animation: spin 1s linear infinite;
@@ -345,7 +345,7 @@ const showNotification = (message: string, type: 'success' | 'error' | 'info' = 
     padding: 1rem;
     position: sticky;
     top: 0;
-    background: rgba(26, 26, 46, 0.98);
+    background: color-mix(in srgb, var(--theme-surface) 98%, transparent);
     backdrop-filter: blur(10px);
     z-index: 1;
   }
@@ -364,7 +364,7 @@ const showNotification = (message: string, type: 'success' | 'error' | 'info' = 
     bottom: 0;
     background: rgba(26, 26, 46, 0.98);
     backdrop-filter: blur(10px);
-    border-top: 1px solid rgba(187, 134, 252, 0.2);
+    border-top: 1px solid color-mix(in srgb, var(--theme-border) 20%, transparent);
   }
   
   .help-text {

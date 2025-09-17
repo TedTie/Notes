@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>主题状态调试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f0f0f0;
+        }
+        .debug-info {
+            background: white;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        .debug-info h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        .code {
+            background: #f5f5f5;
+            padding: 10px;
+            border-radius: 3px;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <h1>主题状态调试工具</h1>
+    
+    <div class="debug-info">
+        <h3>HTML元素类名</h3>
+        <div class="code" id="html-classes"></div>
+    </div>
+    
+    <div class="debug-info">
+        <h3>Body元素类名</h3>
+        <div class="code" id="body-classes"></div>
+    </div>
+    
+    <div class="debug-info">
+        <h3>data-theme属性</h3>
+        <div class="code" id="data-theme"></div>
+    </div>
+    
+    <div class="debug-info">
+        <h3>CSS变量值</h3>
+        <div class="code" id="css-variables"></div>
+    </div>
+    
+    <div class="debug-info">
+        <h3>localStorage主题</h3>
+        <div class="code" id="local-storage"></div>
+    </div>
+    
+    <button onclick="refreshDebugInfo()">刷新调试信息</button>
+    <button onclick="openMainApp()">打开主应用</button>
+    
+    <script>
+        function refreshDebugInfo() {
+            // HTML类名
+            document.getElementById('html-classes').textContent = 
+                document.documentElement.className || '(无类名)';
+            
+            // Body类名
+            document.getElementById('body-classes').textContent = 
+                document.body.className || '(无类名)';
+            
+            // data-theme属性
+            document.getElementById('data-theme').textContent = 
+                document.documentElement.getAttribute('data-theme') || '(无属性)';
+            
+            // CSS变量
+            const computedStyle = getComputedStyle(document.documentElement);
+            const cssVars = [
+                '--theme-primary',
+                '--theme-secondary', 
+                '--theme-bg',
+                '--theme-text',
+                '--theme-gradient'
+            ];
+            
+            let cssVarText = '';
+            cssVars.forEach(varName => {
+                const value = computedStyle.getPropertyValue(varName).trim();
+                cssVarText += `${varName}: ${value || '(未设置)'}\n`;
+            });
+            document.getElementById('css-variables').textContent = cssVarText;
+            
+            // localStorage
+            document.getElementById('local-storage').textContent = 
+                localStorage.getItem('cyber-theme') || '(未设置)';
+        }
+        
+        function openMainApp() {
+            window.open('http://localhost:5173', '_blank');
+        }
+        
+        // 页面加载时刷新信息
+        refreshDebugInfo();
+        
+        // 每2秒自动刷新
+        setInterval(refreshDebugInfo, 2000);
+    </script>
+</body>
+</html>

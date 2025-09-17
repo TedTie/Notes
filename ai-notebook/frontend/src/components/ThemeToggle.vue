@@ -50,68 +50,23 @@
 
 <script>
 import { useTheme } from '../composables/useTheme'
-import { ref, watch, nextTick } from 'vue'
+import { ref } from 'vue'
 
 export default {
   name: 'ThemeToggle',
   setup() {
-    const { isDarkMode, toggleTheme, themeColors } = useTheme()
+    const { isDarkMode, toggleTheme } = useTheme()
     
-    // 添加切换状态跟踪
-    const isToggling = ref(false)
-    
-    // 增强的主题切换函数
-    const handleToggle = async () => {
-      if (isToggling.value) return
-      
-      isToggling.value = true
-      console.log('[ThemeToggle] Starting theme toggle, current:', isDarkMode.value)
-      
-      try {
-        await toggleTheme()
-        
-        // 等待DOM更新
-        await nextTick()
-        
-        // 验证主题是否正确应用
-        const root = document.documentElement
-        const expectedClass = isDarkMode.value ? 'theme-dark' : 'theme-light'
-        const hasCorrectClass = root.classList.contains(expectedClass)
-        
-        console.log('[ThemeToggle] Theme toggle completed:', {
-          isDarkMode: isDarkMode.value,
-          expectedClass,
-          hasCorrectClass,
-          actualClasses: Array.from(root.classList)
-        })
-        
-        if (!hasCorrectClass) {
-          console.warn('[ThemeToggle] Theme class mismatch, forcing update...')
-          // 强制重新应用主题
-          root.classList.remove('theme-light', 'theme-dark')
-          root.classList.add(expectedClass)
-          root.setAttribute('data-theme', isDarkMode.value ? 'dark' : 'light')
-        }
-      } catch (error) {
-        console.error('[ThemeToggle] Theme toggle failed:', error)
-      } finally {
-        // 立即重置切换状态，避免按钮无响应
-        isToggling.value = false
-      }
+    // 简化的主题切换函数 - 像背景切换一样简单
+    const handleToggle = () => {
+      toggleTheme()
     }
     
-    // 监听主题变化，确保UI同步
-    watch(isDarkMode, (newValue) => {
-      console.log('[ThemeToggle] Theme state changed:', newValue)
-    }, { immediate: true })
-    
-
+    // 简单的切换状态，仅用于UI反馈
+    const isToggling = ref(false)
     
     return {
       isDarkMode,
-      toggleTheme,
-      themeColors,
-
       handleToggle,
       isToggling
     }

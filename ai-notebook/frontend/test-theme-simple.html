@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>主题切换测试</title>
+    <style>
+        /* 复制主要的主题样式 */
+        .theme-light {
+            --theme-primary: #00e5ff;
+            --theme-secondary: #00bcd4;
+            --theme-text: #003d40;
+            --theme-bg: #f0f8ff;
+            --theme-gradient: linear-gradient(135deg, #ffffff 0%, #f8fafc 50%, #f1f5f9 100%);
+            
+            background: var(--theme-gradient);
+            color: var(--theme-text);
+        }
+        
+        .theme-dark {
+            --theme-primary: #bb86fc;
+            --theme-secondary: #9c27b0;
+            --theme-text: #e1bee7;
+            --theme-bg: #0a0a0f;
+            --theme-gradient: linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 50%, #2d1b69 100%);
+            
+            background: var(--theme-gradient);
+            color: var(--theme-text);
+        }
+        
+        body {
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            font-family: Arial, sans-serif;
+            transition: all 0.3s ease;
+        }
+        
+        .test-card {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid var(--theme-primary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            color: var(--theme-text);
+        }
+        
+        .toggle-btn {
+            background: var(--theme-primary);
+            color: var(--theme-bg);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px;
+        }
+        
+        .status {
+            background: var(--theme-secondary);
+            color: var(--theme-bg);
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body class="theme-light">
+    <h1>主题切换测试页面</h1>
+    
+    <div class="status" id="status">
+        当前主题: 浅色模式
+    </div>
+    
+    <button class="toggle-btn" onclick="toggleTheme()">切换主题</button>
+    <button class="toggle-btn" onclick="setLight()">设置浅色</button>
+    <button class="toggle-btn" onclick="setDark()">设置深色</button>
+    
+    <div class="test-card">
+        <h2>测试卡片 1</h2>
+        <p>这是一个测试卡片，用来验证主题颜色是否正确应用。</p>
+        <p>主要颜色: <span style="color: var(--theme-primary)">var(--theme-primary)</span></p>
+        <p>次要颜色: <span style="color: var(--theme-secondary)">var(--theme-secondary)</span></p>
+    </div>
+    
+    <div class="test-card">
+        <h2>测试卡片 2</h2>
+        <p>如果主题切换正常工作，这些卡片的颜色应该会立即改变。</p>
+        <p>背景应该从浅色渐变变为深色渐变，文字颜色也会相应改变。</p>
+    </div>
+    
+    <div class="test-card">
+        <h2>调试信息</h2>
+        <p>HTML类名: <span id="html-class"></span></p>
+        <p>Body类名: <span id="body-class"></span></p>
+        <p>CSS变量值: <span id="css-vars"></span></p>
+    </div>
+    
+    <script>
+        let currentTheme = 'light';
+        
+        function updateDebugInfo() {
+            document.getElementById('html-class').textContent = document.documentElement.className;
+            document.getElementById('body-class').textContent = document.body.className;
+            
+            const style = getComputedStyle(document.documentElement);
+            const primary = style.getPropertyValue('--theme-primary');
+            const text = style.getPropertyValue('--theme-text');
+            document.getElementById('css-vars').textContent = `primary: ${primary}, text: ${text}`;
+        }
+        
+        function applyTheme(theme) {
+            // 移除旧类
+            document.documentElement.classList.remove('theme-light', 'theme-dark');
+            document.body.classList.remove('theme-light', 'theme-dark');
+            
+            // 添加新类到html元素
+            const themeClass = `theme-${theme}`;
+            document.documentElement.classList.add(themeClass);
+            
+            currentTheme = theme;
+            document.getElementById('status').textContent = `当前主题: ${theme === 'light' ? '浅色模式' : '深色模式'}`;
+            
+            updateDebugInfo();
+        }
+        
+        function toggleTheme() {
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            applyTheme(newTheme);
+        }
+        
+        function setLight() {
+            applyTheme('light');
+        }
+        
+        function setDark() {
+            applyTheme('dark');
+        }
+        
+        // 初始化调试信息
+        updateDebugInfo();
+    </script>
+</body>
+</html>

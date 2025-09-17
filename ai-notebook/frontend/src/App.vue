@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, computed, watch } from 'vue'
+import { ref, onMounted, onUnmounted, computed, watch, nextTick } from 'vue'
 import DynamicBackground from './components/DynamicBackground.vue'
 import TopNavigation from './components/TopNavigation.vue'
 import NoteEditor from './components/NoteEditor.vue'
@@ -13,15 +13,16 @@ import PomodoroView from './components/PomodoroView.vue'
 // import SimpleAITest from './components/SimpleAITest.vue'
 import ThemeToggle from './components/ThemeToggle.vue'
 import TracingBeam from './components/TracingBeam.vue'
-import ParticleBackground from './components/ParticleBackground.vue'
+
 import StaticBackground from './components/StaticBackground.vue'
 import PreloadManager from './components/PreloadManager.vue'
+import BackgroundRippleEffect from './components/BackgroundRippleEffect.vue'
 import settingsService from './services/settingsService'
 import languageService from './services/languageService'
 import { useTheme } from './composables/useTheme'
 import { settingsService as supabaseSettingsService, fileService } from './services/supabaseService'
 import { PERFORMANCE_CONFIG } from './config/performance.js'
-import { initializeTheme, setupSystemThemeListener, validateThemeApplication } from './utils/themeInitializer'
+// 主题初始化已在main.ts中处理
 // 移除了API_CONFIG相关代码
 
 const currentView = ref('notes')
@@ -148,13 +149,7 @@ onMounted(async () => {
     window.addEventListener('apply-background', handleApplyBackground)
     window.addEventListener('clear-background', handleClearBackground)
     
-    // 监听强制更新事件
-    const handleForceUpdate = (event: CustomEvent) => {
-      console.log('[App] Force update triggered:', event.detail)
-      forceUpdate()
-    }
-    
-    document.addEventListener('vue-force-update', handleForceUpdate)
+    // 主题切换现在完全依赖CSS，不需要复杂的事件监听
     
     // 设置通知系统
     const cleanupNotifications = setupNotificationSystem()
@@ -325,7 +320,15 @@ const loadCurrentBackground = async () => {
 
 // 修复主题切换监听逻辑 - 监听 isDarkMode 而不是 actualTheme
 watch(isDarkMode, async (newIsDark, oldIsDark) => {
+  // 避免初始化时的无效触发
+  if (oldIsDark === undefined) {
+    return
+  }
+  
   console.log('[APP] isDarkMode changed from', oldIsDark, 'to', newIsDark)
+  
+  // 强制重新渲染以确保主题变更立即生效
+  forceUpdate()
   
   // 使用防抖机制避免频繁切换
   if (window.themeSwitchTimeout) {
@@ -342,7 +345,7 @@ watch(isDarkMode, async (newIsDark, oldIsDark) => {
       clearBackground()
     }
   }, 50) // 50ms 防抖延迟，提升响应速度
-}, { immediate: true })
+})
 
 // 调试：监控actualTheme的值
 watch(() => actualTheme.value, (newValue) => {
@@ -424,18 +427,6 @@ const handleStartPomodoro = (taskInfo: any) => {
 const handlePreloadComplete = () => {
   console.log('预加载完成，应用准备就绪')
   
-  // 强制初始化主题
-  initializeTheme()
-  
-  // 验证主题应用
-  setTimeout(() => {
-    const isValid = validateThemeApplication()
-    if (!isValid) {
-      console.warn('[APP] Theme validation failed, retrying...')
-      initializeTheme()
-    }
-  }, 100)
-  
   // 延迟隐藏加载屏幕，确保平滑过渡
   setTimeout(() => {
     isLoading.value = false
@@ -445,9 +436,6 @@ const handlePreloadComplete = () => {
 // 预加载错误处理
 const handlePreloadError = (error: Error) => {
   console.error('预加载失败:', error)
-  
-  // 即使预加载失败，也要初始化主题
-  initializeTheme()
   
   // 即使预加载失败，也要显示应用界面
   setTimeout(() => {
@@ -540,6 +528,14 @@ const getPageDescription = computed(() => {
     <!-- 动态效果层 (z-index: 3) -->
     <DynamicBackground />
     
+    <!-- 背景涟漪效果层 (z-index: 2) -->
+    <BackgroundRippleEffect 
+      :rows="20" 
+      :cols="35" 
+      :cell-size="50" 
+      :interactive="true" 
+    />
+    
 
     
 
@@ -558,7 +554,7 @@ const getPageDescription = computed(() => {
     </div>
     
     <!-- 主内容区域 -->
-    <main class="relative z-20 min-h-screen main-content">
+    <main class="relative z-20 min-h-screen main-content" :key="forceUpdateKey">
       <TracingBeam>
         <!-- 内容容器 -->
         <div class="container mx-auto px-6 py-8 content-container">
@@ -575,7 +571,7 @@ const getPageDescription = computed(() => {
           <!-- 内容区域 -->
           <div class="max-w-7xl mx-auto content-wrapper">
             <Transition name="page" mode="out-in">
-              <div :key="currentView" class="min-h-[600px]">
+              <div :key="`${currentView}-${forceUpdateKey}`" class="min-h-[600px]">
                 <NoteEditor v-if="currentView === 'notes'" />
                 <TodoList v-else-if="currentView === 'todos'" @set-view="setCurrentView" @start-pomodoro="handleStartPomodoro" />
                 <ProjectView v-else-if="currentView === 'projects'" />

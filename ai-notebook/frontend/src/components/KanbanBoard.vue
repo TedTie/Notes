@@ -235,7 +235,7 @@ const showNotification = (message: string, type: 'success' | 'error' | 'info' = 
   align-items: center;
   margin-bottom: 1.5rem;
   padding-bottom: 1rem;
-  border-bottom: 1px solid rgba(187, 134, 252, 0.2);
+  border-bottom: 1px solid color-mix(in srgb, var(--theme-border) 20%, transparent);
 }
 
 .board-title {
@@ -254,8 +254,8 @@ const showNotification = (message: string, type: 'success' | 'error' | 'info' = 
 }
 
 .kanban-column {
-  background: rgba(26, 26, 46, 0.4);
-  border: 1px solid rgba(187, 134, 252, 0.2);
+  background: color-mix(in srgb, var(--theme-surface) 40%, transparent);
+  border: 1px solid color-mix(in srgb, var(--theme-border) 20%, transparent);
   border-radius: 12px;
   display: flex;
   flex-direction: column;
@@ -294,7 +294,7 @@ const showNotification = (message: string, type: 'success' | 'error' | 'info' = 
 }
 
 .task-count {
-  background: rgba(187, 134, 252, 0.2);
+  background: color-mix(in srgb, var(--theme-primary) 20%, transparent);
   color: var(--theme-primary);
   padding: 0.25rem 0.5rem;
   border-radius: 12px;
@@ -314,7 +314,7 @@ const showNotification = (message: string, type: 'success' | 'error' | 'info' = 
 }
 
 .column-content.drag-over {
-  background: rgba(187, 134, 252, 0.1);
+  background: color-mix(in srgb, var(--theme-primary) 10%, transparent);
 }
 
 .empty-column {
@@ -324,7 +324,7 @@ const showNotification = (message: string, type: 'success' | 'error' | 'info' = 
   height: 100px;
   color: var(--theme-text-secondary);
   font-style: italic;
-  border: 2px dashed rgba(187, 134, 252, 0.2);
+  border: 2px dashed color-mix(in srgb, var(--theme-border) 20%, transparent);
   border-radius: 8px;
 }
 
@@ -334,17 +334,17 @@ const showNotification = (message: string, type: 'success' | 'error' | 'info' = 
 }
 
 .column-content::-webkit-scrollbar-track {
-  background: rgba(26, 26, 46, 0.3);
+  background: color-mix(in srgb, var(--theme-surface) 30%, transparent);
   border-radius: 3px;
 }
 
 .column-content::-webkit-scrollbar-thumb {
-  background: rgba(187, 134, 252, 0.3);
+  background: color-mix(in srgb, var(--theme-primary) 30%, transparent);
   border-radius: 3px;
 }
 
 .column-content::-webkit-scrollbar-thumb:hover {
-  background: rgba(187, 134, 252, 0.5);
+  background: color-mix(in srgb, var(--theme-primary) 50%, transparent);
 }
 
 /* 移动端响应式设计 */

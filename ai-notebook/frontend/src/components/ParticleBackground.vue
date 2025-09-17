@@ -18,9 +18,9 @@ class Particle {
   constructor(x, y) {
     this.x = x
     this.y = y
-    this.size = Math.random() * 3 + 1
-    this.speedX = Math.random() * 3 - 1.5
-    this.speedY = Math.random() * 3 - 1.5
+    this.size = Math.random() * 2 + 0.5
+    this.speedX = Math.random() * 2 - 1
+    this.speedY = Math.random() * 2 - 1
     this.opacity = Math.random() * 0.5 + 0.2
     this.life = Math.random() * 100 + 50
     this.maxLife = this.life
@@ -42,9 +42,12 @@ class Particle {
     ctx.globalAlpha = this.opacity
     
     // 根据主题设置粒子颜色
+    const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--theme-primary').trim()
+    const secondaryColor = getComputedStyle(document.documentElement).getPropertyValue('--theme-secondary').trim()
+    
     const color = isDarkMode.value 
-      ? `rgba(147, 51, 234, ${this.opacity})` // 紫色
-      : `rgba(6, 182, 212, ${this.opacity})`  // 青色
+      ? `${primaryColor}${Math.round(this.opacity * 255).toString(16).padStart(2, '0')}` // 主题主色
+      : `${secondaryColor}${Math.round(this.opacity * 255).toString(16).padStart(2, '0')}` // 主题次色
     
     ctx.fillStyle = color
     ctx.beginPath()
@@ -79,7 +82,7 @@ const initCanvas = () => {
   resizeCanvas()
   
   // 初始化粒子
-  for (let i = 0; i < 50; i++) {
+  for (let i = 0; i < 25; i++) {
     particles.push(new Particle(
       Math.random() * canvas.value.width,
       Math.random() * canvas.value.height
@@ -113,7 +116,7 @@ const animate = () => {
   }
   
   // 添加新粒子
-  if (particles.length < 50 && Math.random() < 0.1) {
+  if (particles.length < 25 && Math.random() < 0.08) {
     particles.push(new Particle(
       Math.random() * canvas.value.width,
       Math.random() * canvas.value.height
@@ -127,7 +130,7 @@ const animate = () => {
 }
 
 const drawConnections = () => {
-  const maxDistance = 100
+  const maxDistance = 80
   
   for (let i = 0; i < particles.length; i++) {
     for (let j = i + 1; j < particles.length; j++) {
@@ -138,11 +141,14 @@ const drawConnections = () => {
       if (distance < maxDistance) {
         const opacity = (1 - distance / maxDistance) * 0.2
         
+        const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--theme-primary').trim()
+        const secondaryColor = getComputedStyle(document.documentElement).getPropertyValue('--theme-secondary').trim()
+        
         ctx.save()
         ctx.globalAlpha = opacity
         ctx.strokeStyle = isDarkMode.value 
-          ? 'rgba(147, 51, 234, 0.3)' 
-          : 'rgba(6, 182, 212, 0.3)'
+          ? `${primaryColor}4D` // 30% opacity
+          : `${secondaryColor}4D` // 30% opacity
         ctx.lineWidth = 1
         ctx.beginPath()
         ctx.moveTo(particles[i].x, particles[i].y)
@@ -185,6 +191,6 @@ onUnmounted(() => {
 .particle-canvas {
   width: 100%;
   height: 100%;
-  opacity: 0.6;
+  opacity: 0.3;
 }
 </style>

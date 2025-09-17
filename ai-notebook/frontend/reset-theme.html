@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>重置主题设置</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f0f0f0;
+        }
+        .action-btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .action-btn:hover {
+            background: #0056b3;
+        }
+        .info {
+            background: white;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+        }
+        .code {
+            background: #f5f5f5;
+            padding: 10px;
+            border-radius: 3px;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <h1>主题设置重置工具</h1>
+    
+    <div class="info">
+        <h3>当前localStorage设置</h3>
+        <div class="code" id="current-settings"></div>
+    </div>
+    
+    <button class="action-btn" onclick="clearThemeSettings()">清除所有主题设置</button>
+    <button class="action-btn" onclick="setLightTheme()">强制设置浅色主题</button>
+    <button class="action-btn" onclick="setDarkTheme()">强制设置深色主题</button>
+    <button class="action-btn" onclick="refreshSettings()">刷新设置信息</button>
+    <button class="action-btn" onclick="openMainApp()">打开主应用</button>
+    
+    <div class="info">
+        <h3>操作日志</h3>
+        <div class="code" id="log"></div>
+    </div>
+    
+    <script>
+        function log(message) {
+            const logElement = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            logElement.textContent += `[${timestamp}] ${message}\n`;
+        }
+        
+        function refreshSettings() {
+            const settings = {
+                'cyber-theme': localStorage.getItem('cyber-theme'),
+                'theme': localStorage.getItem('theme'),
+                'settings': localStorage.getItem('settings')
+            };
+            
+            let settingsText = '';
+            for (const [key, value] of Object.entries(settings)) {
+                settingsText += `${key}: ${value || '(未设置)'}\n`;
+            }
+            
+            document.getElementById('current-settings').textContent = settingsText;
+            log('设置信息已刷新');
+        }
+        
+        function clearThemeSettings() {
+            localStorage.removeItem('cyber-theme');
+            localStorage.removeItem('theme');
+            localStorage.removeItem('settings');
+            log('所有主题设置已清除');
+            refreshSettings();
+        }
+        
+        function setLightTheme() {
+            localStorage.setItem('cyber-theme', 'light');
+            log('强制设置为浅色主题');
+            refreshSettings();
+        }
+        
+        function setDarkTheme() {
+            localStorage.setItem('cyber-theme', 'dark');
+            log('强制设置为深色主题');
+            refreshSettings();
+        }
+        
+        function openMainApp() {
+            window.open('http://localhost:5173', '_blank');
+        }
+        
+        // 页面加载时刷新设置
+        refreshSettings();
+        log('主题重置工具已加载');
+    </script>
+</body>
+</html>

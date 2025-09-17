@@ -12,7 +12,7 @@
       <div class="flex items-center justify-between p-2 bg-gray-800/90 rounded-t-lg border-b border-cyan-500/30">
         <div class="flex items-center space-x-2">
           <div class="w-2 h-2 bg-cyan-400 rounded-full animate-pulse"></div>
-          <span class="text-cyan-400 text-sm font-medium">{{ languageService.t('ai_assistant', 'AI助手') }}</span>
+          <span class="text-[var(--theme-primary)] text-sm font-medium">{{ languageService.t('ai_assistant', 'AI助手') }}</span>
         </div>
         <div class="flex items-center space-x-1">
           <button
@@ -122,7 +122,7 @@
       <div class="search-options-container">
         <div class="flex items-center justify-between px-3 py-2 bg-gray-800/50 border-b border-cyan-500/20">
           <div class="flex items-center space-x-2">
-            <svg class="w-4 h-4 text-cyan-400" fill="currentColor" viewBox="0 0 20 20">
+            <svg class="w-4 h-4 text-[var(--theme-primary)]" fill="currentColor" viewBox="0 0 20 20">
               <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"/>
             </svg>
             <span class="text-sm text-gray-300">{{ languageService.t('web_search', '联网搜索') }}</span>
@@ -172,7 +172,7 @@
     @click="restoreAssistant"
     :title="languageService.t('expand_ai_assistant', '展开AI助手')"
   >
-    <svg class="w-5 h-5 text-cyan-400" fill="currentColor" viewBox="0 0 20 20">
+    <svg class="w-5 h-5 text-[var(--theme-primary)]" fill="currentColor" viewBox="0 0 20 20">
       <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
     </svg>
   </div>

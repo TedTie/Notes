@@ -317,13 +317,10 @@ class SettingsService {
   }
 
   applySettings() {
-    // 应用主题设置
+    // 应用主题设置 - 只触发事件，让useTheme.js处理实际的主题应用
     if (this.settings.theme) {
-      document.documentElement.setAttribute('data-theme', this.settings.theme);
-      document.documentElement.style.setProperty('--theme', this.settings.theme);
-      
-      // 同步到主题系统
-      window.dispatchEvent(new CustomEvent('theme-change', { 
+      // 同步到主题系统，让useTheme.js处理实际的DOM更新
+      document.dispatchEvent(new CustomEvent('theme-change', { 
         detail: { theme: this.settings.theme } 
       }));
     }

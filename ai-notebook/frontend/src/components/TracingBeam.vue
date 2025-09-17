@@ -51,7 +51,7 @@ onMounted(() => {
   top: 0;
   width: 2px;
   height: 100vh;
-  background: rgba(255, 255, 255, 0.1);
+  background: color-mix(in srgb, var(--theme-text) 10%, transparent);
   z-index: 50;
 }
 
@@ -60,7 +60,7 @@ onMounted(() => {
   top: 0;
   left: 0;
   width: 100%;
-  background: linear-gradient(to bottom, #00e5ff, #bb86fc);
+  background: linear-gradient(to bottom, var(--theme-secondary), var(--theme-primary));
   transition: height 0.2s ease;
 }
 
@@ -69,10 +69,10 @@ onMounted(() => {
   left: -4px;
   width: 10px;
   height: 10px;
-  background: #00e5ff;
+  background: var(--theme-secondary);
   border-radius: 50%;
   transform: translateY(-50%);
-  box-shadow: 0 0 15px #00e5ff;
+  box-shadow: 0 0 15px var(--theme-secondary);
   transition: top 0.2s ease;
 }
 

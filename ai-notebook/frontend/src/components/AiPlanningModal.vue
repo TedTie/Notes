@@ -414,8 +414,8 @@ onMounted(() => {
 }
 
 .modal-content {
-  background: rgba(26, 26, 46, 0.95);
-  border: 1px solid rgba(187, 134, 252, 0.3);
+  background: color-mix(in srgb, var(--theme-surface) 95%, transparent);
+  border: 1px solid color-mix(in srgb, var(--theme-border) 30%, transparent);
   border-radius: 16px;
   width: 90%;
   max-width: 800px;
@@ -432,7 +432,7 @@ onMounted(() => {
   justify-content: space-between;
   align-items: center;
   padding: 1.5rem;
-  border-bottom: 1px solid rgba(187, 134, 252, 0.2);
+  border-bottom: 1px solid color-mix(in srgb, var(--theme-border) 20%, transparent);
 }
 
 .modal-title {
@@ -455,7 +455,7 @@ onMounted(() => {
 
 .close-btn:hover {
   color: var(--theme-text);
-  background: rgba(187, 134, 252, 0.1);
+  background: color-mix(in srgb, var(--theme-primary) 10%, transparent);
 }
 
 .modal-body {
@@ -535,7 +535,7 @@ onMounted(() => {
 .progress-bar {
   width: 100%;
   height: 4px;
-  background: rgba(187, 134, 252, 0.2);
+  background: color-mix(in srgb, var(--theme-primary) 20%, transparent);
   border-radius: 2px;
   overflow: hidden;
   margin-top: 1rem;
@@ -590,8 +590,8 @@ onMounted(() => {
 }
 
 .task-item {
-  background: rgba(187, 134, 252, 0.05);
-  border: 1px solid rgba(187, 134, 252, 0.2);
+  background: color-mix(in srgb, var(--theme-primary) 5%, transparent);
+  border: 1px solid color-mix(in srgb, var(--theme-border) 20%, transparent);
   border-radius: 8px;
   padding: 1rem;
 }
@@ -650,7 +650,7 @@ onMounted(() => {
   gap: 1rem;
   justify-content: flex-end;
   padding: 1.5rem;
-  border-top: 1px solid rgba(187, 134, 252, 0.2);
+  border-top: 1px solid color-mix(in srgb, var(--theme-border) 20%, transparent);
 }
 
 .form-group {
@@ -668,8 +668,8 @@ onMounted(() => {
 .futuristic-textarea {
   width: 100%;
   padding: 0.75rem 1rem;
-  background: rgba(26, 26, 46, 0.8);
-  border: 1px solid rgba(187, 134, 252, 0.3);
+  background: color-mix(in srgb, var(--theme-surface) 80%, transparent);
+  border: 1px solid color-mix(in srgb, var(--theme-border) 30%, transparent);
   border-radius: 8px;
   color: var(--theme-text);
   font-size: 0.9rem;
@@ -680,7 +680,7 @@ onMounted(() => {
 .futuristic-textarea:focus {
   outline: none;
   border-color: var(--theme-primary);
-  box-shadow: 0 0 0 2px rgba(187, 134, 252, 0.2);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--theme-border) 20%, transparent);
 }
 
 .char-count {
@@ -693,7 +693,7 @@ onMounted(() => {
 .loading-spinner-small {
   width: 16px;
   height: 16px;
-  border: 2px solid rgba(187, 134, 252, 0.3);
+  border: 2px solid color-mix(in srgb, var(--theme-border) 30%, transparent);
   border-top: 2px solid var(--theme-primary);
   border-radius: 50%;
   animation: spin 1s linear infinite;

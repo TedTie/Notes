@@ -57,7 +57,7 @@
             </div>
             <div>
               <h3 class="font-bold text-white text-lg">AI智能助手</h3>
-              <p class="text-xs text-purple-300/70">Neural Network v2.0</p>
+              <p class="text-xs text-[var(--theme-text)]/70">Neural Network v2.0</p>
             </div>
           </div>
           
@@ -103,7 +103,7 @@
               <h4 class="text-xl font-bold bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent mb-3">
                 AI助手已激活
               </h4>
-              <p class="text-purple-300/80 text-sm leading-relaxed">
+              <p class="text-[var(--theme-text)]/80 text-sm leading-relaxed">
                 我是您的智能助手，可以帮助您：<br>
                 管理笔记内容 • 处理待办事项 • 操作文件 • 调整设置
               </p>
@@ -154,7 +154,7 @@
 
         <!-- AI模型选择提示 -->
         <div class="model-info">
-          <div class="flex items-center justify-center space-x-2 text-purple-300/70 text-xs">
+          <div class="flex items-center justify-center space-x-2 text-[var(--theme-text)]/70 text-xs">
             <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
             <span>当前模型: {{ selectedModel }}</span>
           </div>
@@ -852,7 +852,7 @@ onUnmounted(() => {
   left: 50%;
   width: 100%;
   height: 100%;
-  border: 2px solid rgba(168, 85, 247, 0.4);
+  border: 2px solid var(--theme-border);
   border-radius: 50%;
   transform: translate(-50%, -50%);
   pointer-events: none;
@@ -863,17 +863,14 @@ onUnmounted(() => {
   position: relative;
   width: 100%;
   height: 100%;
-  background: linear-gradient(135deg, 
-    rgba(168, 85, 247, 0.9) 0%, 
-    rgba(6, 182, 212, 0.9) 50%, 
-    rgba(168, 85, 247, 0.9) 100%);
+  background: var(--theme-gradient);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   box-shadow: 
-    0 0 30px rgba(168, 85, 247, 0.5),
-    0 0 60px rgba(6, 182, 212, 0.3),
+    0 0 30px var(--theme-glow-shadow),
+    0 0 60px var(--theme-secondary),
     inset 0 0 20px rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.2);
@@ -883,8 +880,8 @@ onUnmounted(() => {
 .ai-ball-main:hover {
   transform: scale(1.05);
   box-shadow: 
-    0 0 40px rgba(168, 85, 247, 0.7),
-    0 0 80px rgba(6, 182, 212, 0.5),
+    0 0 40px var(--theme-glow-shadow),
+    0 0 80px var(--theme-secondary),
     inset 0 0 30px rgba(255, 255, 255, 0.2);
 }
 
@@ -903,7 +900,7 @@ onUnmounted(() => {
   left: 50%;
   width: 3px;
   height: 3px;
-  background: rgba(255, 255, 255, 0.8);
+  background: color-mix(in srgb, var(--theme-text) 80%, transparent);
   border-radius: 50%;
   animation: particle-float 3s ease-in-out infinite;
 }
@@ -912,8 +909,8 @@ onUnmounted(() => {
 .ai-icon {
   position: relative;
   z-index: 2;
-  color: white;
-  filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.5));
+  color: var(--theme-text);
+  filter: drop-shadow(0 0 10px color-mix(in srgb, var(--theme-text) 50%, transparent));
 }
 
 /* 状态指示器 */
@@ -927,9 +924,9 @@ onUnmounted(() => {
 .status-dot {
   width: 8px;
   height: 8px;
-  background: #10b981;
+  background: var(--theme-accent);
   border-radius: 50%;
-  box-shadow: 0 0 10px #10b981;
+  box-shadow: 0 0 10px var(--theme-accent);
 }
 
 /* AI面板样式 */
@@ -939,9 +936,9 @@ onUnmounted(() => {
   height: min(600px, calc(100vh - 40px));
   max-width: 420px;
   max-height: 600px;
-  background: rgba(15, 23, 42, 0.95);
+  background: var(--theme-bg);
   backdrop-filter: blur(20px);
-  border: 1px solid rgba(168, 85, 247, 0.3);
+  border: 1px solid var(--theme-border);
   border-radius: 24px;
   box-shadow: 
     0 25px 50px rgba(0, 0, 0, 0.5),
@@ -956,10 +953,8 @@ onUnmounted(() => {
 /* 面板头部 */
 .panel-header {
   padding: 20px 24px;
-  background: linear-gradient(135deg, 
-    rgba(168, 85, 247, 0.1) 0%, 
-    rgba(6, 182, 212, 0.1) 100%);
-  border-bottom: 1px solid rgba(168, 85, 247, 0.2);
+  background: var(--theme-card-gradient);
+  border-bottom: 1px solid var(--theme-border);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -967,9 +962,9 @@ onUnmounted(() => {
 }
 
 .close-btn {
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: rgba(255, 255, 255, 0.8);
+  background: color-mix(in srgb, var(--theme-text) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--theme-text) 20%, transparent);
+  color: color-mix(in srgb, var(--theme-text) 80%, transparent);
   width: 36px;
   height: 36px;
   border-radius: 12px;
@@ -981,8 +976,8 @@ onUnmounted(() => {
 }
 
 .close-btn:hover {
-  background: rgba(255, 255, 255, 0.2);
-  color: white;
+  background: color-mix(in srgb, var(--theme-text) 20%, transparent);
+  color: var(--theme-text);
   transform: scale(1.05);
 }
 
@@ -997,14 +992,14 @@ onUnmounted(() => {
 }
 
 .welcome-message {
-  color: rgba(255, 255, 255, 0.9);
+  color: color-mix(in srgb, var(--theme-text) 90%, transparent);
 }
 
 /* 模型信息区域 */
 .model-info {
   padding: 12px 20px;
-  border-top: 1px solid rgba(168, 85, 247, 0.2);
-  background: rgba(168, 85, 247, 0.05);
+  border-top: 1px solid var(--theme-border);
+  background: var(--theme-card-gradient);
   backdrop-filter: blur(10px);
 }
 
@@ -1012,16 +1007,16 @@ onUnmounted(() => {
 .model-selector {
   margin-bottom: 16px;
   padding-bottom: 12px;
-  border-bottom: 1px solid rgba(168, 85, 247, 0.2);
+  border-bottom: 1px solid var(--theme-border);
 }
 
 .model-select {
   width: 100%;
   padding: 8px 12px;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(168, 85, 247, 0.3);
+  background: color-mix(in srgb, var(--theme-text) 10%, transparent);
+  border: 1px solid var(--theme-border);
   border-radius: 12px;
-  color: white;
+  color: var(--theme-text);
   font-size: 13px;
   outline: none;
   transition: all 0.3s ease;
@@ -1030,22 +1025,22 @@ onUnmounted(() => {
 }
 
 .model-select:focus {
-  border-color: rgba(168, 85, 247, 0.6);
-  box-shadow: 0 0 0 2px rgba(168, 85, 247, 0.2);
-  background: rgba(255, 255, 255, 0.15);
+  border-color: var(--theme-glow);
+  box-shadow: 0 0 0 2px var(--theme-glow-shadow);
+  background: color-mix(in srgb, var(--theme-text) 15%, transparent);
 }
 
 .model-select option {
-  background: rgba(15, 23, 42, 0.95);
-  color: white;
+  background: var(--theme-bg);
+  color: var(--theme-text);
   padding: 8px;
 }
 
 /* 输入区域 */
 .input-area {
   padding: 20px;
-  border-top: 1px solid rgba(168, 85, 247, 0.2);
-  background: rgba(168, 85, 247, 0.05);
+  border-top: 1px solid var(--theme-border);
+  background: var(--theme-card-gradient);
 }
 
 .input-container {
@@ -1054,18 +1049,18 @@ onUnmounted(() => {
   align-items: center;
   margin-top: 8px;
   padding: 8px;
-  background: rgba(255, 255, 255, 0.05);
+  background: color-mix(in srgb, var(--theme-text) 5%, transparent);
   border-radius: 16px;
-  border: 1px solid rgba(168, 85, 247, 0.2);
+  border: 1px solid color-mix(in srgb, var(--theme-primary) 20%, transparent);
 }
 
 .message-input {
   flex: 1;
   padding: 16px 20px;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(168, 85, 247, 0.3);
+  background: color-mix(in srgb, var(--theme-text) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--theme-primary) 30%, transparent);
   border-radius: 25px;
-  color: white;
+  color: var(--theme-text);
   font-size: 15px;
   outline: none;
   transition: all 0.3s ease;
@@ -1073,24 +1068,24 @@ onUnmounted(() => {
 }
 
 .message-input::placeholder {
-  color: rgba(255, 255, 255, 0.6);
+  color: color-mix(in srgb, var(--theme-text) 60%, transparent);
 }
 
 .message-input:focus {
-  border-color: rgba(168, 85, 247, 0.6);
-  box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.2);
-  background: rgba(255, 255, 255, 0.15);
+  border-color: color-mix(in srgb, var(--theme-primary) 60%, transparent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--theme-primary) 20%, transparent);
+  background: color-mix(in srgb, var(--theme-text) 15%, transparent);
 }
 
 .send-btn {
   width: 48px;
   height: 48px;
   background: linear-gradient(135deg, 
-    rgba(168, 85, 247, 0.8) 0%, 
-    rgba(6, 182, 212, 0.8) 100%);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+    color-mix(in srgb, var(--theme-primary) 80%, transparent) 0%, 
+    color-mix(in srgb, var(--theme-secondary) 80%, transparent) 100%);
+  border: 1px solid color-mix(in srgb, var(--theme-text) 20%, transparent);
   border-radius: 50%;
-  color: white;
+  color: var(--theme-text);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -1101,10 +1096,10 @@ onUnmounted(() => {
 
 .send-btn:hover:not(:disabled) {
   transform: scale(1.1);
-  box-shadow: 0 8px 25px rgba(168, 85, 247, 0.4);
+  box-shadow: 0 8px 25px color-mix(in srgb, var(--theme-primary) 40%, transparent);
   background: linear-gradient(135deg, 
-    rgba(168, 85, 247, 1) 0%, 
-    rgba(6, 182, 212, 1) 100%);
+    var(--theme-primary) 0%, 
+    var(--theme-secondary) 100%);
 }
 
 .send-btn:disabled {

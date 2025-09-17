@@ -272,8 +272,8 @@ const showNotification = (message: string, type: 'success' | 'error' | 'info' = 
 
 <style scoped>
 .task-card {
-  background: rgba(26, 26, 46, 0.6);
-  border: 1px solid rgba(187, 134, 252, 0.2);
+  background: color-mix(in srgb, var(--theme-surface) 60%, transparent);
+  border: 1px solid color-mix(in srgb, var(--theme-border) 20%, transparent);
   border-radius: 8px;
   padding: 1rem;
   cursor: grab;
@@ -282,9 +282,9 @@ const showNotification = (message: string, type: 'success' | 'error' | 'info' = 
 }
 
 .task-card:hover {
-  border-color: rgba(187, 134, 252, 0.4);
+  border-color: color-mix(in srgb, var(--theme-border) 40%, transparent);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(187, 134, 252, 0.1);
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--theme-primary) 10%, transparent);
 }
 
 .task-card.dragging {
@@ -349,7 +349,7 @@ const showNotification = (message: string, type: 'success' | 'error' | 'info' = 
 }
 
 .action-btn:hover {
-  background: rgba(187, 134, 252, 0.2);
+  background: color-mix(in srgb, var(--theme-primary) 20%, transparent);
 }
 
 .action-btn:disabled {
@@ -358,21 +358,21 @@ const showNotification = (message: string, type: 'success' | 'error' | 'info' = 
 }
 
 .ai-btn:hover {
-  background: rgba(59, 130, 246, 0.2);
+  background: color-mix(in srgb, var(--theme-secondary) 20%, transparent);
 }
 
 .edit-btn:hover {
-  background: rgba(245, 158, 11, 0.2);
+  background: color-mix(in srgb, var(--theme-accent) 20%, transparent);
 }
 
 .delete-btn:hover {
-  background: rgba(239, 68, 68, 0.2);
+  background: color-mix(in srgb, #ef4444 20%, transparent);
 }
 
 .loading-spinner-tiny {
   width: 12px;
   height: 12px;
-  border: 1px solid rgba(187, 134, 252, 0.3);
+  border: 1px solid color-mix(in srgb, var(--theme-border) 30%, transparent);
   border-top: 1px solid var(--theme-primary);
   border-radius: 50%;
   animation: spin 1s linear infinite;
@@ -407,7 +407,7 @@ const showNotification = (message: string, type: 'success' | 'error' | 'info' = 
   align-items: center;
   margin-top: 0.75rem;
   padding-top: 0.75rem;
-  border-top: 1px solid rgba(187, 134, 252, 0.1);
+  border-top: 1px solid color-mix(in srgb, var(--theme-border) 10%, transparent);
 }
 
 .task-meta {

@@ -732,21 +732,18 @@ onMounted(async () => {
 <style scoped>
 .ai-assistant-page {
   @apply flex h-screen text-white relative;
-  background: linear-gradient(135deg, 
-    rgba(15, 23, 42, 0.95) 0%, 
-    rgba(30, 41, 59, 0.95) 50%, 
-    rgba(15, 23, 42, 0.95) 100%);
+  background: var(--theme-gradient);
   backdrop-filter: blur(20px);
   z-index: 10;
 }
 
 /* 侧边栏样式 */
 .sidebar {
-  background: rgba(15, 23, 42, 0.8);
+  background: var(--theme-surface);
   backdrop-filter: blur(20px);
-  border-right: 1px solid rgba(168, 85, 247, 0.3);
+  border-right: 1px solid var(--theme-border);
   box-shadow: 
-    0 0 30px rgba(168, 85, 247, 0.1),
+    0 0 30px var(--theme-glow-shadow),
     inset 0 0 20px rgba(255, 255, 255, 0.05);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   width: 320px;
@@ -760,9 +757,7 @@ onMounted(async () => {
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(135deg, 
-    rgba(168, 85, 247, 0.1) 0%, 
-    rgba(6, 182, 212, 0.1) 100%);
+  background: var(--theme-card-gradient);
   border-radius: 0;
   pointer-events: none;
 }
@@ -773,8 +768,8 @@ onMounted(async () => {
 
 .sidebar-header {
   @apply p-4;
-  border-bottom: 1px solid rgba(168, 85, 247, 0.3);
-  background: rgba(168, 85, 247, 0.05);
+  border-bottom: 1px solid var(--theme-border);
+  background: var(--theme-card-gradient);
   position: relative;
   z-index: 1;
 }
@@ -788,30 +783,26 @@ onMounted(async () => {
 
 .sidebar-toggle-btn:hover {
   @apply text-white;
-  background: rgba(168, 85, 247, 0.3);
-  border-color: rgba(168, 85, 247, 0.5);
-  box-shadow: 0 0 15px rgba(168, 85, 247, 0.4);
+  background: var(--theme-primary);
+  border-color: var(--theme-glow);
+  box-shadow: 0 0 15px var(--theme-glow-shadow);
   transform: scale(1.05);
 }
 
 .new-topic-btn {
   @apply w-full mt-3 px-4 py-2 text-white rounded-lg flex items-center justify-center space-x-2 transition-all duration-300;
-  background: linear-gradient(135deg, 
-    rgba(168, 85, 247, 0.8) 0%, 
-    rgba(6, 182, 212, 0.8) 100%);
+  background: var(--theme-card-gradient);
   border: 1px solid rgba(255, 255, 255, 0.2);
   box-shadow: 
-    0 4px 15px rgba(168, 85, 247, 0.3),
+    0 4px 15px var(--theme-glow-shadow),
     inset 0 0 20px rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(10px);
 }
 
 .new-topic-btn:hover {
-  background: linear-gradient(135deg, 
-    rgba(168, 85, 247, 1) 0%, 
-    rgba(6, 182, 212, 1) 100%);
+  background: var(--theme-gradient);
   box-shadow: 
-    0 6px 25px rgba(168, 85, 247, 0.5),
+    0 6px 25px var(--theme-glow-shadow),
     inset 0 0 30px rgba(255, 255, 255, 0.2);
   transform: translateY(-2px);
 }
@@ -825,8 +816,8 @@ onMounted(async () => {
 /* 话题工具栏样式 */
 .topics-toolbar {
   @apply flex items-center justify-between p-3;
-  border-bottom: 1px solid rgba(168, 85, 247, 0.3);
-  background: rgba(168, 85, 247, 0.05);
+  border-bottom: 1px solid var(--theme-border);
+  background: var(--theme-card-gradient);
   backdrop-filter: blur(10px);
 }
 
@@ -924,26 +915,26 @@ onMounted(async () => {
 }
 
 .topic-item:hover {
-  background: rgba(168, 85, 247, 0.1);
-  border-left-color: rgba(168, 85, 247, 0.5);
-  box-shadow: 0 4px 15px rgba(168, 85, 247, 0.2);
+  background: color-mix(in srgb, var(--theme-primary) 10%, transparent);
+  border-left-color: color-mix(in srgb, var(--theme-primary) 50%, transparent);
+  box-shadow: 0 4px 15px color-mix(in srgb, var(--theme-primary) 20%, transparent);
   transform: translateX(4px);
 }
 
 .topic-item.active {
-  background: rgba(168, 85, 247, 0.2);
-  border-left-color: rgba(168, 85, 247, 1);
+  background: color-mix(in srgb, var(--theme-primary) 20%, transparent);
+  border-left-color: var(--theme-primary);
   box-shadow: 
-    0 0 20px rgba(168, 85, 247, 0.3),
-    inset 0 0 20px rgba(168, 85, 247, 0.1);
+    0 0 20px color-mix(in srgb, var(--theme-primary) 30%, transparent),
+    inset 0 0 20px color-mix(in srgb, var(--theme-primary) 10%, transparent);
 }
 
 .topic-item.selected {
-  background: rgba(6, 182, 212, 0.2);
-  border-left-color: rgba(6, 182, 212, 1);
+  background: color-mix(in srgb, var(--theme-secondary) 20%, transparent);
+  border-left-color: var(--theme-secondary);
   box-shadow: 
-    0 0 20px rgba(6, 182, 212, 0.3),
-    inset 0 0 20px rgba(6, 182, 212, 0.1);
+    0 0 20px color-mix(in srgb, var(--theme-secondary) 30%, transparent),
+    inset 0 0 20px color-mix(in srgb, var(--theme-secondary) 10%, transparent);
 }
 
 .topic-checkbox {
@@ -981,24 +972,24 @@ onMounted(async () => {
 /* 分页样式 */
 .pagination {
   @apply flex items-center justify-between p-3;
-  border-top: 1px solid rgba(168, 85, 247, 0.3);
-  background: rgba(168, 85, 247, 0.05);
+  border-top: 1px solid color-mix(in srgb, var(--theme-primary) 30%, transparent);
+  background: color-mix(in srgb, var(--theme-primary) 5%, transparent);
   backdrop-filter: blur(10px);
 }
 
 .pagination-btn {
   @apply p-2 rounded-lg transition-all duration-300;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: rgba(255, 255, 255, 0.7);
+  background: color-mix(in srgb, var(--theme-text) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--theme-text) 20%, transparent);
+  color: color-mix(in srgb, var(--theme-text) 70%, transparent);
   backdrop-filter: blur(10px);
 }
 
 .pagination-btn:hover:not(:disabled) {
-  @apply text-white;
-  background: rgba(168, 85, 247, 0.3);
-  border-color: rgba(168, 85, 247, 0.5);
-  box-shadow: 0 0 15px rgba(168, 85, 247, 0.4);
+  color: var(--theme-text);
+  background: color-mix(in srgb, var(--theme-primary) 30%, transparent);
+  border-color: color-mix(in srgb, var(--theme-primary) 50%, transparent);
+  box-shadow: 0 0 15px color-mix(in srgb, var(--theme-primary) 40%, transparent);
   transform: scale(1.05);
 }
 
@@ -1011,8 +1002,9 @@ onMounted(async () => {
 }
 
 .page-info {
-  @apply text-sm font-medium text-white;
-  text-shadow: 0 0 10px rgba(168, 85, 247, 0.5);
+  @apply text-sm font-medium;
+  color: var(--theme-text);
+  text-shadow: 0 0 10px color-mix(in srgb, var(--theme-primary) 50%, transparent);
 }
 
 .total-info {
@@ -1033,8 +1025,8 @@ onMounted(async () => {
 
 .toolbar {
   @apply p-4;
-  border-bottom: 1px solid rgba(168, 85, 247, 0.3);
-  background: rgba(168, 85, 247, 0.05);
+  border-bottom: 1px solid color-mix(in srgb, var(--theme-primary) 30%, transparent);
+  background: color-mix(in srgb, var(--theme-primary) 5%, transparent);
   backdrop-filter: blur(20px);
 }
 
@@ -1043,16 +1035,17 @@ onMounted(async () => {
 }
 
 .model-select {
-  @apply text-white px-3 py-1 rounded-lg text-sm transition-all duration-300;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(168, 85, 247, 0.3);
+  @apply px-3 py-1 rounded-lg text-sm transition-all duration-300;
+  color: var(--theme-text);
+  background: color-mix(in srgb, var(--theme-text) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--theme-primary) 30%, transparent);
   backdrop-filter: blur(10px);
 }
 
 .model-select:focus {
   outline: none;
-  border-color: rgba(168, 85, 247, 0.8);
-  box-shadow: 0 0 15px rgba(168, 85, 247, 0.3);
+  border-color: color-mix(in srgb, var(--theme-primary) 80%, transparent);
+  box-shadow: 0 0 15px color-mix(in srgb, var(--theme-primary) 30%, transparent);
 }
 
 /* 消息区域 */
@@ -1071,15 +1064,15 @@ onMounted(async () => {
 
 .example-question-btn {
   @apply p-4 rounded-lg text-left transition-all duration-300;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(168, 85, 247, 0.2);
+  background: color-mix(in srgb, var(--theme-text) 5%, transparent);
+  border: 1px solid color-mix(in srgb, var(--theme-primary) 20%, transparent);
   backdrop-filter: blur(10px);
 }
 
 .example-question-btn:hover {
-  background: rgba(168, 85, 247, 0.1);
-  border-color: rgba(168, 85, 247, 0.4);
-  box-shadow: 0 4px 15px rgba(168, 85, 247, 0.2);
+  background: color-mix(in srgb, var(--theme-primary) 10%, transparent);
+  border-color: color-mix(in srgb, var(--theme-primary) 40%, transparent);
+  box-shadow: 0 4px 15px color-mix(in srgb, var(--theme-primary) 20%, transparent);
   transform: translateY(-2px);
 }
 
@@ -1102,18 +1095,18 @@ onMounted(async () => {
 .user-avatar {
   @apply w-8 h-8 rounded-full flex items-center justify-center;
   background: linear-gradient(135deg, 
-    rgba(6, 182, 212, 0.9) 0%, 
-    rgba(168, 85, 247, 0.9) 100%);
-  box-shadow: 0 0 15px rgba(6, 182, 212, 0.3);
+    color-mix(in srgb, var(--theme-secondary) 90%, transparent) 0%, 
+    color-mix(in srgb, var(--theme-primary) 90%, transparent) 100%);
+  box-shadow: 0 0 15px color-mix(in srgb, var(--theme-secondary) 30%, transparent);
   backdrop-filter: blur(10px);
 }
 
 .assistant-avatar {
   @apply w-8 h-8 rounded-full flex items-center justify-center;
   background: linear-gradient(135deg, 
-    rgba(168, 85, 247, 0.9) 0%, 
-    rgba(6, 182, 212, 0.9) 100%);
-  box-shadow: 0 0 15px rgba(168, 85, 247, 0.3);
+    color-mix(in srgb, var(--theme-primary) 90%, transparent) 0%, 
+    color-mix(in srgb, var(--theme-secondary) 90%, transparent) 100%);
+  box-shadow: 0 0 15px color-mix(in srgb, var(--theme-primary) 30%, transparent);
   backdrop-filter: blur(10px);
 }
 
@@ -1124,25 +1117,26 @@ onMounted(async () => {
 .message-bubble {
   @apply max-w-xs lg:max-w-md px-4 py-2 rounded-lg;
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid color-mix(in srgb, var(--theme-text) 10%, transparent);
 }
 
 .user-message .message-bubble {
-  @apply text-white ml-auto;
+  @apply ml-auto;
+  color: var(--theme-text);
   background: linear-gradient(135deg, 
-    rgba(6, 182, 212, 0.8) 0%, 
-    rgba(168, 85, 247, 0.8) 100%);
-  box-shadow: 0 4px 15px rgba(6, 182, 212, 0.2);
+    color-mix(in srgb, var(--theme-secondary) 80%, transparent) 0%, 
+    color-mix(in srgb, var(--theme-primary) 80%, transparent) 100%);
+  box-shadow: 0 4px 15px color-mix(in srgb, var(--theme-secondary) 20%, transparent);
 }
 
 .assistant-message .message-bubble {
-  @apply text-white;
-  background: rgba(255, 255, 255, 0.1);
-  box-shadow: 0 4px 15px rgba(168, 85, 247, 0.1);
+  color: var(--theme-text);
+  background: color-mix(in srgb, var(--theme-text) 10%, transparent);
+  box-shadow: 0 4px 15px color-mix(in srgb, var(--theme-primary) 10%, transparent);
 }
 
 .message-bubble.loading {
-  background: rgba(255, 255, 255, 0.1);
+  background: color-mix(in srgb, var(--theme-text) 10%, transparent);
 }
 
 .message-text {
@@ -1172,8 +1166,8 @@ onMounted(async () => {
 /* 输入区域 */
 .input-area {
   @apply p-4;
-  border-top: 1px solid rgba(168, 85, 247, 0.3);
-  background: rgba(168, 85, 247, 0.05);
+  border-top: 1px solid color-mix(in srgb, var(--theme-primary) 30%, transparent);
+  background: color-mix(in srgb, var(--theme-primary) 5%, transparent);
   backdrop-filter: blur(20px);
 }
 
@@ -1182,48 +1176,50 @@ onMounted(async () => {
 }
 
 .message-input {
-  @apply flex-1 text-white px-4 py-3 rounded-lg resize-none min-h-[48px] max-h-32 transition-all duration-300;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(168, 85, 247, 0.3);
+  @apply flex-1 px-4 py-3 rounded-lg resize-none min-h-[48px] max-h-32 transition-all duration-300;
+  color: var(--theme-text);
+  background: color-mix(in srgb, var(--theme-text) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--theme-primary) 30%, transparent);
   backdrop-filter: blur(10px);
 }
 
 .message-input:focus {
   outline: none;
-  border-color: rgba(168, 85, 247, 0.8);
-  box-shadow: 0 0 20px rgba(168, 85, 247, 0.3);
-  background: rgba(255, 255, 255, 0.15);
+  border-color: color-mix(in srgb, var(--theme-primary) 80%, transparent);
+  box-shadow: 0 0 20px color-mix(in srgb, var(--theme-primary) 30%, transparent);
+  background: color-mix(in srgb, var(--theme-text) 15%, transparent);
 }
 
 .message-input::placeholder {
-  color: rgba(255, 255, 255, 0.5);
+  color: color-mix(in srgb, var(--theme-text) 50%, transparent);
 }
 
 .send-btn {
-  @apply p-3 text-white rounded-lg transition-all duration-300;
+  @apply p-3 rounded-lg transition-all duration-300;
+  color: var(--theme-text);
   background: linear-gradient(135deg, 
-    rgba(168, 85, 247, 0.8) 0%, 
-    rgba(6, 182, 212, 0.8) 100%);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+    color-mix(in srgb, var(--theme-primary) 80%, transparent) 0%, 
+    color-mix(in srgb, var(--theme-secondary) 80%, transparent) 100%);
+  border: 1px solid color-mix(in srgb, var(--theme-text) 20%, transparent);
   box-shadow: 
-    0 4px 15px rgba(168, 85, 247, 0.3),
-    inset 0 0 20px rgba(255, 255, 255, 0.1);
+    0 4px 15px color-mix(in srgb, var(--theme-primary) 30%, transparent),
+    inset 0 0 20px color-mix(in srgb, var(--theme-text) 10%, transparent);
   backdrop-filter: blur(10px);
 }
 
 .send-btn:hover:not(:disabled) {
   background: linear-gradient(135deg, 
-    rgba(168, 85, 247, 1) 0%, 
-    rgba(6, 182, 212, 1) 100%);
+    var(--theme-primary) 0%, 
+    var(--theme-secondary) 100%);
   box-shadow: 
-    0 6px 25px rgba(168, 85, 247, 0.5),
-    inset 0 0 30px rgba(255, 255, 255, 0.2);
+    0 6px 25px color-mix(in srgb, var(--theme-primary) 50%, transparent),
+    inset 0 0 30px color-mix(in srgb, var(--theme-text) 20%, transparent);
   transform: translateY(-2px);
 }
 
 .send-btn:disabled {
   @apply cursor-not-allowed opacity-50;
-  background: rgba(255, 255, 255, 0.1);
+  background: color-mix(in srgb, var(--theme-text) 10%, transparent);
   box-shadow: none;
 }
 

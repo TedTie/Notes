@@ -55,8 +55,8 @@ const categories = computed(() => {
   ]
 })
 const priorityColors = {
-  low: 'text-green-400 border-green-400',
-  medium: 'text-yellow-400 border-yellow-400', 
+  low: 'text-[var(--theme-accent)] border-[var(--theme-accent)]',
+  medium: 'text-[var(--theme-secondary)] border-[var(--theme-secondary)]', 
   high: 'text-red-400 border-red-400'
 }
 
@@ -325,7 +325,7 @@ onUnmounted(() => {
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
           </svg>
         </div>
-        <div class="text-3xl font-bold text-blue-400 mb-1">{{ todoStats.pending }}</div>
+        <div class="text-3xl font-bold text-[var(--theme-primary)] mb-1">{{ todoStats.pending }}</div>
         <div class="futuristic-subtitle">{{ languageService.t('pending') }}</div>
       </div>
       <div class="futuristic-card text-center group hover:scale-105 transition-transform duration-300">
@@ -334,7 +334,7 @@ onUnmounted(() => {
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
           </svg>
         </div>
-        <div class="text-3xl font-bold text-green-400 mb-1">{{ todoStats.completed }}</div>
+        <div class="text-3xl font-bold text-[var(--theme-accent)] mb-1">{{ todoStats.completed }}</div>
         <div class="futuristic-subtitle">{{ languageService.t('completed') }}</div>
       </div>
       <div class="futuristic-card text-center group hover:scale-105 transition-transform duration-300">
@@ -343,7 +343,7 @@ onUnmounted(() => {
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
           </svg>
         </div>
-        <div class="text-3xl font-bold text-purple-400 mb-1">{{ todoStats.completionRate }}%</div>
+        <div class="text-3xl font-bold text-[var(--theme-secondary)] mb-1">{{ todoStats.completionRate }}%</div>
         <div class="futuristic-subtitle">{{ languageService.t('completion_rate') }}</div>
       </div>
     </div>
@@ -503,8 +503,8 @@ onUnmounted(() => {
                   <div class="flex items-center gap-2 mt-2 text-xs">
                     <span class="px-2 py-1 rounded border" :class="{
                       'text-red-400 border-red-400': aiTodo.priority === 'high',
-                      'text-yellow-400 border-yellow-400': aiTodo.priority === 'medium',
-                      'text-green-400 border-green-400': aiTodo.priority === 'low'
+                'text-[var(--theme-secondary)] border-[var(--theme-secondary)]': aiTodo.priority === 'medium',
+                'text-[var(--theme-accent)] border-[var(--theme-accent)]': aiTodo.priority === 'low'
                     }">
                       {{ aiTodo.priority === 'high' ? '高' : aiTodo.priority === 'medium' ? '中' : '低' }}
                     </span>
@@ -626,8 +626,8 @@ onUnmounted(() => {
                   <span :class="[
                     'px-3 py-1 text-xs rounded-full font-medium flex items-center space-x-1',
                     todo.priority === 'high' ? 'bg-red-500/20 text-red-400 border border-red-500/30' :
-                    todo.priority === 'medium' ? 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30' :
-                    'bg-green-500/20 text-green-400 border border-green-500/30'
+                todo.priority === 'medium' ? 'bg-[var(--theme-secondary)]/20 text-[var(--theme-secondary)] border border-[var(--theme-secondary)]/30' :
+                'bg-[var(--theme-accent)]/20 text-[var(--theme-accent)] border border-[var(--theme-accent)]/30'
                   ]">
                     <span>{{ todo.priority === 'high' ? '🔴' : todo.priority === 'medium' ? '🟡' : '🟢' }}</span>
                     <span>{{ todo.priority === 'high' ? languageService.t('high_priority') : todo.priority === 'medium' ? languageService.t('medium_priority') : languageService.t('low_priority') }}</span>
@@ -730,7 +730,7 @@ onUnmounted(() => {
 
 .futuristic-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(0, 245, 255, 0.15);
+  box-shadow: 0 8px 25px color-mix(in srgb, var(--theme-accent) 15%, transparent);
 }
 
 /* 待办事项项目动画 */
@@ -747,7 +747,7 @@ onUnmounted(() => {
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(0, 245, 255, 0.1), transparent);
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--theme-accent) 10%, transparent), transparent);
   transition: left 0.5s ease;
 }
 
@@ -757,7 +757,7 @@ onUnmounted(() => {
 
 .todo-item:hover {
   transform: translateX(4px);
-  background: rgba(0, 245, 255, 0.05);
+  background: color-mix(in srgb, var(--theme-accent) 5%, transparent);
 }
 
 /* 复选框动画 */
@@ -784,12 +784,12 @@ input[type="checkbox"]:checked {
 
 .futuristic-btn-primary:hover, .futuristic-btn-secondary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(0, 245, 255, 0.3);
+  box-shadow: 0 6px 20px color-mix(in srgb, var(--theme-accent) 30%, transparent);
 }
 
 .futuristic-btn-danger:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(255, 107, 107, 0.3);
+  box-shadow: 0 6px 20px color-mix(in srgb, var(--theme-danger) 30%, transparent);
 }
 
 /* AI面板动画 */
@@ -815,7 +815,7 @@ textarea {
 
 textarea:focus {
   transform: scale(1.02);
-  box-shadow: 0 0 0 3px rgba(0, 245, 255, 0.3);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--theme-accent) 30%, transparent);
 }
 
 /* 加载动画 */
@@ -835,7 +835,7 @@ textarea:focus {
 
 @keyframes completionPulse {
   0% { background-color: transparent; }
-  50% { background-color: rgba(16, 185, 129, 0.2); }
+  50% { background-color: color-mix(in srgb, var(--theme-success) 20%, transparent); }
   100% { background-color: transparent; }
 }
 

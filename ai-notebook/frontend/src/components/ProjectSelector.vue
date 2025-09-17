@@ -234,8 +234,8 @@ const showNotification = (message: string, type: 'success' | 'error' | 'info' = 
 
 <style scoped>
 .project-selector {
-  background: rgba(26, 26, 46, 0.4);
-  border: 1px solid rgba(187, 134, 252, 0.3);
+  background: color-mix(in srgb, var(--theme-surface) 40%, transparent);
+  border: 1px solid color-mix(in srgb, var(--theme-border) 30%, transparent);
   border-radius: 12px;
   padding: 1.5rem;
   backdrop-filter: blur(10px);
@@ -261,8 +261,8 @@ const showNotification = (message: string, type: 'success' | 'error' | 'info' = 
 .futuristic-select {
   width: 100%;
   padding: 0.75rem 1rem;
-  background: rgba(26, 26, 46, 0.8);
-  border: 1px solid rgba(187, 134, 252, 0.3);
+  background: color-mix(in srgb, var(--theme-surface) 80%, transparent);
+  border: 1px solid color-mix(in srgb, var(--theme-border) 30%, transparent);
   border-radius: 8px;
   color: var(--theme-text);
   font-size: 0.9rem;
@@ -272,7 +272,7 @@ const showNotification = (message: string, type: 'success' | 'error' | 'info' = 
 .futuristic-select:focus {
   outline: none;
   border-color: var(--theme-primary);
-  box-shadow: 0 0 0 2px rgba(187, 134, 252, 0.2);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--theme-border) 20%, transparent);
 }
 
 .create-btn {
@@ -295,15 +295,15 @@ const showNotification = (message: string, type: 'success' | 'error' | 'info' = 
 .loading-spinner-small {
   width: 16px;
   height: 16px;
-  border: 2px solid rgba(187, 134, 252, 0.3);
+  border: 2px solid color-mix(in srgb, var(--theme-border) 30%, transparent);
   border-top: 2px solid var(--theme-primary);
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
 
 .project-info-card {
-  background: rgba(26, 26, 46, 0.6);
-  border: 1px solid rgba(187, 134, 252, 0.2);
+  background: color-mix(in srgb, var(--theme-surface) 60%, transparent);
+  border: 1px solid color-mix(in srgb, var(--theme-border) 20%, transparent);
   border-radius: 8px;
   padding: 1.5rem;
   display: flex;
