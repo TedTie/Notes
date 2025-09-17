@@ -1113,12 +1113,12 @@ export const pomodoroService = {
 
 // ==================== 文件上传服务 ====================
 export const fileService = {
-  // 上传背景图片
-  async uploadBackground(file) {
+  // 上传背景图片 - 支持主题分离
+  async uploadBackground(file, theme = 'light') {
     try {
       const fileExt = file.name.split('.').pop()
-      const fileName = `${Date.now()}.${fileExt}`
-      const filePath = `backgrounds/${fileName}`
+      const fileName = `${Date.now()}_${theme}.${fileExt}`
+      const filePath = `${theme}/${fileName}`
       
       const { data, error } = await supabase.storage
         .from('backgrounds')
@@ -1134,7 +1134,8 @@ export const fileService = {
       return {
         path: filePath,
         url: publicUrl,
-        fileName
+        fileName,
+        theme
       }
     } catch (error) {
       console.error('上传背景图片失败:', error)
@@ -1142,12 +1143,40 @@ export const fileService = {
     }
   },
 
-  // 删除背景图片
-  async deleteBackground(filePath) {
+  // 删除背景图片 - 支持主题分离
+  async deleteBackground(fileId, theme = null) {
     try {
+      // 如果指定了主题，只在该主题目录下查找
+      const searchPaths = theme ? [theme] : ['light', 'dark']
+      let targetFile = null
+      let targetPath = null
+      
+      for (const searchTheme of searchPaths) {
+        const { data: files, error: listError } = await supabase.storage
+          .from('backgrounds')
+          .list(searchTheme, { limit: 1000 })
+        
+        if (listError) continue
+        
+        targetFile = files?.find(file => {
+          const id = file.name.split('_')[0]
+          return id === fileId
+        })
+        
+        if (targetFile) {
+          targetPath = `${searchTheme}/${targetFile.name}`
+          break
+        }
+      }
+      
+      if (!targetFile || !targetPath) {
+        throw new Error(`文件不存在: ${fileId}`)
+      }
+      
+      // 删除文件
       const { error } = await supabase.storage
         .from('backgrounds')
-        .remove([filePath])
+        .remove([targetPath])
       
       if (error) throw error
       return { success: true }
@@ -1157,25 +1186,44 @@ export const fileService = {
     }
   },
 
-  // 获取背景图片列表
-  async getBackgroundsList() {
+  // 获取背景图片列表 - 支持主题筛选
+  async getBackgroundsList(theme = null) {
     try {
-      const { data, error } = await supabase.storage
-        .from('backgrounds')
-        .list('', {
-          limit: 100,
-          sortBy: { column: 'created_at', order: 'desc' }
-        })
+      const allFiles = []
+      const searchThemes = theme ? [theme] : ['light', 'dark']
       
-      if (error) throw error
+      for (const searchTheme of searchThemes) {
+        const { data, error } = await supabase.storage
+          .from('backgrounds')
+          .list(searchTheme, {
+            limit: 100,
+            sortBy: { column: 'created_at', order: 'desc' }
+          })
+        
+        if (error) {
+          console.warn(`获取${searchTheme}主题背景列表失败:`, error)
+          continue
+        }
+        
+        const themeFiles = data?.map(file => {
+          // 从文件名中提取ID（去掉主题后缀和扩展名）
+          const fileId = file.name.split('_')[0]
+          return {
+            id: fileId,
+            name: file.name,
+            path: `${searchTheme}/${file.name}`,
+            url: supabase.storage.from('backgrounds').getPublicUrl(`${searchTheme}/${file.name}`).data.publicUrl,
+            size: file.metadata?.size,
+            createdAt: file.created_at,
+            theme: searchTheme
+          }
+        }) || []
+        
+        allFiles.push(...themeFiles)
+      }
       
-      return data?.map(file => ({
-        name: file.name,
-        path: `backgrounds/${file.name}`,
-        url: supabase.storage.from('backgrounds').getPublicUrl(`backgrounds/${file.name}`).data.publicUrl,
-        size: file.metadata?.size,
-        createdAt: file.created_at
-      })) || []
+      // 按创建时间排序
+      return allFiles.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
     } catch (error) {
       console.error('获取背景图片列表失败:', error)
       throw new Error(handleSupabaseError(error, '获取背景图片列表'))

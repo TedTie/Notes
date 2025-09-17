@@ -78,6 +78,8 @@ const savedSettings = ref({})
 
 // 背景管理相关
 const backgroundFiles = ref([])
+const lightBackgroundFiles = ref([])
+const darkBackgroundFiles = ref([])
 const selectedBackground = ref(null)
 const fileInput = ref(null)
 const isUploading = ref(false)
@@ -112,17 +114,14 @@ watch(activeBackgroundTab, async (newTab, oldTab) => {
 const filteredBackgroundFiles = computed(() => {
   console.log('filteredBackgroundFiles computed:')
   console.log('activeBackgroundTab.value:', activeBackgroundTab.value)
-  console.log('backgroundFiles.value:', backgroundFiles.value)
   
-  const filtered = backgroundFiles.value.filter(file => {
-    console.log(`File ${file.name}: theme=${file.theme}, matches=${!file.theme || file.theme === activeBackgroundTab.value}`)
-    // 如果文件没有主题标记，则在两个主题中都显示
-    if (!file.theme) return true
-    return file.theme === activeBackgroundTab.value
-  })
-  
-  console.log('filtered result:', filtered)
-  return filtered
+  if (activeBackgroundTab.value === 'light') {
+    console.log('返回浅色主题文件:', lightBackgroundFiles.value.length, '个')
+    return lightBackgroundFiles.value
+  } else {
+    console.log('返回深色主题文件:', darkBackgroundFiles.value.length, '个')
+    return darkBackgroundFiles.value
+  }
 })
 
 const tabs = computed(() => {
@@ -767,13 +766,8 @@ const handleFileUpload = async (event: Event) => {
       
       console.log(`[FRONTEND] Uploading to Supabase Storage for theme: ${activeBackgroundTab.value}`)
       
-      // 使用 Supabase Storage 上传文件
-      const fileExt = file.name.split('.').pop()
-      const fileName = `${Date.now()}_${activeBackgroundTab.value}.${fileExt}`
-      const filePath = `backgrounds/${fileName}`
-      
       console.log('[FRONTEND] Uploading file...')
-      const result = await fileService.uploadBackground(file)
+      const result = await fileUploadService.uploadBackground(file, activeBackgroundTab.value)
       
       console.log('[FRONTEND] Upload successful:', result)
       const themeText = activeBackgroundTab.value === 'light' ? '浅色主题' : '深色主题'
@@ -925,8 +919,8 @@ const deleteBackground = async (fileId: string) => {
   }, 30000) // 30秒超时
   
   try {
-    // 使用Supabase服务删除背景文件
-    await fileService.deleteBackground(fileId)
+    // 使用Supabase服务删除背景文件，传递当前主题
+    await fileUploadService.deleteBackground(fileId, activeBackgroundTab.value)
     
     clearTimeout(deleteTimeout)
     
@@ -975,18 +969,35 @@ const deleteBackground = async (fileId: string) => {
 const loadBackgroundFiles = async () => {
   try {
     console.log('[FRONTEND] 加载背景文件列表...')
-    const files = await fileUploadService.getBackgrounds()
+    
+    // 分别加载浅色和深色主题的背景文件
+    const [lightFiles, darkFiles] = await Promise.all([
+      fileUploadService.getBackgrounds('light'),
+      fileUploadService.getBackgrounds('dark')
+    ])
     
     // 确保URL是完整的
-    backgroundFiles.value = files.map(file => ({
+    lightBackgroundFiles.value = lightFiles.map(file => ({
       ...file,
       url: file.url && typeof file.url === 'string' && file.url.startsWith('http') ? file.url : `${file.url || ''}`
     }))
     
+    darkBackgroundFiles.value = darkFiles.map(file => ({
+      ...file,
+      url: file.url && typeof file.url === 'string' && file.url.startsWith('http') ? file.url : `${file.url || ''}`
+    }))
+    
+    // 合并所有文件用于兼容性
+    backgroundFiles.value = [...lightBackgroundFiles.value, ...darkBackgroundFiles.value]
+    
     console.log('[FRONTEND] 背景文件加载完成:', backgroundFiles.value.length, '个文件')
+    console.log('[FRONTEND] 浅色主题文件:', lightBackgroundFiles.value.length, '个')
+    console.log('[FRONTEND] 深色主题文件:', darkBackgroundFiles.value.length, '个')
   } catch (error) {
     console.error('加载背景文件失败:', error)
     backgroundFiles.value = []
+    lightBackgroundFiles.value = []
+    darkBackgroundFiles.value = []
   }
 }
 
