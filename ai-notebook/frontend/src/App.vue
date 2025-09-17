@@ -428,60 +428,7 @@ const currentLanguage = ref(languageService.getLanguage())
 
 // 移除了hideDemoBanner方法
 
-// 调试背景加载函数
-const debugBackgroundLoading = async () => {
-  console.log('=== DEBUG BACKGROUND LOADING ===')
-  console.log('Current isDarkMode:', isDarkMode.value)
-  console.log('Current actualTheme:', actualTheme.value)
-  console.log('Current currentUserBackground:', currentUserBackground.value)
-  
-  try {
-    // 1. 测试fileService.getBackgroundsList()
-    console.log('\n1. Testing fileService.getBackgroundsList():')
-    const files = await fileService.getBackgroundsList()
-    console.log('Raw files from fileService:', files)
-    
-    // 2. 测试背景设置获取
-    console.log('\n2. Testing background settings:')
-    const lightSetting = await supabaseSettingsService.getSetting('background_light')
-    const darkSetting = await supabaseSettingsService.getSetting('background_dark')
-    console.log('Light setting:', lightSetting)
-    console.log('Dark setting:', darkSetting)
-    
-    // 3. 测试文件匹配
-    console.log('\n3. Testing file matching:')
-    const currentTheme = isDarkMode.value ? 'dark' : 'light'
-    const backgroundSetting = await supabaseSettingsService.getSetting(`background_${currentTheme}`)
-    console.log(`Background setting for ${currentTheme}:`, backgroundSetting)
-    
-    if (backgroundSetting && files.length > 0) {
-      const matchedFile = files.find(file => 
-        file.id === backgroundSetting || 
-        file.name === backgroundSetting || 
-        file.path === backgroundSetting
-      )
-      console.log('Matched file:', matchedFile)
-      
-      if (!matchedFile) {
-        console.log('Available file IDs:', files.map(f => f.id))
-        console.log('Available file names:', files.map(f => f.name))
-        console.log('Available file paths:', files.map(f => f.path))
-      }
-    }
-    
-    // 4. 运行原始的背景加载
-    console.log('\n4. Running original background loading:')
-    await loadCurrentBackground()
-    console.log('Background loading completed')
-  } catch (error) {
-    console.error('Background loading failed:', error)
-  }
-}
 
-// 将调试函数暴露到全局作用域
-if (typeof window !== 'undefined') {
-  (window as any).debugBackgroundLoading = debugBackgroundLoading
-}
 
 // 在script setup中，所有变量都会自动暴露给模板
 
@@ -566,12 +513,7 @@ const getPageDescription = computed(() => {
     
 
     
-    <!-- 调试按钮 -->
-     <div class="fixed top-4 left-4 z-50">
-       <button @click="debugBackgroundLoading" class="bg-red-500 text-white px-4 py-2 rounded text-sm hover:bg-red-600 transition-colors">
-         Debug Background
-       </button>
-     </div>
+
      
      <!-- 顶部导航和主题切换 -->
      <div class="fixed top-0 right-0 z-50 p-4 mobile-nav-container">

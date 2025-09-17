@@ -107,9 +107,10 @@ export function useTheme() {
       ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
       : newValue
     
-    // 更新document的主题类
+    // 更新document的主题类和data-theme属性
     document.documentElement.classList.remove('theme-light', 'theme-dark')
     document.documentElement.classList.add(resolvedTheme === 'dark' ? 'theme-dark' : 'theme-light')
+    document.documentElement.setAttribute('data-theme', resolvedTheme)
     
     // 重新计算主题颜色
     const isDark = resolvedTheme === 'dark'

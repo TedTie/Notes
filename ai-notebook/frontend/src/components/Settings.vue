@@ -965,6 +965,61 @@ const deleteBackground = async (fileId: string) => {
   }
 }
 
+// 调试背景加载函数
+const debugBackgroundLoading = async () => {
+  console.log('=== DEBUG BACKGROUND LOADING ===')
+  console.log('Current isDarkMode:', isDarkMode.value)
+  console.log('Current activeBackgroundTab:', activeBackgroundTab.value)
+  console.log('Current selectedBackground:', selectedBackground.value)
+  
+  try {
+    // 1. 测试fileService.getBackgroundsList()
+    console.log('\n1. Testing fileService.getBackgroundsList():')
+    const files = await fileService.getBackgroundsList()
+    console.log('Raw files from fileService:', files)
+    
+    // 2. 测试背景设置获取
+    console.log('\n2. Testing background settings:')
+    const lightSetting = await settingsService.getSetting('current_background_light')
+    const darkSetting = await settingsService.getSetting('current_background_dark')
+    console.log('Light setting:', lightSetting)
+    console.log('Dark setting:', darkSetting)
+    
+    // 3. 测试文件匹配
+    console.log('\n3. Testing file matching:')
+    const currentTheme = isDarkMode.value ? 'dark' : 'light'
+    const backgroundSetting = await settingsService.getSetting(`current_background_${currentTheme}`)
+    console.log(`Background setting for ${currentTheme}:`, backgroundSetting)
+    
+    if (backgroundSetting && files.length > 0) {
+      const matchedFile = files.find(file => 
+        file.id === backgroundSetting || 
+        file.name === backgroundSetting || 
+        file.path === backgroundSetting
+      )
+      console.log('Matched file:', matchedFile)
+      
+      if (!matchedFile) {
+        console.log('Available file IDs:', files.map(f => f.id))
+        console.log('Available file names:', files.map(f => f.name))
+        console.log('Available file paths:', files.map(f => f.path))
+      }
+    }
+    
+    // 4. 测试当前背景文件列表
+    console.log('\n4. Testing current background files:')
+    console.log('Light background files:', lightBackgroundFiles.value.length)
+    console.log('Dark background files:', darkBackgroundFiles.value.length)
+    console.log('All background files:', backgroundFiles.value.length)
+    
+    // 5. 运行原始的背景加载
+    console.log('\n5. Running original background loading:')
+    await loadCurrentBackground()
+    console.log('Background loading completed')
+  } catch (error) {
+    console.error('Background loading failed:', error)
+  }
+}
 
 const loadBackgroundFiles = async () => {
   try {
@@ -1354,13 +1409,25 @@ onUnmounted(() => {
           <!-- 背景管理 -->
           <div class="futuristic-card bg-gradient-to-br from-cyan-500/10 to-transparent">
             <div class="futuristic-header mb-6">
-              <div class="flex items-center space-x-3">
-                <div class="futuristic-icon-container">
-                  <svg class="w-6 h-6 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                  </svg>
+              <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                  <div class="futuristic-icon-container">
+                    <svg class="w-6 h-6 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                    </svg>
+                  </div>
+                  <h3 class="futuristic-title-small">背景管理</h3>
                 </div>
-                <h3 class="futuristic-title-small">背景管理</h3>
+                <!-- Debug按钮 -->
+                <button 
+                  @click="debugBackgroundLoading" 
+                  class="px-3 py-1 bg-red-500/20 hover:bg-red-500/30 border border-red-400/50 hover:border-red-400 text-red-300 hover:text-red-200 rounded-md text-xs font-medium transition-all duration-200 flex items-center space-x-1"
+                >
+                  <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                  </svg>
+                  <span>Debug</span>
+                </button>
               </div>
             </div>
             

@@ -95,6 +95,23 @@
   }
   
   /* Light Mode 样式 */
+  .theme-light {
+    --theme-primary: #00e5ff;
+    --theme-secondary: #00bcd4;
+    --theme-accent: #4dd0e1;
+    --theme-bg: #f0f8ff;
+    --theme-surface: #e1f5fe;
+    --theme-text: #003d40;
+    --theme-border: #4dd0e1;
+    --theme-glow: #00e5ff;
+    --theme-gradient: linear-gradient(135deg, #ffffff 0%, #f8fafc 50%, #f1f5f9 100%);
+    --theme-card-gradient: linear-gradient(135deg, rgba(0, 229, 255, 0.1) 0%, rgba(0, 188, 212, 0.05) 100%);
+    --theme-glow-shadow: 0 0 20px rgba(0, 229, 255, 0.3);
+    --theme-particle-1: rgba(0, 229, 255, 0.3);
+    --theme-particle-2: rgba(0, 188, 212, 0.2);
+    --theme-particle-3: rgba(77, 208, 225, 0.1);
+  }
+  
   .theme-light body {
     background: var(--theme-gradient);
     background-attachment: fixed;
@@ -116,6 +133,23 @@
   }
   
   /* Dark Mode 样式 */
+  .theme-dark {
+    --theme-primary: #bb86fc;
+    --theme-secondary: #9c27b0;
+    --theme-accent: #e1bee7;
+    --theme-bg: #0a0a0f;
+    --theme-surface: #1a1a2e;
+    --theme-text: #e1bee7;
+    --theme-border: #bb86fc;
+    --theme-glow: #bb86fc;
+    --theme-gradient: linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 50%, #2d1b69 100%);
+    --theme-card-gradient: linear-gradient(135deg, rgba(187, 134, 252, 0.1) 0%, rgba(156, 39, 176, 0.05) 100%);
+    --theme-glow-shadow: 0 0 20px rgba(187, 134, 252, 0.3);
+    --theme-particle-1: rgba(187, 134, 252, 0.3);
+    --theme-particle-2: rgba(156, 39, 176, 0.2);
+    --theme-particle-3: rgba(225, 190, 231, 0.1);
+  }
+  
   .theme-dark body {
     background: var(--theme-gradient);
     background-attachment: fixed;
