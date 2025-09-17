@@ -759,7 +759,23 @@ export const settingsService = {
       // 转换为键值对对象
       const settings = {}
       data?.forEach(item => {
-        settings[item.key] = item.value
+        let value = item.value
+        
+        // 尝试解析JSON格式的值（特别是apiProviders等对象）
+        if (typeof value === "string") {
+          try {
+            // 检查是否是JSON格式的字符串
+            if ((value.startsWith("{") && value.endsWith("}")) || 
+                (value.startsWith("[") && value.endsWith("]"))) {
+              value = JSON.parse(value)
+            }
+          } catch (e) {
+            // 如果不是有效的JSON，保持原字符串值
+            console.warn(`无法解析设置项 ${item.key} 的JSON值:`, e)
+          }
+        }
+        
+        settings[item.key] = value
       })
       
       return settings

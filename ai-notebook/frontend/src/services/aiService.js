@@ -176,7 +176,19 @@ class AIService {
 
   // 获取所有话题
   async getTopics() {
-    return await supabaseService.topicsService.getAllTopics();
+    try {
+      const topics = await supabaseService.topicsService.getAllTopics();
+      return {
+        success: true,
+        topics: topics
+      };
+    } catch (error) {
+      console.error("获取话题失败:", error);
+      return {
+        success: false,
+        error: error.message || "获取话题失败"
+      };
+    }
   }
 
   // 创建新话题
