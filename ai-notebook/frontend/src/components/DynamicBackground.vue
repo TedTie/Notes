@@ -207,7 +207,7 @@ const dataStreams = ref<DataStream[]>([])
 const vehicles = ref<Vehicle[]>([])
 
 const generateParticles = () => {
-  const particleCount = 50
+  const particleCount = 15 // 从50减少到15以提升性能
   particles.value = Array.from({ length: particleCount }, (_, i) => ({
     id: i,
     x: Math.random() * 100,
@@ -219,7 +219,7 @@ const generateParticles = () => {
 
 const generateDigitalRain = () => {
   const chars = '01アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン'
-  const dropCount = 20
+  const dropCount = 8 // 从20减少到8以提升性能
   digitalDrops.value = Array.from({ length: dropCount }, (_, i) => ({
     id: i,
     x: Math.random() * 100,
@@ -230,7 +230,7 @@ const generateDigitalRain = () => {
 }
 
 const generateBuildings = () => {
-  const buildingCount = 12
+  const buildingCount = 6 // 从12减少到6以提升性能
   buildings.value = Array.from({ length: buildingCount }, (_, i) => {
     const neonLineCount = 3 + Math.floor(Math.random() * 5)
     const neonLines = Array.from({ length: neonLineCount }, (_, j) => ({
@@ -293,22 +293,23 @@ onMounted(() => {
   generateDataStreams()
   generateVehicles()
   
-  // 定期重新生成效果
+  // 大幅减少重新生成频率以提升性能
   setInterval(() => {
     generateParticles()
-  }, 10000)
+  }, 60000) // 从10秒改为60秒
   
   setInterval(() => {
     generateDigitalRain()
-  }, 15000)
+  }, 120000) // 从15秒改为120秒
   
-  setInterval(() => {
-    generateBuildings()
-  }, 45000)
+  // 移除建筑物和全息图的重新生成以减少性能负担
+  // setInterval(() => {
+  //   generateBuildings()
+  // }, 45000)
   
-  setInterval(() => {
-    generateHolograms()
-  }, 20000)
+  // setInterval(() => {
+  //   generateHolograms()
+  // }, 20000)
 })
 </script>
 
@@ -318,7 +319,7 @@ onMounted(() => {
 /* 网格图案 */
 .grid-pattern {
   background-size: 50px 50px;
-  animation: grid-move 20s linear infinite;
+  animation: grid-move 60s linear infinite; /* 从20秒改为60秒以减少性能消耗 */
 }
 
 .day-grid {
@@ -363,18 +364,18 @@ onMounted(() => {
 }
 
 @keyframes float {
-  0%, 100% {
-    transform: translateY(0px) rotate(0deg);
+  0% {
+    transform: translateY(0px);
     opacity: 0;
   }
   10% {
-    opacity: 1;
+    opacity: 0.6;
   }
   90% {
-    opacity: 1;
+    opacity: 0.6;
   }
   100% {
-    transform: translateY(-100vh) rotate(360deg);
+    transform: translateY(-100vh);
     opacity: 0;
   }
 }
