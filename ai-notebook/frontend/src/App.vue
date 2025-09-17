@@ -31,6 +31,12 @@ const selectedTask = ref(null)
 const currentTheme = computed(() => settingsService.settings.theme || 'dark')
 const { actualTheme, isDarkMode } = useTheme()
 
+// 强制重新渲染的响应式变量
+const forceUpdateKey = ref(0)
+const forceUpdate = () => {
+  forceUpdateKey.value++
+}
+
 // 设置通知系统
 const setupNotificationSystem = () => {
   const notificationContainer = document.getElementById('settings-notifications')
@@ -141,6 +147,14 @@ onMounted(async () => {
     
     window.addEventListener('apply-background', handleApplyBackground)
     window.addEventListener('clear-background', handleClearBackground)
+    
+    // 监听强制更新事件
+    const handleForceUpdate = (event: CustomEvent) => {
+      console.log('[App] Force update triggered:', event.detail)
+      forceUpdate()
+    }
+    
+    document.addEventListener('vue-force-update', handleForceUpdate)
     
     // 设置通知系统
     const cleanupNotifications = setupNotificationSystem()
@@ -502,7 +516,7 @@ const getPageDescription = computed(() => {
   />
 
   <!-- 主应用界面 -->
-  <div v-else class="min-h-screen relative" :data-theme="currentTheme">
+  <div v-else class="min-h-screen relative" :data-theme="currentTheme" :key="forceUpdateKey">
     <!-- 设置通知系统 -->
     <div class="settings-notification-container" id="settings-notifications"></div>
     

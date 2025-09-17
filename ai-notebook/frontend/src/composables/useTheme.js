@@ -122,10 +122,17 @@ export function useTheme() {
       root.classList.add(resolvedTheme === 'dark' ? 'theme-dark' : 'theme-light')
       root.setAttribute('data-theme', resolvedTheme)
       
-      // 强制重绘
+      // 强制重绘和Vue重新渲染
       root.style.display = 'none'
       root.offsetHeight // 触发重排
       root.style.display = ''
+      
+      // 强制触发Vue的响应式更新
+      setTimeout(() => {
+        // 触发一个微小的DOM变化来强制Vue重新渲染
+        const event = new CustomEvent('vue-force-update', { detail: { theme: resolvedTheme } })
+        document.dispatchEvent(event)
+      }, 10)
       
       console.log('[useTheme] DOM updated with theme:', resolvedTheme)
     })
