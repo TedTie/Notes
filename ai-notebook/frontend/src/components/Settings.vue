@@ -752,7 +752,7 @@ const handleFileUpload = async (event: Event) => {
       console.log(`[FRONTEND] Processing file: ${file.name}, type: ${file.type}, size: ${file.size}`)
       
       // 验证文件类型
-      if (!file.type.startsWith('image/') && !file.type.startsWith('video/')) {
+      if (!file.type || (!file.type.startsWith('image/') && !file.type.startsWith('video/'))) {
         console.log(`[FRONTEND] File type not supported: ${file.type}`)
         showNotification(`文件 ${file.name} 格式不支持`, 'error')
         continue
@@ -786,7 +786,7 @@ const handleFileUpload = async (event: Event) => {
         url: result.url,
         path: result.path,
         theme: activeBackgroundTab.value,
-        type: file.type.startsWith('image/') ? 'image' : 'video',
+        type: file.type && file.type.startsWith('image/') ? 'image' : 'video',
         size: file.size,
         uploadedAt: new Date().toISOString()
       }
@@ -980,7 +980,7 @@ const loadBackgroundFiles = async () => {
     // 确保URL是完整的
     backgroundFiles.value = files.map(file => ({
       ...file,
-      url: file.url.startsWith('http') ? file.url : `${file.url}`
+      url: file.url && file.url.startsWith('http') ? file.url : `${file.url || ''}`
     }))
     
     console.log('[FRONTEND] 背景文件加载完成:', backgroundFiles.value.length, '个文件')

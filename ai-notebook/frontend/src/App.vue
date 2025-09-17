@@ -184,7 +184,7 @@ const loadBackgroundLight = async () => {
       // 确保URL是完整的
       const filesWithFullUrl = files.map(file => ({
         ...file,
-        url: file.url.startsWith('http') ? file.url : `${file.url}`
+        url: file.url && file.url.startsWith('http') ? file.url : `${file.url || ''}`
       }))
       const currentFile = filesWithFullUrl.find(file => file.name === backgroundSetting || file.path === backgroundSetting)
       console.log(`[APP] Found light theme background file:`, currentFile)
@@ -224,7 +224,7 @@ const loadBackgroundDark = async () => {
       // 确保URL是完整的
       const filesWithFullUrl = files.map(file => ({
         ...file,
-        url: file.url.startsWith('http') ? file.url : `${file.url}`
+        url: file.url && file.url.startsWith('http') ? file.url : `${file.url || ''}`
       }))
       const currentFile = filesWithFullUrl.find(file => file.name === backgroundSetting || file.path === backgroundSetting)
       console.log(`[APP] Found dark theme background file:`, currentFile)
@@ -262,7 +262,7 @@ const loadCurrentBackground = async () => {
       const files = await fileService.getBackgroundsList()
       const filesWithFullUrl = files.map(file => ({
         ...file,
-        url: file.url.startsWith('http') ? file.url : `${file.url}`
+        url: file.url && file.url.startsWith('http') ? file.url : `${file.url || ''}`
       }))
       
       const currentFile = filesWithFullUrl.find(file => file.name === backgroundSetting || file.path === backgroundSetting)
@@ -318,10 +318,10 @@ const applyBackground = (file: any) => {
   console.log(`[APP] applyBackground called with file:`, file)
   console.log(`[APP] Current theme: ${isDarkMode.value ? 'dark' : 'light'}`)
   if (file && file.type) {
-    if (file.type.startsWith('image/') || file.type === 'image') {
+    if ((file.type && file.type.startsWith('image/')) || file.type === 'image') {
       console.log(`[APP] Setting image background:`, file.url)
       currentUserBackground.value = file.url
-    } else if (file.type.startsWith('video/') || file.type === 'video') {
+    } else if ((file.type && file.type.startsWith('video/')) || file.type === 'video') {
       console.log(`[APP] Setting video background:`, file.url)
       currentUserBackground.value = file.url
     } else {

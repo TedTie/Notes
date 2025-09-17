@@ -462,7 +462,7 @@ const handleDrop = (event) => {
 
 const selectFile = (file) => {
   // 验证文件类型
-  if (!file.type.startsWith('audio/')) {
+  if (!file.type || !file.type.startsWith('audio/')) {
     alert(languageService.t('audio.validation.invalidFileType'))
     return
   }
