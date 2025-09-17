@@ -437,21 +437,14 @@
     animation-delay: 0.1s;
   }
   
-  /* 滚动条样式 */
+  /* 隐藏默认滚动条，使用TracingBeam组件替代 */
   .cyber-scrollbar::-webkit-scrollbar {
-    @apply w-2;
+    display: none;
   }
   
-  .cyber-scrollbar::-webkit-scrollbar-track {
-    @apply bg-cyber-gray;
-  }
-  
-  .cyber-scrollbar::-webkit-scrollbar-thumb {
-    @apply bg-cyber-primary/50 rounded-full;
-  }
-  
-  .cyber-scrollbar::-webkit-scrollbar-thumb:hover {
-    @apply bg-cyber-primary;
+  .cyber-scrollbar {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
   }
 
   /* 自定义滑块样式 */

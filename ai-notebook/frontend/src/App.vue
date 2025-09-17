@@ -12,8 +12,9 @@ import PomodoroView from './components/PomodoroView.vue'
 // import TestComponent from './components/TestComponent.vue'
 // import SimpleAITest from './components/SimpleAITest.vue'
 import ThemeToggle from './components/ThemeToggle.vue'
-// import ParticleBackground from './components/ParticleBackground.vue'
-// import StaticBackground from './components/StaticBackground.vue'
+import TracingBeam from './components/TracingBeam.vue'
+import ParticleBackground from './components/ParticleBackground.vue'
+import StaticBackground from './components/StaticBackground.vue'
 import settingsService from './services/settingsService'
 import languageService from './services/languageService'
 import { useTheme } from './composables/useTheme'
@@ -496,30 +497,31 @@ const getPageDescription = computed(() => {
     
     <!-- 主内容区域 -->
     <main class="relative z-20 min-h-screen main-content">
-      <!-- 内容容器 -->
-      <div class="container mx-auto px-6 py-8 content-container">
-        <!-- 页面标题 -->
-        <div class="mb-8 text-left page-header">
-          <h1 class="futuristic-title-large mb-2 page-title">
-            {{ getPageTitle }}
-          </h1>
-          <p class="futuristic-subtitle page-description">
-            {{ getPageDescription }}
-          </p>
-        </div>
-        
-        <!-- 内容区域 -->
-        <div class="max-w-7xl mx-auto content-wrapper">
-          <Transition name="page" mode="out-in">
-            <div :key="currentView" class="min-h-[600px]">
-              <NoteEditor v-if="currentView === 'notes'" />
-              <TodoList v-else-if="currentView === 'todos'" @set-view="setCurrentView" @start-pomodoro="handleStartPomodoro" />
-              <ProjectView v-else-if="currentView === 'projects'" />
-              <AIAssistantPage v-else-if="currentView === 'ai'" />
-              <PomodoroView v-else-if="currentView === 'pomodoro'" :selected-task="selectedTask" />
-              <Settings v-else-if="currentView === 'settings'" />
-              <div v-else class="flex items-center justify-center min-h-[400px]">
-                <div class="futuristic-card text-center p-12 max-w-md">
+      <TracingBeam>
+        <!-- 内容容器 -->
+        <div class="container mx-auto px-6 py-8 content-container">
+          <!-- 页面标题 -->
+          <div class="mb-8 text-left page-header">
+            <h1 class="futuristic-title-large mb-2 page-title">
+              {{ getPageTitle }}
+            </h1>
+            <p class="futuristic-subtitle page-description">
+              {{ getPageDescription }}
+            </p>
+          </div>
+          
+          <!-- 内容区域 -->
+          <div class="max-w-7xl mx-auto content-wrapper">
+            <Transition name="page" mode="out-in">
+              <div :key="currentView" class="min-h-[600px]">
+                <NoteEditor v-if="currentView === 'notes'" />
+                <TodoList v-else-if="currentView === 'todos'" @set-view="setCurrentView" @start-pomodoro="handleStartPomodoro" />
+                <ProjectView v-else-if="currentView === 'projects'" />
+                <AIAssistantPage v-else-if="currentView === 'ai'" />
+                <PomodoroView v-else-if="currentView === 'pomodoro'" :selected-task="selectedTask" />
+                <Settings v-else-if="currentView === 'settings'" />
+                <div v-else class="flex items-center justify-center min-h-[400px]">
+                  <div class="futuristic-card text-center p-12 max-w-md">
                   <svg class="w-24 h-24 mb-4 text-cyber-primary" fill="currentColor" viewBox="0 0 20 20"><path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z"/></svg>
                   <h2 class="futuristic-title mb-4">AI智能助手</h2>
                   <p class="futuristic-subtitle mb-6">强大的AI功能即将上线</p>
@@ -533,6 +535,7 @@ const getPageDescription = computed(() => {
           </Transition>
         </div>
       </div>
+      </TracingBeam>
     </main>
     
     <!-- 全局AI助手 -->
