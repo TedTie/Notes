@@ -222,7 +222,7 @@ const loadSettings = async () => {
 
 const loadTasks = async () => {
   try {
-    const tasks = await todosService.getTodos()
+    const tasks = await todosService.getAllTodos()
     incompleteTasks.value = tasks.filter(task => !task.completed)
   } catch (error) {
     console.error('加载任务失败:', error)
