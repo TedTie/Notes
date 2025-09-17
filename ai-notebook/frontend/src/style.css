@@ -191,6 +191,23 @@
     z-index: -1;
   }
 
+  [data-theme="light"] {
+    --theme-primary: #00e5ff;
+    --theme-secondary: #00bcd4;
+    --theme-accent: #4dd0e1;
+    --theme-bg: #f0f8ff;
+    --theme-surface: #e1f5fe;
+    --theme-text: #003d40;
+    --theme-border: #4dd0e1;
+    --theme-glow: #00e5ff;
+    --theme-gradient: linear-gradient(135deg, #ffffff 0%, #f8fafc 50%, #f1f5f9 100%);
+    --theme-card-gradient: linear-gradient(135deg, rgba(0, 229, 255, 0.1) 0%, rgba(0, 188, 212, 0.05) 100%);
+    --theme-glow-shadow: 0 0 20px rgba(0, 229, 255, 0.3);
+    --theme-particle-1: rgba(0, 229, 255, 0.3);
+    --theme-particle-2: rgba(0, 188, 212, 0.2);
+    --theme-particle-3: rgba(77, 208, 225, 0.1);
+  }
+
   [data-theme="dark"] {
     --theme-primary: #bb86fc;
     --theme-secondary: #9c27b0;
