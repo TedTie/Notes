@@ -319,7 +319,7 @@ onMounted(() => {
 /* 网格图案 */
 .grid-pattern {
   background-size: 50px 50px;
-  animation: grid-move 60s linear infinite; /* 从20秒改为60秒以减少性能消耗 */
+  animation: grid-move 30s linear infinite; /* 调整为30秒，平衡性能和视觉效果 */
 }
 
 .day-grid {
