@@ -855,8 +855,8 @@ const previewBackground = async (file: any, targetTheme?: string) => {
     }
     console.log(`[SETTINGS] 准备发送保存请求:`, requestData)
     
-    // 使用Supabase服务保存背景设置
-    await settingsService.updateSetting(`background_${themeToSave}`, requestData.backgroundId)
+    // 使用Supabase服务保存背景设置 - 修复设置键不一致问题
+    await settingsService.updateSetting(`current_background_${themeToSave}`, requestData.backgroundId)
     
     clearTimeout(saveTimeout)
     
@@ -1005,7 +1005,8 @@ const loadCurrentBackground = async () => {
   try {
     // 使用当前实际主题而不是标签页主题
     const currentTheme = isDarkMode.value ? 'dark' : 'light'
-    const backgroundSetting = await settingsService.getSetting(`background_${currentTheme}`)
+    // 使用与App.vue一致的设置键格式
+    const backgroundSetting = await settingsService.getSetting(`current_background_${currentTheme}`)
     console.log(`[SETTINGS] 当前${currentTheme}主题背景设置:`, backgroundSetting)
     if (backgroundSetting) {
       selectedBackground.value = backgroundSetting

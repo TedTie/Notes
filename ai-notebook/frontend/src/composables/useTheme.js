@@ -102,12 +102,50 @@ export function useTheme() {
     // 同步到全局设置
     settingsService.setSetting('theme', newValue)
     
+    // 计算实际主题（考虑auto模式）
+    const resolvedTheme = newValue === 'auto' 
+      ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+      : newValue
+    
     // 更新document的主题类
     document.documentElement.classList.remove('theme-light', 'theme-dark')
-    document.documentElement.classList.add(actualTheme.value === 'dark' ? 'theme-dark' : 'theme-light')
+    document.documentElement.classList.add(resolvedTheme === 'dark' ? 'theme-dark' : 'theme-light')
+    
+    // 重新计算主题颜色
+    const isDark = resolvedTheme === 'dark'
+    const colors = isDark ? {
+      primary: '#bb86fc',
+      secondary: '#9c27b0',
+      accent: '#e1bee7',
+      bg: '#0a0a0f',
+      surface: '#1a1a2e',
+      text: '#e1bee7',
+      border: '#bb86fc',
+      glow: '#bb86fc',
+      gradient: 'linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 50%, #2d1b69 100%)',
+      cardGradient: 'linear-gradient(135deg, rgba(187, 134, 252, 0.1) 0%, rgba(156, 39, 176, 0.05) 100%)',
+      glowShadow: '0 0 20px rgba(187, 134, 252, 0.3)',
+      particleColor1: 'rgba(187, 134, 252, 0.3)',
+      particleColor2: 'rgba(156, 39, 176, 0.2)',
+      particleColor3: 'rgba(225, 190, 231, 0.1)'
+    } : {
+      primary: '#00e5ff',
+      secondary: '#00bcd4',
+      accent: '#4dd0e1',
+      bg: '#f0f8ff',
+      surface: '#e1f5fe',
+      text: '#003d40',
+      border: '#4dd0e1',
+      glow: '#00e5ff',
+      gradient: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 50%, #f1f5f9 100%)',
+      cardGradient: 'linear-gradient(135deg, rgba(0, 229, 255, 0.1) 0%, rgba(0, 188, 212, 0.05) 100%)',
+      glowShadow: '0 0 20px rgba(0, 229, 255, 0.3)',
+      particleColor1: 'rgba(0, 229, 255, 0.3)',
+      particleColor2: 'rgba(0, 188, 212, 0.2)',
+      particleColor3: 'rgba(77, 208, 225, 0.1)'
+    }
     
     // 更新CSS自定义属性
-    const colors = themeColors.value
     const root = document.documentElement
     
     root.style.setProperty('--theme-primary', colors.primary)

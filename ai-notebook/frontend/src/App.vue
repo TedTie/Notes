@@ -189,7 +189,7 @@ const loadBackgroundLight = async () => {
         ...file,
         url: file.url && typeof file.url === 'string' && file.url.startsWith('http') ? file.url : `${file.url || ''}`
       }))
-      const currentFile = filesWithFullUrl.find(file => file.name === backgroundSetting || file.path === backgroundSetting)
+      const currentFile = filesWithFullUrl.find(file => file.id === backgroundSetting || file.name === backgroundSetting || file.path === backgroundSetting)
       console.log(`[APP] Found light theme background file:`, currentFile)
       if (currentFile) {
         console.log(`[APP] Applying light theme background:`, currentFile.url)
@@ -229,7 +229,7 @@ const loadBackgroundDark = async () => {
         ...file,
         url: file.url && typeof file.url === 'string' && file.url.startsWith('http') ? file.url : `${file.url || ''}`
       }))
-      const currentFile = filesWithFullUrl.find(file => file.name === backgroundSetting || file.path === backgroundSetting)
+      const currentFile = filesWithFullUrl.find(file => file.id === backgroundSetting || file.name === backgroundSetting || file.path === backgroundSetting)
       console.log(`[APP] Found dark theme background file:`, currentFile)
       if (currentFile) {
         console.log(`[APP] Applying dark theme background:`, currentFile.url)
@@ -256,25 +256,46 @@ const loadCurrentBackground = async () => {
     const currentTheme = isDarkMode.value ? 'dark' : 'light'
     console.log(`[APP] Loading current background for theme: ${currentTheme}`)
     
-    // 使用Supabase获取背景设置
-    const backgroundSetting = await supabaseSettingsService.getSetting(`background_${currentTheme}`)
+    // 使用Supabase获取背景设置 - 修复设置键不一致问题
+    const backgroundSetting = await supabaseSettingsService.getSetting(`current_background_${currentTheme}`)
     console.log(`[APP] Background setting for ${currentTheme} theme:`, backgroundSetting)
     
     if (backgroundSetting) {
       // 获取背景文件列表
+      console.log(`[APP] Calling fileService.getBackgroundsList()...`)
       const files = await fileService.getBackgroundsList()
+      console.log(`[APP] Raw files from fileService:`, files)
+      console.log(`[APP] Looking for backgroundSetting:`, backgroundSetting)
+      
       const filesWithFullUrl = files.map(file => ({
         ...file,
         url: file.url && typeof file.url === 'string' && file.url.startsWith('http') ? file.url : `${file.url || ''}`
       }))
+      console.log(`[APP] Files with full URL:`, filesWithFullUrl)
       
-      const currentFile = filesWithFullUrl.find(file => file.name === backgroundSetting || file.path === backgroundSetting)
+      // 详细的查找过程
+      console.log(`[APP] Searching for file with:`);
+      console.log(`[APP] - ID: ${backgroundSetting}`);
+      filesWithFullUrl.forEach((file, index) => {
+        console.log(`[APP] File ${index}:`, {
+          id: file.id,
+          name: file.name,
+          path: file.path,
+          idMatch: file.id === backgroundSetting,
+          nameMatch: file.name === backgroundSetting,
+          pathMatch: file.path === backgroundSetting
+        });
+      });
+      
+      const currentFile = filesWithFullUrl.find(file => file.id === backgroundSetting || file.name === backgroundSetting || file.path === backgroundSetting)
       
       if (currentFile) {
+        console.log(`[APP] Found matching file:`, currentFile)
         console.log(`[APP] Applying background: ${currentFile.url}`)
         applyBackground(currentFile)
       } else {
         console.warn(`[APP] Background file not found: ${backgroundSetting}`)
+        console.warn(`[APP] Available files:`, filesWithFullUrl.map(f => ({ id: f.id, name: f.name, path: f.path })))
         clearBackground()
       }
     } else {
@@ -407,6 +428,61 @@ const currentLanguage = ref(languageService.getLanguage())
 
 // 移除了hideDemoBanner方法
 
+// 调试背景加载函数
+const debugBackgroundLoading = async () => {
+  console.log('=== DEBUG BACKGROUND LOADING ===')
+  console.log('Current isDarkMode:', isDarkMode.value)
+  console.log('Current actualTheme:', actualTheme.value)
+  console.log('Current currentUserBackground:', currentUserBackground.value)
+  
+  try {
+    // 1. 测试fileService.getBackgroundsList()
+    console.log('\n1. Testing fileService.getBackgroundsList():')
+    const files = await fileService.getBackgroundsList()
+    console.log('Raw files from fileService:', files)
+    
+    // 2. 测试背景设置获取
+    console.log('\n2. Testing background settings:')
+    const lightSetting = await supabaseSettingsService.getSetting('background_light')
+    const darkSetting = await supabaseSettingsService.getSetting('background_dark')
+    console.log('Light setting:', lightSetting)
+    console.log('Dark setting:', darkSetting)
+    
+    // 3. 测试文件匹配
+    console.log('\n3. Testing file matching:')
+    const currentTheme = isDarkMode.value ? 'dark' : 'light'
+    const backgroundSetting = await supabaseSettingsService.getSetting(`background_${currentTheme}`)
+    console.log(`Background setting for ${currentTheme}:`, backgroundSetting)
+    
+    if (backgroundSetting && files.length > 0) {
+      const matchedFile = files.find(file => 
+        file.id === backgroundSetting || 
+        file.name === backgroundSetting || 
+        file.path === backgroundSetting
+      )
+      console.log('Matched file:', matchedFile)
+      
+      if (!matchedFile) {
+        console.log('Available file IDs:', files.map(f => f.id))
+        console.log('Available file names:', files.map(f => f.name))
+        console.log('Available file paths:', files.map(f => f.path))
+      }
+    }
+    
+    // 4. 运行原始的背景加载
+    console.log('\n4. Running original background loading:')
+    await loadCurrentBackground()
+    console.log('Background loading completed')
+  } catch (error) {
+    console.error('Background loading failed:', error)
+  }
+}
+
+// 将调试函数暴露到全局作用域
+if (typeof window !== 'undefined') {
+  (window as any).debugBackgroundLoading = debugBackgroundLoading
+}
+
 // 在script setup中，所有变量都会自动暴露给模板
 
 const getPageTitle = computed(() => {
@@ -488,8 +564,17 @@ const getPageDescription = computed(() => {
     <!-- 动态效果层 (z-index: 3) -->
     <DynamicBackground />
     
-    <!-- 顶部导航和主题切换 -->
-    <div class="fixed top-0 right-0 z-50 p-4 mobile-nav-container">
+
+    
+    <!-- 调试按钮 -->
+     <div class="fixed top-4 left-4 z-50">
+       <button @click="debugBackgroundLoading" class="bg-red-500 text-white px-4 py-2 rounded text-sm hover:bg-red-600 transition-colors">
+         Debug Background
+       </button>
+     </div>
+     
+     <!-- 顶部导航和主题切换 -->
+     <div class="fixed top-0 right-0 z-50 p-4 mobile-nav-container">
       <div class="flex items-center space-x-3">
         <!-- 主题切换按钮 -->
         <ThemeToggle />
