@@ -1,0 +1,38 @@
+{
+  "project": {
+    "name": "Notes",
+    "path": "E:\\51\\AI\\ProjectNote",
+    "type": "fullstack"
+  },
+  "deployment": {
+    "platform": "vercel",
+    "url": "https://notes-five-smoky.vercel.app/",
+    "github": "https://github.com/TedTie/Notes.git"
+  },
+  "database": {
+    "provider": "supabase",
+    "projectId": "vcgythhenulnwuindgyx"
+  },
+  "tools": {
+    "playwright": {
+      "enabled": true,
+      "browsers": ["chromium", "firefox", "webkit"]
+    },
+    "mcp": {
+      "filesystem": true,
+      "browser": true,
+      "shell": true
+    }
+  },
+  "scripts": {
+    "dev": "npm run dev",
+    "build": "npm run build",
+    "test": "npm test",
+    "deploy": "vercel deploy"
+  },
+  "workflow": {
+    "autoTest": true,
+    "autoDeploy": false,
+    "monitoring": true
+  }
+}
