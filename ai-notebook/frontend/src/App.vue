@@ -21,6 +21,7 @@ import languageService from './services/languageService'
 import { useTheme } from './composables/useTheme'
 import { settingsService as supabaseSettingsService, fileService } from './services/supabaseService'
 import { PERFORMANCE_CONFIG } from './config/performance.js'
+import { initializeTheme, setupSystemThemeListener, validateThemeApplication } from './utils/themeInitializer'
 // 移除了API_CONFIG相关代码
 
 const currentView = ref('notes')
@@ -408,6 +409,19 @@ const handleStartPomodoro = (taskInfo: any) => {
 // 预加载完成处理
 const handlePreloadComplete = () => {
   console.log('预加载完成，应用准备就绪')
+  
+  // 强制初始化主题
+  initializeTheme()
+  
+  // 验证主题应用
+  setTimeout(() => {
+    const isValid = validateThemeApplication()
+    if (!isValid) {
+      console.warn('[APP] Theme validation failed, retrying...')
+      initializeTheme()
+    }
+  }, 100)
+  
   // 延迟隐藏加载屏幕，确保平滑过渡
   setTimeout(() => {
     isLoading.value = false
@@ -417,6 +431,10 @@ const handlePreloadComplete = () => {
 // 预加载错误处理
 const handlePreloadError = (error: Error) => {
   console.error('预加载失败:', error)
+  
+  // 即使预加载失败，也要初始化主题
+  initializeTheme()
+  
   // 即使预加载失败，也要显示应用界面
   setTimeout(() => {
     isLoading.value = false

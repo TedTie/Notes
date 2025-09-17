@@ -1,4 +1,4 @@
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, computed, watch, onMounted, nextTick } from 'vue'
 import settingsService from '../services/settingsService'
 
 // 主题状态
@@ -97,6 +97,8 @@ export function useTheme() {
 
   // 监听主题变化，保存到localStorage和全局设置
   watch(currentTheme, (newValue) => {
+    console.log('[useTheme] Theme changed to:', newValue)
+    
     localStorage.setItem('cyber-theme', newValue)
     
     // 同步到全局设置
@@ -107,10 +109,26 @@ export function useTheme() {
       ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
       : newValue
     
-    // 更新document的主题类和data-theme属性
-    document.documentElement.classList.remove('theme-light', 'theme-dark')
-    document.documentElement.classList.add(resolvedTheme === 'dark' ? 'theme-dark' : 'theme-light')
-    document.documentElement.setAttribute('data-theme', resolvedTheme)
+    console.log('[useTheme] Applying actual theme:', resolvedTheme)
+    
+    // 强制更新DOM - 使用nextTick确保DOM更新
+    nextTick(() => {
+      const root = document.documentElement
+      
+      // 移除所有主题类
+      root.classList.remove('theme-light', 'theme-dark')
+      
+      // 添加新主题类
+      root.classList.add(resolvedTheme === 'dark' ? 'theme-dark' : 'theme-light')
+      root.setAttribute('data-theme', resolvedTheme)
+      
+      // 强制重绘
+      root.style.display = 'none'
+      root.offsetHeight // 触发重排
+      root.style.display = ''
+      
+      console.log('[useTheme] DOM updated with theme:', resolvedTheme)
+    })
     
     // 重新计算主题颜色
     const isDark = resolvedTheme === 'dark'
@@ -163,6 +181,11 @@ export function useTheme() {
     root.style.setProperty('--theme-particle-1', colors.particleColor1)
     root.style.setProperty('--theme-particle-2', colors.particleColor2)
     root.style.setProperty('--theme-particle-3', colors.particleColor3)
+    
+    // 触发全局事件
+    window.dispatchEvent(new CustomEvent('theme-changed', {
+      detail: { theme: newValue, actualTheme: resolvedTheme }
+    }))
   }, { immediate: true })
 
   // 监听全局设置变更事件

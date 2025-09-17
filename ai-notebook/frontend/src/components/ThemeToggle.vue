@@ -1,9 +1,10 @@
 <template>
   <div class="theme-toggle-container">
     <button 
-      @click="toggleTheme" 
+      @click="handleToggle" 
       class="theme-toggle-btn"
-      :class="{ 'dark-mode': isDarkMode }"
+      :class="{ 'dark-mode': isDarkMode, 'toggling': isToggling }"
+      :disabled="isToggling"
       :title="isDarkMode ? '切换到白天模式' : '切换到夜晚模式'"
     >
       <div class="toggle-track">
@@ -52,11 +53,61 @@
 
 <script>
 import { useTheme } from '../composables/useTheme'
+import { ref, watch, nextTick } from 'vue'
 
 export default {
   name: 'ThemeToggle',
   setup() {
     const { isDarkMode, toggleTheme, themeColors } = useTheme()
+    
+    // 添加切换状态跟踪
+    const isToggling = ref(false)
+    
+    // 增强的主题切换函数
+    const handleToggle = async () => {
+      if (isToggling.value) return
+      
+      isToggling.value = true
+      console.log('[ThemeToggle] Starting theme toggle, current:', isDarkMode.value)
+      
+      try {
+        await toggleTheme()
+        
+        // 等待DOM更新
+        await nextTick()
+        
+        // 验证主题是否正确应用
+        const root = document.documentElement
+        const expectedClass = isDarkMode.value ? 'theme-dark' : 'theme-light'
+        const hasCorrectClass = root.classList.contains(expectedClass)
+        
+        console.log('[ThemeToggle] Theme toggle completed:', {
+          isDarkMode: isDarkMode.value,
+          expectedClass,
+          hasCorrectClass,
+          actualClasses: Array.from(root.classList)
+        })
+        
+        if (!hasCorrectClass) {
+          console.warn('[ThemeToggle] Theme class mismatch, forcing update...')
+          // 强制重新应用主题
+          root.classList.remove('theme-light', 'theme-dark')
+          root.classList.add(expectedClass)
+          root.setAttribute('data-theme', isDarkMode.value ? 'dark' : 'light')
+        }
+      } catch (error) {
+        console.error('[ThemeToggle] Theme toggle failed:', error)
+      } finally {
+        setTimeout(() => {
+          isToggling.value = false
+        }, 300)
+      }
+    }
+    
+    // 监听主题变化，确保UI同步
+    watch(isDarkMode, (newValue) => {
+      console.log('[ThemeToggle] Theme state changed:', newValue)
+    }, { immediate: true })
     
     const getParticleStyle = (index) => {
       const angle = (index * 60) * Math.PI / 180
@@ -75,7 +126,9 @@ export default {
       isDarkMode,
       toggleTheme,
       themeColors,
-      getParticleStyle
+      getParticleStyle,
+      handleToggle,
+      isToggling
     }
   }
 }
@@ -104,6 +157,16 @@ export default {
     0 8px 20px rgba(0, 0, 0, 0.3),
     0 4px 12px var(--theme-glow-shadow),
     inset 0 2px 4px rgba(255, 255, 255, 0.2);
+}
+
+.theme-toggle-btn.toggling {
+  transform: perspective(400px) rotateX(10deg) scale(0.95);
+  opacity: 0.8;
+  pointer-events: none;
+}
+
+.theme-toggle-btn:disabled {
+  cursor: not-allowed;
 }
 
 .toggle-track {
