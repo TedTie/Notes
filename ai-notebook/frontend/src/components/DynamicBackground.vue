@@ -1,10 +1,23 @@
 <template>
   <div class="fixed inset-0 overflow-hidden pointer-events-none" style="z-index: 3;">
-    <!-- 动态效果层 - 只包含动画元素 -->
+    <!-- 动态效果层 - 多层滚动背景 -->
     <div class="absolute inset-0">
-      <!-- 动态网格 -->
-      <div class="absolute inset-0 opacity-20">
-        <div class="grid-pattern" :class="{ 'day-grid': !isDarkMode, 'night-grid': isDarkMode }"></div>
+      <!-- 多层网格背景 -->
+      <div class="absolute inset-0">
+        <!-- 主网格层 - 慢速右下滚动 -->
+        <div class="absolute inset-0 opacity-15">
+          <div class="grid-layer-1" :class="{ 'day-grid-main': !isDarkMode, 'night-grid-main': isDarkMode }"></div>
+        </div>
+        
+        <!-- 次网格层 - 中速左上滚动 -->
+        <div class="absolute inset-0 opacity-10">
+          <div class="grid-layer-2" :class="{ 'day-grid-secondary': !isDarkMode, 'night-grid-secondary': isDarkMode }"></div>
+        </div>
+        
+        <!-- 细网格层 - 快速垂直滚动 -->
+        <div class="absolute inset-0 opacity-8">
+          <div class="grid-layer-3" :class="{ 'day-grid-fine': !isDarkMode, 'night-grid-fine': isDarkMode }"></div>
+        </div>
       </div>
       
       <!-- 浮动粒子 -->
@@ -13,7 +26,14 @@
           v-for="particle in particles" 
           :key="particle.id"
           class="particle"
-          :class="{ 'day-particle': !isDarkMode, 'night-particle': isDarkMode }"
+          :class="{ 
+            'day-particle': !isDarkMode, 
+            'night-particle': isDarkMode,
+            'motion-right-up': particle.motionType === 0,
+            'motion-left-up': particle.motionType === 1,
+            'motion-vertical': particle.motionType === 2,
+            'motion-diagonal': particle.motionType === 3
+          }"
           :style="{
             left: particle.x + '%',
             top: particle.y + '%',
@@ -207,14 +227,39 @@ const dataStreams = ref<DataStream[]>([])
 const vehicles = ref<Vehicle[]>([])
 
 const generateParticles = () => {
-  const particleCount = 15 // 从50减少到15以提升性能
-  particles.value = Array.from({ length: particleCount }, (_, i) => ({
-    id: i,
-    x: Math.random() * 100,
-    y: Math.random() * 100,
-    delay: Math.random() * 5,
-    duration: 3 + Math.random() * 4
-  }))
+  const particleCount = 12 // 适度减少数量，但增加多样性
+  particles.value = Array.from({ length: particleCount }, (_, i) => {
+    // 创建不同类型的粒子运动模式
+    const motionType = Math.floor(Math.random() * 4)
+    let x, y, delay, duration
+    
+    switch(motionType) {
+      case 0: // 从左侧进入，向右上飘动
+        x = -5 + Math.random() * 10
+        y = 50 + Math.random() * 40
+        break
+      case 1: // 从右侧进入，向左上飘动  
+        x = 95 + Math.random() * 10
+        y = 60 + Math.random() * 30
+        break
+      case 2: // 从底部进入，垂直上升
+        x = Math.random() * 100
+        y = 95 + Math.random() * 10
+        break
+      default: // 随机位置，对角线飘动
+        x = Math.random() * 100
+        y = Math.random() * 100
+    }
+    
+    return {
+      id: i,
+      x,
+      y,
+      delay: Math.random() * 8, // 增加延迟范围
+      duration: 4 + Math.random() * 6, // 增加持续时间范围
+      motionType // 添加运动类型标识
+    }
+  })
 }
 
 const generateDigitalRain = () => {
@@ -316,27 +361,76 @@ onMounted(() => {
 <style scoped>
 /* 动态效果样式 */
 
-/* 网格图案 */
-.grid-pattern {
-  background-size: 50px 50px;
-  animation: grid-move 30s linear infinite; /* 调整为30秒，平衡性能和视觉效果 */
+/* 多层网格图案 */
+
+/* 主网格层 - 大网格，慢速右下滚动 */
+.grid-layer-1 {
+  background-size: 80px 80px;
+  animation: grid-move-main 45s linear infinite;
 }
 
-.day-grid {
+.day-grid-main {
   background-image: 
-    linear-gradient(rgba(0, 229, 255, 0.15) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0, 229, 255, 0.15) 1px, transparent 1px);
+    linear-gradient(rgba(0, 150, 255, 0.25) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 150, 255, 0.25) 1px, transparent 1px);
 }
 
-.night-grid {
+.night-grid-main {
   background-image: 
-    linear-gradient(rgba(139, 92, 246, 0.1) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(139, 92, 246, 0.1) 1px, transparent 1px);
+    linear-gradient(rgba(147, 51, 234, 0.2) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(147, 51, 234, 0.2) 1px, transparent 1px);
 }
 
-@keyframes grid-move {
+/* 次网格层 - 中等网格，中速左上滚动 */
+.grid-layer-2 {
+  background-size: 40px 40px;
+  animation: grid-move-secondary 25s linear infinite;
+}
+
+.day-grid-secondary {
+  background-image: 
+    linear-gradient(rgba(34, 197, 94, 0.15) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(34, 197, 94, 0.15) 1px, transparent 1px);
+}
+
+.night-grid-secondary {
+  background-image: 
+    linear-gradient(rgba(236, 72, 153, 0.12) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(236, 72, 153, 0.12) 1px, transparent 1px);
+}
+
+/* 细网格层 - 小网格，快速垂直滚动 */
+.grid-layer-3 {
+  background-size: 20px 20px;
+  animation: grid-move-fine 15s linear infinite;
+}
+
+.day-grid-fine {
+  background-image: 
+    linear-gradient(rgba(251, 191, 36, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(251, 191, 36, 0.1) 1px, transparent 1px);
+}
+
+.night-grid-fine {
+  background-image: 
+    linear-gradient(rgba(168, 85, 247, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(168, 85, 247, 0.08) 1px, transparent 1px);
+}
+
+/* 不同方向的滚动动画 */
+@keyframes grid-move-main {
   0% { transform: translate(0, 0); }
-  100% { transform: translate(50px, 50px); }
+  100% { transform: translate(80px, 80px); }
+}
+
+@keyframes grid-move-secondary {
+  0% { transform: translate(0, 0); }
+  100% { transform: translate(-40px, -40px); }
+}
+
+@keyframes grid-move-fine {
+  0% { transform: translate(0, 0); }
+  100% { transform: translate(0, -20px); }
 }
 
 /* 粒子动画 */
@@ -353,14 +447,31 @@ onMounted(() => {
   animation: float infinite ease-in-out;
 }
 
+/* 不同运动类型的粒子动画 */
+.particle.motion-right-up {
+  animation-name: float-right-up;
+}
+
+.particle.motion-left-up {
+  animation-name: float-left-up;
+}
+
+.particle.motion-vertical {
+  animation-name: float-vertical;
+}
+
+.particle.motion-diagonal {
+  animation-name: float-diagonal;
+}
+
 .day-particle {
-  background: linear-gradient(45deg, #00e5ff, #4dd0e1);
-  box-shadow: 0 0 8px rgba(0, 229, 255, 0.6);
+  background: linear-gradient(45deg, #0ea5e9, #22d3ee);
+  box-shadow: 0 0 10px rgba(14, 165, 233, 0.7);
 }
 
 .night-particle {
-  background: linear-gradient(45deg, #8b5cf6, #bb86fc);
-  box-shadow: 0 0 6px rgba(139, 92, 246, 0.8);
+  background: linear-gradient(45deg, #a855f7, #ec4899);
+  box-shadow: 0 0 8px rgba(168, 85, 247, 0.9);
 }
 
 @keyframes float {
@@ -380,6 +491,75 @@ onMounted(() => {
   }
 }
 
+/* 多样化粒子动画 */
+@keyframes float-right-up {
+  0% {
+    transform: translate(0px, 0px);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.8;
+  }
+  90% {
+    opacity: 0.4;
+  }
+  100% {
+    transform: translate(120vw, -80vh);
+    opacity: 0;
+  }
+}
+
+@keyframes float-left-up {
+  0% {
+    transform: translate(0px, 0px);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.8;
+  }
+  90% {
+    opacity: 0.4;
+  }
+  100% {
+    transform: translate(-120vw, -80vh);
+    opacity: 0;
+  }
+}
+
+@keyframes float-vertical {
+  0% {
+    transform: translateY(0px);
+    opacity: 0;
+  }
+  15% {
+    opacity: 0.9;
+  }
+  85% {
+    opacity: 0.5;
+  }
+  100% {
+    transform: translateY(-120vh);
+    opacity: 0;
+  }
+}
+
+@keyframes float-diagonal {
+  0% {
+    transform: translate(0px, 0px) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.7;
+  }
+  90% {
+    opacity: 0.3;
+  }
+  100% {
+    transform: translate(80vw, -100vh) rotate(360deg);
+    opacity: 0;
+  }
+}
+
 /* 光束效果 */
 .light-beams {
   position: absolute;
@@ -394,11 +574,11 @@ onMounted(() => {
 }
 
 .day-beam {
-  background: linear-gradient(90deg, transparent, rgba(0, 229, 255, 0.4), transparent);
+  background: linear-gradient(90deg, transparent, rgba(14, 165, 233, 0.5), transparent);
 }
 
 .night-beam {
-  background: linear-gradient(90deg, transparent, rgba(139, 92, 246, 0.3), transparent);
+  background: linear-gradient(90deg, transparent, rgba(168, 85, 247, 0.4), transparent);
 }
 
 .beam-1 {
