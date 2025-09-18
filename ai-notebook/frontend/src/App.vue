@@ -22,6 +22,7 @@ import languageService from './services/languageService'
 import { useTheme } from './composables/useTheme'
 import { settingsService as supabaseSettingsService, fileService } from './services/supabaseService'
 import { PERFORMANCE_CONFIG } from './config/performance.js'
+import apiStatusService from './services/apiStatusService'
 // 主题初始化已在main.ts中处理
 // 移除了API_CONFIG相关代码
 
@@ -126,6 +127,12 @@ onMounted(async () => {
     
     // 初始化设置服务
     await settingsService.loadSettings()
+
+    // 初始化API状态监控服务
+    console.log('[APP] Initializing API status monitoring...')
+    await apiStatusService.checkSupabaseConnection()
+    apiStatusService.startPeriodicCheck(5) // 每5分钟检查一次
+    console.log('[APP] API status monitoring initialized')
     
     // 加载并应用当前背景设置
     await loadCurrentBackground()
@@ -401,6 +408,10 @@ const clearBackground = () => {
 
 // 组件卸载时清理
 onUnmounted(() => {
+  // 停止API状态监控
+  console.log('[APP] Stopping API status monitoring...')
+  apiStatusService.stopPeriodicCheck()
+
   if (window.appCleanupFunctions) {
     const { cleanupNotifications, removeLanguageListener, handleApplyBackground, handleClearBackground } = window.appCleanupFunctions
     if (cleanupNotifications) cleanupNotifications()

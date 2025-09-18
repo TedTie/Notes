@@ -16,10 +16,11 @@ const loadThemeCSS = (theme) => {
     existingThemeLink.remove()
   }
   
-  // 创建新的主题CSS链接
+  // 创建新的主题CSS链接 - 修复路径问题
   const link = document.createElement('link')
   link.rel = 'stylesheet'
-  link.href = `/src/styles/theme-${theme}.css`
+  // 使用相对路径，适应生产环境
+  link.href = `./src/styles/theme-${theme}.css`
   link.setAttribute('data-theme-css', theme)
   
   // 添加到head中

@@ -177,7 +177,7 @@ class AIService {
   // 获取所有话题
   async getTopics() {
     try {
-      const topics = await supabaseService.topicsService.getAllTopics();
+      const topics = await supabaseService.topics.getAllTopics();
       return {
         success: true,
         topics: topics

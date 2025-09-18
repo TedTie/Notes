@@ -14,6 +14,24 @@ let ctx = null
 let animationId = null
 let particles = []
 
+// 辅助函数：将十六进制颜色转换为RGB
+const hexToRgb = (hex) => {
+  // 移除 # 前缀
+  hex = hex.replace('#', '')
+
+  // 处理3位和6位十六进制颜色
+  if (hex.length === 3) {
+    hex = hex.split('').map(char => char + char).join('')
+  }
+
+  // 提取RGB值
+  const r = parseInt(hex.substring(0, 2), 16)
+  const g = parseInt(hex.substring(2, 4), 16)
+  const b = parseInt(hex.substring(4, 6), 16)
+
+  return { r, g, b }
+}
+
 class Particle {
   constructor(x, y) {
     this.x = x
@@ -45,22 +63,27 @@ class Particle {
     const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--theme-primary').trim()
     const secondaryColor = getComputedStyle(document.documentElement).getPropertyValue('--theme-secondary').trim()
     
-    const color = isDarkMode.value 
-      ? `${primaryColor}${Math.round(this.opacity * 255).toString(16).padStart(2, '0')}` // 主题主色
-      : `${secondaryColor}${Math.round(this.opacity * 255).toString(16).padStart(2, '0')}` // 主题次色
+    // 修复颜色格式 - 确保是有效的RGBA格式
+    const opacityHex = Math.round(this.opacity * 255).toString(16).padStart(2, '0')
+    const color = isDarkMode.value
+      ? `${primaryColor}${opacityHex}` // 主题主色 + 透明度
+      : `${secondaryColor}${opacityHex}` // 主题次色 + 透明度
     
     ctx.fillStyle = color
     ctx.beginPath()
     ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2)
     ctx.fill()
     
-    // 添加光晕效果
+    // 添加光晕效果 - 修复颜色格式
     const gradient = ctx.createRadialGradient(
       this.x, this.y, 0,
       this.x, this.y, this.size * 3
     )
-    gradient.addColorStop(0, color)
-    gradient.addColorStop(1, 'transparent')
+
+    // 确保颜色格式正确 - 转换为RGB格式
+    const rgbColor = hexToRgb(color)
+    gradient.addColorStop(0, `rgba(${rgbColor.r}, ${rgbColor.g}, ${rgbColor.b}, ${this.opacity})`)
+    gradient.addColorStop(1, `rgba(${rgbColor.r}, ${rgbColor.g}, ${rgbColor.b}, 0)`)
     
     ctx.fillStyle = gradient
     ctx.beginPath()
@@ -143,12 +166,14 @@ const drawConnections = () => {
         
         const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--theme-primary').trim()
         const secondaryColor = getComputedStyle(document.documentElement).getPropertyValue('--theme-secondary').trim()
-        
+
+        // 修复连接线颜色格式
+        const lineColor = isDarkMode.value ? primaryColor : secondaryColor
+        const rgbLineColor = hexToRgb(lineColor)
+
         ctx.save()
         ctx.globalAlpha = opacity
-        ctx.strokeStyle = isDarkMode.value 
-          ? `${primaryColor}4D` // 30% opacity
-          : `${secondaryColor}4D` // 30% opacity
+        ctx.strokeStyle = `rgba(${rgbLineColor.r}, ${rgbLineColor.g}, ${rgbLineColor.b}, ${opacity})`
         ctx.lineWidth = 1
         ctx.beginPath()
         ctx.moveTo(particles[i].x, particles[i].y)

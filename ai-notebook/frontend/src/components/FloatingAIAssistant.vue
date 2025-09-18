@@ -371,6 +371,7 @@ import { ref, reactive, onMounted, onUnmounted, nextTick } from 'vue'
 import aiService from '../services/aiService'
 import AIAssistantPage from './AIAssistantPage.vue'
 import TimeUtils from '../utils/timeUtils'
+import apiStatusService from '../services/apiStatusService'
 
 interface Message {
   role: 'user' | 'assistant'
@@ -435,15 +436,25 @@ const availableModels = [
 // 获取当前可用的模型（基于已连接的API）
 const getAvailableModels = async () => {
   try {
-    // TODO: 使用Supabase服务获取设置
-    // const settings = await settingsService.getAllSettings()
-    // 暂时返回所有可用模型
-    console.log('TODO: 实现Supabase设置服务获取API连接状态')
+    // 检查API连接状态
+    const apiStatus = await apiStatusService.checkSupabaseConnection()
+    const statusIndicator = apiStatusService.getConnectionIndicator()
+
+    console.log(`[API STATUS] Connection status: ${statusIndicator.status}`)
+    console.log(`[API STATUS] ${statusIndicator.message}`)
+
+    if (!apiStatus) {
+      console.warn('[API STATUS] Supabase connection failed, using cached models')
+      // 可以在这里显示状态通知
+      apiStatusService.showStatusNotification()
+    }
+
+    // 返回所有可用模型（无论连接状态如何）
     return availableModels
   } catch (error) {
     console.error('获取可用模型失败:', error)
+    return availableModels
   }
-  return availableModels
 }
 
 // 响应式的可用模型列表
