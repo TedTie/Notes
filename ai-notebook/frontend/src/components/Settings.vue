@@ -1932,9 +1932,13 @@ onUnmounted(() => {
             </div>
             <div class="flex items-center space-x-4 p-4 bg-cyber-dark/30 rounded-xl">
               <div class="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
-              <div>
+              <div v-if="settings.apiProviders[settings.currentProvider]">
                 <div class="futuristic-title">{{ settings.apiProviders[settings.currentProvider].name }}</div>
                 <div class="futuristic-subtitle">{{ languageService.t('model_colon', { model: settings.apiProviders[settings.currentProvider].selectedModel }) }}</div>
+              </div>
+              <div v-else>
+                <div class="futuristic-title">{{ languageService.t('no_ai_configured') || '未配置AI' }}</div>
+                <div class="futuristic-subtitle">{{ languageService.t('please_configure_ai') || '请先配置AI服务' }}</div>
               </div>
             </div>
           </div>
