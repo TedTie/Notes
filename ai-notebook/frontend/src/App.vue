@@ -613,9 +613,9 @@ const getPageDescription = computed(() => {
     <main class="relative z-20 min-h-screen main-content" :key="forceUpdateKey" style="pointer-events: none;">
       <TracingBeam style="pointer-events: none;">
         <!-- 内容容器 -->
-        <div class="container mx-auto px-6 py-8 content-container" style="pointer-events: auto;">
+        <div class="container mx-auto px-6 py-8 content-container" style="pointer-events: none;">
           <!-- 页面标题 -->
-          <div class="mb-8 text-left page-header">
+          <div class="mb-8 text-left page-header" style="pointer-events: auto;">
             <h1 class="futuristic-title-large mb-2 page-title">
               {{ getPageTitle }}
             </h1>
@@ -625,7 +625,7 @@ const getPageDescription = computed(() => {
           </div>
           
           <!-- 内容区域 -->
-          <div class="max-w-7xl mx-auto content-wrapper" style="pointer-events: none;">
+          <div class="max-w-7xl mx-auto content-wrapper" style="pointer-events: auto;">
             <Transition name="page" mode="out-in">
               <div :key="`${currentView}-${forceUpdateKey}`" class="min-h-[600px]" style="pointer-events: auto;">
                 <NoteEditor v-if="currentView === 'notes'" />
