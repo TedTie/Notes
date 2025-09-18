@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SimpleLoading 演示</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f0f0f0;
+        }
+        .demo-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .button {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .button:hover {
+            background: #2980b9;
+        }
+        .code-block {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 10px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            overflow-x: auto;
+        }
+        .section {
+            margin: 20px 0;
+            padding: 15px;
+            border-left: 4px solid #3498db;
+            background: #f8f9fa;
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <h1>SimpleLoading 组件演示</h1>
+        
+        <div class="section">
+            <h2>🎯 组件特点</h2>
+            <ul>
+                <li>✅ 完全独立，不依赖任何主题配置</li>
+                <li>✅ 简单易用，零配置即可使用</li>
+                <li>✅ 响应式设计，支持移动端</li>
+                <li>✅ 可自定义文本和进度</li>
+                <li>✅ 平滑动画效果</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>🚀 快速使用</h2>
+            <p>在浏览器控制台中运行以下命令：</p>
+            
+            <h3>显示加载页面：</h3>
+            <div class="code-block">
+window.showSimpleLoading()
+            </div>
+            <button class="button" onclick="showLoading()">点击显示加载页面</button>
+            
+            <h3>隐藏加载页面：</h3>
+            <div class="code-block">
+window.hideSimpleLoading()
+            </div>
+            <button class="button" onclick="hideLoading()">点击隐藏加载页面</button>
+        </div>
+
+        <div class="section">
+            <h2>📝 组件使用方法</h2>
+            <p>在Vue组件中使用：</p>
+            <div class="code-block">
+&lt;template&gt;
+  &lt;SimpleLoading 
+    :visible="showLoading"
+    text="正在加载数据..."
+    :show-progress="true"
+    :progress="loadingProgress"
+    @loaded="handleLoadingComplete"
+  /&gt;
+&lt;/template&gt;
+
+&lt;script setup&gt;
+import SimpleLoading from './components/SimpleLoading.vue'
+import { ref } from 'vue'
+
+const showLoading = ref(false)
+const loadingProgress = ref(0)
+
+const handleLoadingComplete = () => {
+  showLoading.value = false
+}
+
+// 显示加载
+const startLoading = () => {
+  showLoading.value = true
+}
+&lt;/script&gt;
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>⚙️ 组件属性</h2>
+            <table style="width: 100%; border-collapse: collapse;">
+                <tr style="background: #e9ecef;">
+                    <th style="padding: 8px; border: 1px solid #ddd;">属性名</th>
+                    <th style="padding: 8px; border: 1px solid #ddd;">类型</th>
+                    <th style="padding: 8px; border: 1px solid #ddd;">默认值</th>
+                    <th style="padding: 8px; border: 1px solid #ddd;">说明</th>
+                </tr>
+                <tr>
+                    <td style="padding: 8px; border: 1px solid #ddd;">visible</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">Boolean</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">true</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">是否显示加载页面</td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px; border: 1px solid #ddd;">text</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">String</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">'加载中...'</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">加载提示文本</td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px; border: 1px solid #ddd;">showProgress</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">Boolean</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">false</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">是否显示进度条</td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px; border: 1px solid #ddd;">progress</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">Number</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">0</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">加载进度 (0-100)</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="section">
+            <h2>🎨 自定义样式</h2>
+            <p>组件使用了独立的CSS样式，不会受到主题变化影响。如需自定义样式，可以修改 SimpleLoading.vue 文件中的样式部分。</p>
+        </div>
+
+        <div class="section">
+            <h2>💡 使用场景</h2>
+            <ul>
+                <li>页面初始化加载</li>
+                <li>数据请求等待</li>
+                <li>文件上传进度</li>
+                <li>表单提交处理</li>
+                <li>路由切换过渡</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        function showLoading() {
+            if (window.showSimpleLoading) {
+                window.showSimpleLoading();
+                console.log('显示加载页面');
+            } else {
+                alert('请先打开主应用页面 (http://localhost:5173)');
+            }
+        }
+        
+        function hideLoading() {
+            if (window.hideSimpleLoading) {
+                window.hideSimpleLoading();
+                console.log('隐藏加载页面');
+            } else {
+                alert('请先打开主应用页面 (http://localhost:5173)');
+            }
+        }
+        
+        // 检查主应用是否已加载
+        function checkMainApp() {
+            if (window.showSimpleLoading && window.hideSimpleLoading) {
+                document.querySelector('.demo-container').style.borderTop = '4px solid #2ecc71';
+                console.log('✅ 主应用已连接，可以使用控制函数');
+            } else {
+                document.querySelector('.demo-container').style.borderTop = '4px solid #e74c3c';
+                console.log('❌ 主应用未连接，请先打开 http://localhost:5173');
+            }
+        }
+        
+        // 每秒检查一次连接状态
+        setInterval(checkMainApp, 1000);
+        checkMainApp();
+    </script>
+</body>
+</html>

@@ -16,6 +16,8 @@ import TracingBeam from './components/TracingBeam.vue'
 
 import StaticBackground from './components/StaticBackground.vue'
 import PreloadManager from './components/PreloadManager.vue'
+import SimpleLoading from './components/SimpleLoading.vue'
+import SplashScreen from './components/SplashScreen.vue'
 import BackgroundRippleEffect from './components/BackgroundRippleEffect.vue'
 import settingsService from './services/settingsService'
 import languageService from './services/languageService'
@@ -28,6 +30,8 @@ import apiStatusService from './services/apiStatusService'
 
 const currentView = ref('notes')
 const isLoading = ref(false)
+const showSimpleLoading = ref(false)
+const showSplashScreen = ref(true)
 const selectedTask = ref(null)
 
 const currentTheme = computed(() => settingsService.settings.theme || 'dark')
@@ -169,6 +173,7 @@ onMounted(async () => {
     
     const removeLanguageListener = languageService.addListener(handleLanguageChange)
     
+    // 应用初始化完成后隐藏加载页面
     setTimeout(() => {
       isLoading.value = false
     }, 2000)
@@ -180,6 +185,10 @@ onMounted(async () => {
       handleApplyBackground,
       handleClearBackground
     }
+    
+    // 暴露SimpleLoading控制函数到全局
+    window.showSimpleLoading = showSimpleLoadingPage
+    window.hideSimpleLoading = hideSimpleLoadingPage
   } catch (error) {
     console.error('应用初始化失败:', error)
     isLoading.value = false
@@ -454,6 +463,28 @@ const handlePreloadError = (error: Error) => {
   }, 1000)
 }
 
+// 启动页面完成处理
+const handleSplashComplete = () => {
+  console.log('启动页面完成，进入主应用')
+  showSplashScreen.value = false
+}
+
+// 简单加载完成处理
+const handleSimpleLoadingComplete = () => {
+  console.log('简单加载完成')
+  showSimpleLoading.value = false
+}
+
+// 显示简单加载
+const showSimpleLoadingPage = () => {
+  showSimpleLoading.value = true
+}
+
+// 隐藏简单加载
+const hideSimpleLoadingPage = () => {
+  showSimpleLoading.value = false
+}
+
 // 响应式语言状态
 const currentLanguage = ref(languageService.getLanguage())
 
@@ -505,6 +536,22 @@ const getPageDescription = computed(() => {
 </script>
 
 <template>
+  <!-- 启动页面 -->
+  <SplashScreen 
+    v-if="showSplashScreen"
+    :visible="showSplashScreen"
+    :duration="3000"
+    @complete="handleSplashComplete"
+  />
+  
+  <!-- 简单加载页面 -->
+  <SimpleLoading 
+    v-if="showSimpleLoading"
+    :visible="showSimpleLoading"
+    text="加载中..."
+    @loaded="handleSimpleLoadingComplete"
+  />
+  
   <!-- 预加载管理器 -->
   <PreloadManager 
     v-if="isLoading" 
