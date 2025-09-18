@@ -16,17 +16,27 @@ const loadThemeCSS = (theme) => {
     existingThemeLink.remove()
   }
   
-  // 创建新的主题CSS链接 - 修复路径问题
-  const link = document.createElement('link')
-  link.rel = 'stylesheet'
-  // 使用public目录路径，适应生产环境
-  link.href = `/theme-${theme}.css`
-  link.setAttribute('data-theme-css', theme)
+  // 移除之前的涟漪CSS
+  const existingRippleLink = document.querySelector('link[data-ripple-css]')
+  if (existingRippleLink) {
+    existingRippleLink.remove()
+  }
   
-  // 添加到head中
-  document.head.appendChild(link)
+  // 创建新的主题CSS链接
+  const themeLink = document.createElement('link')
+  themeLink.rel = 'stylesheet'
+  themeLink.href = `/theme-${theme}.css`
+  themeLink.setAttribute('data-theme-css', theme)
+  document.head.appendChild(themeLink)
   
-  console.log(`[THEME] Loaded CSS file: theme-${theme}.css`)
+  // 创建新的涟漪CSS链接
+  const rippleLink = document.createElement('link')
+  rippleLink.rel = 'stylesheet'
+  rippleLink.href = `/ripple-${theme}.css`
+  rippleLink.setAttribute('data-ripple-css', theme)
+  document.head.appendChild(rippleLink)
+  
+  console.log(`[THEME] Loaded CSS files: theme-${theme}.css and ripple-${theme}.css`)
 }
 
 // 简化的主题应用函数 - 动态加载CSS文件

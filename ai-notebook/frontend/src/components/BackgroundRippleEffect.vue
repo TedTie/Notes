@@ -1,7 +1,7 @@
 <template>
   <div 
     class="background-ripple-container"
-    :class="{ 'dark-theme': isDark, 'light-theme': !isDark }"
+    :class="{ 'theme-dark': isDark, 'theme-light': !isDark }"
   >
     <div 
       class="ripple-grid"
@@ -43,7 +43,7 @@ const props = defineProps({
   },
   cellSize: {
     type: Number,
-    default: 56
+    default: 80
   },
   interactive: {
     type: Boolean,
@@ -57,8 +57,8 @@ const calculateGridSize = () => {
   const screenHeight = window.innerHeight
   
   // 计算需要的列数和行数，确保覆盖全屏
-  const calculatedCols = Math.ceil(screenWidth / props.cellSize) + 2 // 额外2列确保覆盖
-  const calculatedRows = Math.ceil(screenHeight / props.cellSize) + 2 // 额外2行确保覆盖
+  const calculatedCols = Math.ceil(screenWidth / props.cellSize) + 1 // 减少额外列数
+  const calculatedRows = Math.ceil(screenHeight / props.cellSize) + 1 // 减少额外行数
   
   return {
     cols: Math.max(calculatedCols, props.cols),
@@ -90,40 +90,74 @@ const initializeGrid = () => {
   }
 }
 
+// 防抖变量和动画优化
+let hoverTimeout = null
+let animationFrame = null
+const pendingUpdates = new Set()
+
+// 批量更新DOM，使用requestAnimationFrame优化
+const batchUpdateCells = () => {
+  if (animationFrame) return
+  
+  animationFrame = requestAnimationFrame(() => {
+    // 批量处理所有待更新的单元格
+    pendingUpdates.forEach(cellIndex => {
+      if (cells.value[cellIndex]) {
+        // 触发响应式更新
+        cells.value[cellIndex] = { ...cells.value[cellIndex] }
+      }
+    })
+    pendingUpdates.clear()
+    animationFrame = null
+  })
+}
+
 // 处理点击事件
 const handleCellClick = (row, col) => {
   if (!props.interactive) return
   triggerRipple(row, col, 3) // 点击时更大的涟漪范围
 }
 
-// 处理悬停事件
+// 处理悬停事件（添加防抖）
 const handleCellHover = (row, col) => {
   if (!props.interactive) return
-  triggerRipple(row, col, 2) // 悬停时较小的涟漪范围
+  
+  // 清除之前的悬停定时器
+  if (hoverTimeout) {
+    clearTimeout(hoverTimeout)
+  }
+  
+  // 设置新的悬停定时器，减少频繁触发
+  hoverTimeout = setTimeout(() => {
+    triggerRipple(row, col, 2) // 悬停时较小的涟漪范围
+  }, 100) // 增加防抖延迟到100ms
 }
 
-// 触发涟漪效果
+// 触发涟漪效果（优化算法）
 const triggerRipple = (centerRow, centerCol, radius = 2) => {
   const affectedCells = []
+  const radiusSquared = radius * radius // 避免重复计算平方根
   
   // 计算受影响的单元格
   for (let row = Math.max(0, centerRow - radius); row <= Math.min(gridSize.value.rows - 1, centerRow + radius); row++) {
     for (let col = Math.max(0, centerCol - radius); col <= Math.min(gridSize.value.cols - 1, centerCol + radius); col++) {
-      const distance = Math.sqrt(Math.pow(row - centerRow, 2) + Math.pow(col - centerCol, 2))
-      if (distance <= radius) {
+      const distanceSquared = Math.pow(row - centerRow, 2) + Math.pow(col - centerCol, 2)
+      if (distanceSquared <= radiusSquared) {
         const cellIndex = row * gridSize.value.cols + col
-        const delay = distance * 50 // 延迟基于距离
+        const delay = Math.sqrt(distanceSquared) * 20 // 只在需要时计算平方根
         affectedCells.push({ index: cellIndex, delay })
       }
     }
   }
   
-  // 应用涟漪效果
+  // 应用涟漪效果（使用批量更新优化）
   affectedCells.forEach(({ index, delay }) => {
     setTimeout(() => {
       if (cells.value[index]) {
         cells.value[index].rippled = true
         cells.value[index].delay = delay
+        pendingUpdates.add(index) // 添加到待更新队列
+        batchUpdateCells() // 触发批量更新
         
         // 清除之前的超时
         const timeoutKey = `${cells.value[index].row}-${cells.value[index].col}`
@@ -135,9 +169,11 @@ const triggerRipple = (centerRow, centerCol, radius = 2) => {
         const timeout = setTimeout(() => {
           if (cells.value[index]) {
             cells.value[index].rippled = false
+            pendingUpdates.add(index) // 添加到待更新队列
+            batchUpdateCells() // 触发批量更新
           }
           rippleTimeouts.value.delete(timeoutKey)
-        }, 600)
+        }, 300) // 进一步减少持续时间
         
         rippleTimeouts.value.set(timeoutKey, timeout)
       }
@@ -156,10 +192,10 @@ const createRandomRipple = () => {
 let randomRippleInterval
 const startRandomRipples = () => {
   randomRippleInterval = setInterval(() => {
-    if (Math.random() < 0.3) { // 30% 概率
+    if (Math.random() < 0.15) { // 降低到15% 概率
       createRandomRipple()
     }
-  }, 2000)
+  }, 4000) // 增加间隔到4秒
 }
 
 onMounted(() => {
@@ -175,13 +211,20 @@ watch([() => props.rows, () => props.cols], () => {
   initializeGrid()
 })
 
-// 清理定时器
+// 清理定时器和动画帧
 const cleanup = () => {
   if (randomRippleInterval) {
     clearInterval(randomRippleInterval)
   }
+  if (hoverTimeout) {
+    clearTimeout(hoverTimeout)
+  }
+  if (animationFrame) {
+    cancelAnimationFrame(animationFrame)
+  }
   rippleTimeouts.value.forEach(timeout => clearTimeout(timeout))
   rippleTimeouts.value.clear()
+  pendingUpdates.clear()
 }
 
 // 组件卸载时清理
@@ -193,6 +236,10 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
+/* 引入涟漪主题样式 */
+@import url('/ripple-light.css');
+@import url('/ripple-dark.css');
+
 .background-ripple-container {
   position: fixed;
   top: 0;
@@ -200,7 +247,7 @@ onUnmounted(() => {
   width: 100vw;
   height: 100vh;
   pointer-events: none;
-  z-index: 4;
+  z-index: 1;
   overflow: hidden;
 }
 
@@ -211,8 +258,8 @@ onUnmounted(() => {
   gap: 0;
   width: 100%;
   height: 100%;
-  justify-content: center;
-  align-content: center;
+  justify-content: start;
+  align-content: start;
   min-width: 100vw;
   min-height: 100vh;
 }
@@ -226,105 +273,11 @@ onUnmounted(() => {
   pointer-events: auto;
   position: relative;
   overflow: hidden;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-/* 浅色主题样式 */
-.light-theme .ripple-cell {
-  background: rgba(34, 197, 94, 0.05); /* 更淡的半透明绿色 */
-  border: 1px solid rgba(59, 130, 246, 0.1); /* 更淡的半透明蓝色边框 */
-}
+/* 主题样式通过外部CSS文件加载 */
 
-.light-theme .ripple-cell:hover {
-  background: rgba(34, 197, 94, 0.15);
-  border-color: rgba(59, 130, 246, 0.25);
-  transform: scale(1.02);
-}
-
-.light-theme .ripple-cell.rippled {
-  background: linear-gradient(135deg, 
-    rgba(34, 197, 94, 0.25) 0%, 
-    rgba(59, 130, 246, 0.25) 100%);
-  border-color: rgba(59, 130, 246, 0.4);
-  transform: scale(1.05);
-  box-shadow: 0 0 15px rgba(34, 197, 94, 0.2);
-  animation: ripple-pulse-light 0.6s ease-out;
-}
-
-/* 深色主题样式 */
-.dark-theme .ripple-cell {
-  background: rgba(147, 51, 234, 0.08); /* 更淡的半透明紫色 */
-  border: 1px solid rgba(59, 130, 246, 0.15); /* 更淡的半透明蓝色边框 */
-}
-
-.dark-theme .ripple-cell:hover {
-  background: rgba(147, 51, 234, 0.18);
-  border-color: rgba(59, 130, 246, 0.3);
-  transform: scale(1.02);
-}
-
-.dark-theme .ripple-cell.rippled {
-  background: linear-gradient(135deg, 
-    rgba(147, 51, 234, 0.35) 0%, 
-    rgba(59, 130, 246, 0.35) 100%);
-  border-color: rgba(59, 130, 246, 0.5);
-  transform: scale(1.05);
-  box-shadow: 0 0 20px rgba(147, 51, 234, 0.3);
-  animation: ripple-pulse-dark 0.6s ease-out;
-}
-
-/* 动画效果 */
-@keyframes ripple-pulse-light {
-  0% {
-    opacity: 0.3;
-    transform: scale(0.9);
-  }
-  50% {
-    opacity: 0.8;
-    transform: scale(1.15);
-  }
-  100% {
-    opacity: 0.4;
-    transform: scale(1.1);
-  }
-}
-
-@keyframes ripple-pulse-dark {
-  0% {
-    opacity: 0.4;
-    transform: scale(0.9);
-  }
-  50% {
-    opacity: 0.9;
-    transform: scale(1.15);
-  }
-  100% {
-    opacity: 0.5;
-    transform: scale(1.1);
-  }
-}
-
-/* 响应式设计 */
-@media (max-width: 768px) {
-  .ripple-grid {
-    grid-template-columns: repeat(var(--cols), calc(var(--cell-size) * 0.7));
-    grid-template-rows: repeat(var(--rows), calc(var(--cell-size) * 0.7));
-  }
-  
-  .ripple-cell {
-    width: calc(var(--cell-size) * 0.7);
-    height: calc(var(--cell-size) * 0.7);
-  }
-}
-
-@media (max-width: 480px) {
-  .ripple-grid {
-    grid-template-columns: repeat(var(--cols), calc(var(--cell-size) * 0.5));
-    grid-template-rows: repeat(var(--rows), calc(var(--cell-size) * 0.5));
-  }
-  
-  .ripple-cell {
-    width: calc(var(--cell-size) * 0.5);
-    height: calc(var(--cell-size) * 0.5);
-  }
-}
+/* 响应式设计已移除，使用动态计算确保全屏覆盖 */
 </style>

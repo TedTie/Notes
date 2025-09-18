@@ -563,10 +563,10 @@ const getPageDescription = computed(() => {
     </div>
     
     <!-- 主内容区域 -->
-    <main class="relative z-20 min-h-screen main-content" :key="forceUpdateKey">
-      <TracingBeam>
+    <main class="relative z-20 min-h-screen main-content" :key="forceUpdateKey" style="pointer-events: none;">
+      <TracingBeam style="pointer-events: none;">
         <!-- 内容容器 -->
-        <div class="container mx-auto px-6 py-8 content-container">
+        <div class="container mx-auto px-6 py-8 content-container" style="pointer-events: auto;">
           <!-- 页面标题 -->
           <div class="mb-8 text-left page-header">
             <h1 class="futuristic-title-large mb-2 page-title">
@@ -578,9 +578,9 @@ const getPageDescription = computed(() => {
           </div>
           
           <!-- 内容区域 -->
-          <div class="max-w-7xl mx-auto content-wrapper">
+          <div class="max-w-7xl mx-auto content-wrapper" style="pointer-events: none;">
             <Transition name="page" mode="out-in">
-              <div :key="`${currentView}-${forceUpdateKey}`" class="min-h-[600px]">
+              <div :key="`${currentView}-${forceUpdateKey}`" class="min-h-[600px]" style="pointer-events: auto;">
                 <NoteEditor v-if="currentView === 'notes'" />
                 <TodoList v-else-if="currentView === 'todos'" @set-view="setCurrentView" @start-pomodoro="handleStartPomodoro" />
                 <ProjectView v-else-if="currentView === 'projects'" />
