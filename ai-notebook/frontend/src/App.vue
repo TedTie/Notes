@@ -539,11 +539,9 @@ const getPageDescription = computed(() => {
     <!-- 动态效果层 (z-index: 3) -->
     <DynamicBackground />
     
-    <!-- 背景涟漪效果层 (z-index: 2) -->
+    <!-- 背景涟漪效果层 (z-index: 4) -->
     <BackgroundRippleEffect 
-      :rows="20" 
-      :cols="35" 
-      :cell-size="50" 
+      :cell-size="40" 
       :interactive="true" 
     />
     

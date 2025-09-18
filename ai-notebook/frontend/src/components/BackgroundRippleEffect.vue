@@ -6,10 +6,12 @@
     <div 
       class="ripple-grid"
       :style="{
-        '--rows': rows,
-        '--cols': cols,
-        '--cell-size': cellSize + 'px'
-      }"
+          '--rows': gridSize.rows,
+          '--cols': gridSize.cols,
+          '--cell-size': props.cellSize + 'px',
+          gridTemplateColumns: `repeat(${gridSize.cols}, ${props.cellSize}px)`,
+          gridTemplateRows: `repeat(${gridSize.rows}, ${props.cellSize}px)`
+        }"
     >
       <div
         v-for="(cell, index) in cells"
@@ -49,15 +51,35 @@ const props = defineProps({
   }
 })
 
+// 计算动态网格尺寸以覆盖全屏
+const calculateGridSize = () => {
+  const screenWidth = window.innerWidth
+  const screenHeight = window.innerHeight
+  
+  // 计算需要的列数和行数，确保覆盖全屏
+  const calculatedCols = Math.ceil(screenWidth / props.cellSize) + 2 // 额外2列确保覆盖
+  const calculatedRows = Math.ceil(screenHeight / props.cellSize) + 2 // 额外2行确保覆盖
+  
+  return {
+    cols: Math.max(calculatedCols, props.cols),
+    rows: Math.max(calculatedRows, props.rows)
+  }
+}
+
+const gridSize = ref(calculateGridSize())
+
 const { isDark } = useTheme()
 const cells = ref([])
 const rippleTimeouts = ref(new Map())
 
 // 初始化网格
 const initializeGrid = () => {
+  // 重新计算网格尺寸
+  gridSize.value = calculateGridSize()
+  
   cells.value = []
-  for (let row = 0; row < props.rows; row++) {
-    for (let col = 0; col < props.cols; col++) {
+  for (let row = 0; row < gridSize.value.rows; row++) {
+    for (let col = 0; col < gridSize.value.cols; col++) {
       cells.value.push({
         row,
         col,
@@ -85,11 +107,11 @@ const triggerRipple = (centerRow, centerCol, radius = 2) => {
   const affectedCells = []
   
   // 计算受影响的单元格
-  for (let row = Math.max(0, centerRow - radius); row <= Math.min(props.rows - 1, centerRow + radius); row++) {
-    for (let col = Math.max(0, centerCol - radius); col <= Math.min(props.cols - 1, centerCol + radius); col++) {
+  for (let row = Math.max(0, centerRow - radius); row <= Math.min(gridSize.value.rows - 1, centerRow + radius); row++) {
+    for (let col = Math.max(0, centerCol - radius); col <= Math.min(gridSize.value.cols - 1, centerCol + radius); col++) {
       const distance = Math.sqrt(Math.pow(row - centerRow, 2) + Math.pow(col - centerCol, 2))
       if (distance <= radius) {
-        const cellIndex = row * props.cols + col
+        const cellIndex = row * gridSize.value.cols + col
         const delay = distance * 50 // 延迟基于距离
         affectedCells.push({ index: cellIndex, delay })
       }
@@ -125,8 +147,8 @@ const triggerRipple = (centerRow, centerCol, radius = 2) => {
 
 // 随机涟漪效果
 const createRandomRipple = () => {
-  const randomRow = Math.floor(Math.random() * props.rows)
-  const randomCol = Math.floor(Math.random() * props.cols)
+  const randomRow = Math.floor(Math.random() * gridSize.value.rows)
+  const randomCol = Math.floor(Math.random() * gridSize.value.cols)
   triggerRipple(randomRow, randomCol, 1)
 }
 
@@ -143,6 +165,9 @@ const startRandomRipples = () => {
 onMounted(() => {
   initializeGrid()
   startRandomRipples()
+  
+  // 监听窗口大小变化
+  window.addEventListener('resize', initializeGrid)
 })
 
 // 监听props变化重新初始化
@@ -163,32 +188,33 @@ const cleanup = () => {
 import { onUnmounted } from 'vue'
 onUnmounted(() => {
   cleanup()
+  window.removeEventListener('resize', initializeGrid)
 })
 </script>
 
 <style scoped>
 .background-ripple-container {
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
+  width: 100vw;
+  height: 100vh;
   pointer-events: none;
-  z-index: 2;
+  z-index: 4;
+  overflow: hidden;
 }
 
 .ripple-grid {
   display: grid;
   grid-template-columns: repeat(var(--cols), var(--cell-size));
   grid-template-rows: repeat(var(--rows), var(--cell-size));
-  gap: 2px;
-  width: 100vw;
-  height: 100vh;
+  gap: 0;
+  width: 100%;
+  height: 100%;
   justify-content: center;
   align-content: center;
-  min-width: 100%;
-  min-height: 100%;
+  min-width: 100vw;
+  min-height: 100vh;
 }
 
 .ripple-cell {
