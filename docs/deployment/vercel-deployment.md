@@ -40,12 +40,13 @@
    FLASK_ENV=production
    SECRET_KEY=your-secret-key-here
    DATABASE_URL=your-database-url
-   OPENROUTER_API_KEY=your-openrouter-api-key
    MOONSHOT_API_KEY=your-moonshot-api-key
    ENCRYPTION_KEY=your-encryption-key
    ENABLE_LOG_FILTERING=True
    ENABLE_RATE_LIMITING=True
    ```
+   
+   **注意**: OpenRouter API密钥请在应用的设置页面中配置，无需在环境变量中设置。
 
 5. **部署应用**
    - 点击 "Deploy" 开始部署
@@ -87,7 +88,6 @@
    FLASK_ENV=production
    SECRET_KEY=your-secret-key-here
    DATABASE_URL=your-database-url
-   OPENROUTER_API_KEY=your-openrouter-api-key
    MOONSHOT_API_KEY=your-moonshot-api-key
    ENCRYPTION_KEY=your-encryption-key
    ENABLE_LOG_FILTERING=True

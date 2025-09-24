@@ -106,10 +106,11 @@ app = create_app()
 
 ```
 FLASK_ENV=production
-OPENROUTER_API_KEY=your_openrouter_api_key
 MOONSHOT_API_KEY=your_moonshot_api_key
 DATABASE_URL=your_database_url
 ```
+
+**注意**: OpenRouter API密钥请在应用的设置页面中配置，无需在环境变量中设置。
 
 **注意**: 不要设置 `VITE_API_URL`，让前端使用相对路径连接同域名下的后端。
 
